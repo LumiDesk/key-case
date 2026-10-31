@@ -44,8 +44,8 @@ The app is built for Android and is intentionally offline. There is no sync serv
 | TOTP detail | Settings, grouped rows |
 | ![Settings dark](docs/screenshots/settings-dark.png) | ![Groups](docs/screenshots/groups.png) |
 | Dark mode | Group management |
-| ![Icon picker](docs/screenshots/icon-picker.png) | |
-| Icon picker | |
+| ![Icon picker](docs/screenshots/icon-picker.png) | ![Aegis import](docs/screenshots/aegis-import.png) |
+| Icon picker | Aegis TOTP import |
 
 ## Build
 
