@@ -23,6 +23,8 @@ The app is built for Android and is intentionally offline. There is no sync serv
 
 ## Documentation
 
+- [Agent guide](AGENTS.md)
+- [Design system](DESIGN.md)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
 - [Vault container format v1](docs/design/vault-format-v1.md)
