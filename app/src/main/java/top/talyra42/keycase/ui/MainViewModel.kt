@@ -19,6 +19,7 @@ import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultGroup
 import top.talyra42.keycase.core.model.VaultItem
+import top.talyra42.keycase.core.otp.GoogleMigrationParser
 import top.talyra42.keycase.core.vault.UnlockedVault
 import top.talyra42.keycase.core.vault.VaultContainer
 import top.talyra42.keycase.data.AndroidVaultStore
@@ -296,6 +297,48 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         upsertItem(item, "")
     }
 
+    fun importGoogleMigration(link: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(busy = true, error = null) }
+            try {
+                val parsed = GoogleMigrationParser.parse(link.trim())
+                val current = session ?: error("Vault is locked")
+                val now = Instant.now().toString()
+                val items = parsed.map { otp ->
+                    VaultItem(
+                        id = UUID.randomUUID().toString(),
+                        kind = ItemKind.TOTP,
+                        title = otp.issuer.ifBlank { otp.account }.ifBlank { "动态令牌" },
+                        issuer = otp.issuer,
+                        username = otp.account,
+                        totp = TotpSecret(
+                            type = otp.type,
+                            secret = otp.secret,
+                            algorithm = otp.algorithm,
+                            digits = otp.digits,
+                            period = otp.period,
+                            counter = otp.counter,
+                        ),
+                        createdAt = now,
+                        updatedAt = now,
+                    )
+                }
+                val next = current.withData(
+                    current.data.copy(items = current.data.items + items),
+                )
+                store.write(VaultContainer.seal(next))
+                session = next
+                _state.update {
+                    it.copy(data = next.data, busy = false, error = null)
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(busy = false, error = e.message ?: "Google Authenticator 导入失败")
+                }
+            }
+        }
+    }
+
     fun clearError() {
         _state.update { it.copy(error = null) }
     }
@@ -368,8 +411,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun importAegis(uri: Uri, password: String) {
-        val app = getApplication<Application>()
+    fun importAegis(uri: Uri, password: String) {        val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(busy = true, error = null) }
             val chars = password.toCharArray()

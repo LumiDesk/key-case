@@ -1,6 +1,7 @@
 package top.talyra42.keycase.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +19,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -71,7 +75,10 @@ fun TokenListScreen(
     data: VaultData,
     onOpenItem: (VaultItem) -> Unit,
     onScan: () -> Unit,
+    onImportGoogle: (String) -> Unit,
 ) {
+    var menuOpen by remember { mutableStateOf(false) }
+    var showGoogleImport by remember { mutableStateOf(false) }
     val items = data.items
         .filter { it.kind == ItemKind.TOTP || it.totp != null }
         .sortedBy { it.title.lowercase() }
@@ -111,6 +118,20 @@ fun TokenListScreen(
                 )
                 Spacer(Modifier.width(6.dp))
                 Text("扫码")
+            }
+            Box {
+                IconButton(onClick = { menuOpen = true }) {
+                    Icon(Icons.Outlined.MoreVert, contentDescription = "更多导入方式")
+                }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text("从 Google Authenticator 导入") },
+                        onClick = {
+                            menuOpen = false
+                            showGoogleImport = true
+                        },
+                    )
+                }
             }
         }
 
@@ -159,6 +180,67 @@ fun TokenListScreen(
             }
         }
     }
+
+    if (showGoogleImport) {
+        GoogleMigrationImportDialog(
+            onDismiss = { showGoogleImport = false },
+            onImport = { link ->
+                onImportGoogle(link)
+                showGoogleImport = false
+            },
+        )
+    }
+}
+
+@Composable
+private fun GoogleMigrationImportDialog(
+    onDismiss: () -> Unit,
+    onImport: (String) -> Unit,
+) {
+    var link by rememberSaveable { mutableStateOf("") }
+    var localError by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text("Google Authenticator 导入") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    "在 Google Authenticator 中选择“转移账号”并复制导出的 otpauth-migration 链接。链接只在本机解析。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                OutlinedTextField(
+                    value = link,
+                    onValueChange = { link = it },
+                    label = { Text("otpauth-migration:// 链接") },
+                    minLines = 3,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.small,
+                )
+                localError?.let {
+                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val trimmed = link.trim()
+                    if (!trimmed.startsWith("otpauth-migration://")) {
+                        localError = "请输入 otpauth-migration:// 链接"
+                    } else {
+                        onImport(trimmed)
+                    }
+                },
+            ) { Text("导入") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("取消") }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

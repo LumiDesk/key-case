@@ -96,7 +96,11 @@ private fun VaultRoot(
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
         if (!contents.isNullOrBlank()) {
-            route = Route.TokenEditor(itemId = null, initialUri = contents)
+            if (contents.startsWith("otpauth-migration://")) {
+                viewModel.importGoogleMigration(contents)
+            } else {
+                route = Route.TokenEditor(itemId = null, initialUri = contents)
+            }
         }
     }
 
@@ -282,6 +286,7 @@ private fun MainScaffold(
                     data = data,
                     onOpenItem = onOpenItem,
                     onScan = onScanToken,
+                    onImportGoogle = viewModel::importGoogleMigration,
                 )
                 else -> SettingsScreen(
                     data = data,
