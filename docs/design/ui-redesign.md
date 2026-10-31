@@ -38,7 +38,7 @@ Accent changes and light/dark switches animate every large surface with `animate
 - **List rows:** 34dp avatar, 14sp title, 11sp subtitle, 8dp vertical padding, hairline divider inset past the avatar.
 - **Token row:** monospace code in an accent capsule plus a small circular countdown ring.
 - **Token FAB:** expands two extended actions with fade/slide, rotates the plus into a close mark.
-- **Settings:** section label outside the card, compact 10dp rows inside, 1dp dividers inset past the icon. No non-clickable informational rows in 安全.
+- **Settings:** section label outside the card, compact 10dp rows inside, 1dp dividers inset past the icon. No non-clickable informational rows in 安全; trash and security center are real destinations.
 - **Theme selector:** Material 3 `SingleChoiceSegmentedButtonRow` / `SegmentedButton` with a check on the active mode.
 - **Custom accent:** HSV canvas (saturation/value board) + hue slider + live hex preview + restore-default, not a raw hex field.
 - **Bottom navigation:** surface-colored bar with a hairline divider; selected item uses accent icon/text and a subtle accent container indicator; tab content crossfades/slides.
