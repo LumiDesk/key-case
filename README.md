@@ -1,7 +1,7 @@
 # KeyCase
 
 **Local-first, offline Android password manager and TOTP authenticator.**
-No account, no cloud, **no `INTERNET` permission**.
+No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
 
 > Status: working release build. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme with animated transitions, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, and the B3 launcher icon are implemented and verified on an Android 37 emulator. UI copy follows the device language (Chinese/English).
 
@@ -17,7 +17,7 @@ The app is built for Android and is intentionally offline. There is no sync serv
 ## Principles
 
 - The vault is encrypted on the device; the master password never leaves it.
-- The app declares **no `INTERNET` permission**, so it cannot upload data.
+- The app has no cloud sync, accounts, analytics, or telemetry. `INTERNET` is declared only for the manual “Check for updates” button, which reads the public GitHub release feed.
 - Backups are encrypted snapshots written to a folder the user chooses, manually or automatically after each save, and can be imported back.
 - Data is portable: import/export the encrypted container, merge Aegis TOTP exports, and import Google Authenticator migration links.
 
@@ -62,7 +62,23 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat assembleDebug
 ```
 
-Tests:
+## Release
+
+Signed release builds are produced by GitHub Actions. The signing keystore lives in
+repository secrets (`KEYCASE_KEYSTORE_BASE64`, `KEYCASE_STORE_PASSWORD`,
+`KEYCASE_KEY_ALIAS`, `KEYCASE_KEY_PASSWORD`), never in the repository.
+
+Cut a release from `main` with one command:
+
+```powershell
+.\scripts\release.ps1 patch   # or minor / major
+```
+
+It bumps `versionCode`/`versionName`, commits the version, creates and pushes
+`vX.Y.Z`, and GitHub Actions builds, signs, and publishes the APK. Release notes
+contain only the compare link between the previous and current tag.
+
+## Tests
 
 ```powershell
 .\gradlew.bat :core:test :app:testDebugUnitTest

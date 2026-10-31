@@ -19,8 +19,27 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val storePath = System.getenv("KEYCASE_KEYSTORE_PATH")
+                ?: rootProject.file("signing/keycase-release.jks").absolutePath
+            val storePassword = System.getenv("KEYCASE_STORE_PASSWORD")
+            val keyAlias = System.getenv("KEYCASE_KEY_ALIAS")
+            val keyPassword = System.getenv("KEYCASE_KEY_PASSWORD")
+            if (file(storePath).isFile && !storePassword.isNullOrBlank() &&
+                !keyAlias.isNullOrBlank() && !keyPassword.isNullOrBlank()
+            ) {
+                storeFile = file(storePath)
+                this.storePassword = storePassword
+                this.keyAlias = keyAlias
+                this.keyPassword = keyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            signingConfig = signingConfigs.findByName("release")
             // R8 full mode currently breaks kotlin.collections on this toolchain.
             // Keep the non-debuggable release usable for performance testing.
             optimization {

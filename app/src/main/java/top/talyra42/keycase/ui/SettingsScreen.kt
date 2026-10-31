@@ -31,6 +31,7 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Palette
@@ -68,6 +69,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.data.AutoBackupManager
+import top.talyra42.keycase.data.UpdateChecker
 import top.talyra42.keycase.ui.icons.ImportedIconPack
 import top.talyra42.keycase.ui.theme.AccentNames
 import top.talyra42.keycase.ui.theme.AccentPalette
@@ -113,6 +115,14 @@ fun SettingsScreen(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri -> if (uri != null) pendingAegis = uri }
     val context = LocalContext.current
+    val versionName = remember(context) {
+        runCatching {
+            context.packageManager.getPackageInfo(context.packageName, 0).versionName
+        }.getOrNull() ?: "0.0.0"
+    }
+    var checkingUpdate by remember { mutableStateOf(false) }
+    var updateInfo by remember { mutableStateOf<UpdateChecker.Update?>(null) }
+    var updateError by remember { mutableStateOf(false) }
     val backupFolderLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocumentTree(),
     ) { uri ->
@@ -150,6 +160,18 @@ fun SettingsScreen(
     var showIconPreview by remember { mutableStateOf(false) }
     var showAutoLock by remember { mutableStateOf(false) }
     var showCodeGrouping by remember { mutableStateOf(false) }
+
+    fun checkUpdates() {
+        if (checkingUpdate) return
+        checkingUpdate = true
+        scope.launch {
+            val result = runCatching { UpdateChecker.check(versionName) }
+            checkingUpdate = false
+            result
+                .onSuccess { updateInfo = it }
+                .onFailure { updateError = true }
+        }
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -435,16 +457,73 @@ fun SettingsScreen(
                             fontWeight = FontWeight.Medium,
                         )
                         Text(
-                            text = "版本 0.1.0 · GPL-3.0-or-later",
+                            text = "版本 $versionName · GPL-3.0-or-later",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Refresh,
+                    title = "检查更新",
+                    subtitle = if (checkingUpdate) "正在检查…" else "当前版本 v$versionName",
+                    onClick = { checkUpdates() },
+                )
             }
         }
     }
 
+    updateInfo?.let { update ->
+        AlertDialog(
+            onDismissRequest = { updateInfo = null },
+            title = {
+                Text(if (update.available) "发现新版本" else "检查更新")
+            },
+            text = {
+                Text(
+                    if (update.available) {
+                        "新版本 v${update.latestVersion} 已发布，当前版本 v$versionName。"
+                    } else {
+                        "当前已是最新版本 v$versionName。"
+                    },
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (update.available) {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Intent.ACTION_VIEW, Uri.parse(update.releaseUrl)),
+                                )
+                            }
+                        }
+                        updateInfo = null
+                    },
+                ) {
+                    Text(if (update.available) "去更新" else "好")
+                }
+            },
+            dismissButton = if (update.available) {
+                {
+                    TextButton(onClick = { updateInfo = null }) { Text("稍后") }
+                }
+            } else {
+                null
+            },
+        )
+    }
+    if (updateError) {
+        AlertDialog(
+            onDismissRequest = { updateError = false },
+            title = { Text("检查更新失败") },
+            text = { Text("请检查网络连接后重试。") },
+            confirmButton = {
+                TextButton(onClick = { updateError = false }) { Text("好") }
+            },
+        )
+    }
     if (showPassword) {
         ChangeMasterPasswordDialog(
             onDismiss = { showPassword = false },

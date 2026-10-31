@@ -39,7 +39,8 @@ app/src/main/java/top/talyra42/keycase/
 **安全**
 - 不在日志/UI 中输出主密码、保险库密钥、TOTP secret
 - 生物识别密钥必须由 Android Keystore 保护
-- 不申请 `INTERNET` 权限（产品硬约束）
+- 网络仅允许用户主动触发的 GitHub Release 更新检查；不得加入遥测、同步或后台上传
+- 签名 keystore 只放在 GitHub Actions Secrets，禁止提交到仓库
 
 ## Build Commands
 
