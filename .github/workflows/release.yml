@@ -13,7 +13,7 @@ jobs:
     if: github.ref_name != 'v0.1.0'
     runs-on: ubuntu-latest
     env:
-      KEYCASE_KEYSTORE_PATH: ${{ runner.temp }}/keycase-release.jks
+      KEYCASE_KEYSTORE_PATH: ${{ github.workspace }}/.keycase-release.jks
       KEYCASE_STORE_PASSWORD: ${{ secrets.KEYCASE_STORE_PASSWORD }}
       KEYCASE_KEY_ALIAS: ${{ secrets.KEYCASE_KEY_ALIAS }}
       KEYCASE_KEY_PASSWORD: ${{ secrets.KEYCASE_KEY_PASSWORD }}
