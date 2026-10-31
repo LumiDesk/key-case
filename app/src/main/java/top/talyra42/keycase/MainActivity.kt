@@ -30,15 +30,16 @@ class MainActivity : FragmentActivity() {
 
     fun isBiometricAvailable(): Boolean = biometricVault.isAvailable()
 
-    fun isBiometricEnrolled(): Boolean = biometricVault.isEnrolled()
+    fun isBiometricEnrolled(vaultId: String? = null): Boolean =
+        biometricVault.isEnrolled(vaultId)
 
-    fun enableBiometric(onResult: (Boolean) -> Unit) {
+    fun enableBiometric(vaultId: String, onResult: (Boolean) -> Unit) {
         val vaultKey = viewModel.copyVaultKeyForBiometric()
         if (vaultKey == null) {
             onResult(false)
             return
         }
-        biometricVault.enable(this, vaultKey) { ok, message ->
+        biometricVault.enable(this, vaultId, vaultKey) { ok, message ->
             vaultKey.fill(0)
             if (!ok && !message.isNullOrBlank()) {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

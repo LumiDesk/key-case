@@ -89,8 +89,16 @@ fun KeyCaseApp(viewModel: MainViewModel) {
     val state by viewModel.state.collectAsState()
     val settings by viewModel.settings.collectAsState()
     val activity = LocalContext.current as? top.talyra42.keycase.MainActivity
-    var biometricEnrolled by remember { mutableStateOf(activity?.isBiometricEnrolled() == true) }
+    var biometricEnrolled by remember {
+        mutableStateOf(activity?.isBiometricEnrolled(state.data?.vaultId) == true)
+    }
     val biometricAvailable = activity?.isBiometricAvailable() == true
+
+    LaunchedEffect(state.data?.vaultId) {
+        // Re-check after unlock/import. A wrapped key from a different vault is
+        // cleared by BiometricVault instead of being offered again.
+        biometricEnrolled = activity?.isBiometricEnrolled(state.data?.vaultId) == true
+    }
 
     SideEffect {
         if (settings.secureScreen) {
@@ -130,7 +138,12 @@ fun KeyCaseApp(viewModel: MainViewModel) {
                     biometricAvailable = biometricAvailable,
                     biometricEnrolled = biometricEnrolled,
                     onEnableBiometric = {
-                        activity?.enableBiometric { ok -> biometricEnrolled = ok }
+                        val vaultId = state.data?.vaultId
+                        if (vaultId.isNullOrBlank()) {
+                            biometricEnrolled = false
+                        } else {
+                            activity?.enableBiometric(vaultId) { ok -> biometricEnrolled = ok }
+                        }
                     },
                     onDisableBiometric = {
                         activity?.disableBiometric()
