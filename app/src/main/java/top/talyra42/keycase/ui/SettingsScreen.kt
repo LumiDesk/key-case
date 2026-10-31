@@ -62,6 +62,7 @@ fun SettingsScreen(
     onDarkMode: (DarkMode) -> Unit,
     onExport: (Uri) -> Unit,
     onImport: (Uri, String) -> Unit,
+    onImportAegis: (Uri, String) -> Unit,
     onPrepareExternal: () -> Unit,
     onCustomAccent: (Int) -> Unit,
     onAddGroup: (String) -> Unit,
@@ -73,9 +74,13 @@ fun SettingsScreen(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri -> if (uri != null) onExport(uri) }
     var pendingImport by remember { mutableStateOf<Uri?>(null) }
+    var pendingAegis by remember { mutableStateOf<Uri?>(null) }
     val importLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri -> if (uri != null) pendingImport = uri }
+    val aegisLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri -> if (uri != null) pendingAegis = uri }
     var showGroups by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
     var showCustomAccent by remember { mutableStateOf(false) }
@@ -142,6 +147,16 @@ fun SettingsScreen(
                     onClick = {
                         onPrepareExternal()
                         importLauncher.launch(arrayOf("application/octet-stream", "application/zip"))
+                    },
+                )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Folder,
+                    title = "从 Aegis 导入",
+                    subtitle = "合并 Aegis 的 TOTP 条目与分组",
+                    onClick = {
+                        onPrepareExternal()
+                        aegisLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
                     },
                 )
             }
@@ -232,6 +247,15 @@ fun SettingsScreen(
             onSubmit = { password ->
                 onImport(uri, password)
                 pendingImport = null
+            },
+        )
+    }
+    pendingAegis?.let { uri ->
+        ImportAegisDialog(
+            onDismiss = { pendingAegis = null },
+            onSubmit = { password ->
+                onImportAegis(uri, password)
+                pendingAegis = null
             },
         )
     }

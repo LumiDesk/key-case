@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import top.talyra42.keycase.core.crypto.KdfParams
+import top.talyra42.keycase.core.importing.AegisImporter
 import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
@@ -360,6 +361,56 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 _state.update {
                     it.copy(busy = false, error = e.message ?: "无法导入备份")
+                }
+            } finally {
+                chars.fill('\u0000')
+            }
+        }
+    }
+
+    fun importAegis(uri: Uri, password: String) {
+        val app = getApplication<Application>()
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(busy = true, error = null) }
+            val chars = password.toCharArray()
+            try {
+                val bytes = app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: error("无法读取 Aegis 文件")
+                val result = AegisImporter.import(bytes, chars)
+                val current = session ?: error("Vault is locked")
+                val data = current.data
+                val groups = data.groups.toMutableList()
+                val groupIdMap = mutableMapOf<String, String>()
+                result.groups.forEach { importedGroup ->
+                    val existing = groups.firstOrNull {
+                        it.name.equals(importedGroup.name, ignoreCase = true)
+                    }
+                    val target = existing ?: importedGroup.copy(id = UUID.randomUUID().toString())
+                        .also { groups.add(it) }
+                    groupIdMap[importedGroup.id] = target.id
+                }
+                val importedItems = result.items.map { item ->
+                    item.copy(
+                        groupIds = item.groupIds.mapNotNull { groupIdMap[it] },
+                    )
+                }
+                val merged = data.copy(
+                    groups = groups,
+                    items = data.items + importedItems,
+                )
+                val next = current.withData(merged)
+                store.write(VaultContainer.seal(next))
+                session = next
+                _state.update {
+                    it.copy(
+                        data = next.data,
+                        busy = false,
+                        error = null,
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(busy = false, error = e.message ?: "Aegis 导入失败")
                 }
             } finally {
                 chars.fill('\u0000')

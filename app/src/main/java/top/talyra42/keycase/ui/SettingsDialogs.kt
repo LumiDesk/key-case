@@ -109,6 +109,50 @@ private fun PasswordInput(
 }
 
 @Composable
+fun ImportAegisDialog(
+    onDismiss: () -> Unit,
+    onSubmit: (String) -> Unit,
+) {
+    var password by rememberSaveable { mutableStateOf("") }
+    var localError by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
+        title = { Text("从 Aegis 导入") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text(
+                    "支持 Aegis 的明文或加密 JSON 导出。加密备份需要输入 Aegis 的主密码；明文备份可留空。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                PasswordInput(password, { password = it }, "Aegis 主密码（可留空）")
+                localError?.let {
+                    Text(
+                        it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onSubmit(password)
+                    onDismiss()
+                },
+            ) { Text("导入") }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("取消") }
+        },
+    )
+}
+
+@Composable
 fun ImportBackupDialog(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit,

@@ -291,6 +291,7 @@ private fun MainScaffold(
                     onDarkMode = onDarkMode,
                     onExport = onExport,
                     onImport = viewModel::importBackup,
+                    onImportAegis = viewModel::importAegis,
                     onPrepareExternal = viewModel::prepareExternalActivity,
                     onCustomAccent = viewModel::setCustomAccent,
                     onAddGroup = viewModel::addGroup,
