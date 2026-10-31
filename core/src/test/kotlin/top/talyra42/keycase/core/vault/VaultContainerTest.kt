@@ -73,4 +73,41 @@ class VaultContainerTest {
             VaultContainer.inspect(bytes)
         }
     }
+
+    @Test
+    fun sealPersistsEditsWithoutReenteringPassword() {
+        val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
+        val session = VaultContainer.unlock(password, bytes)
+        val edited = session.data.copy(
+            items = session.data.items + VaultItem(
+                id = "i2",
+                kind = ItemKind.TOTP,
+                title = "GitHub",
+                username = "lin.dev",
+                totp = TotpSecret(secret = "JBSWY3DPEHPK3PXP"),
+            ),
+        )
+
+        val resealed = VaultContainer.seal(session.withData(edited))
+        val reopened = VaultContainer.open(password, resealed)
+
+        assertEquals(2, reopened.items.size)
+        assertEquals("i2", reopened.items.last().id)
+    }
+
+    @Test
+    fun changePasswordRotatesOnlyPasswordSlot() {
+        val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
+        val session = VaultContainer.unlock(password, bytes)
+        val newPassword = "a new master password".toCharArray()
+
+        val rotated = VaultContainer.changePassword(session, newPassword, fastKdf)
+
+        assertThrows(VaultFormatException::class.java) {
+            VaultContainer.open(password, rotated)
+        }
+        val reopened = VaultContainer.open(newPassword, rotated)
+        assertEquals(session.data.items, reopened.items)
+        assertEquals(1, VaultContainer.inspect(rotated).slots.count { it.type == "password" })
+    }
 }

@@ -42,6 +42,27 @@ data class KeySlot(
 )
 
 /**
+ * In-memory unlocked vault. The caller owns this object and must call [close]
+ * when locking. The vault key is never written to disk in plaintext.
+ */
+class UnlockedVault internal constructor(
+    val header: VaultHeader,
+    val vaultKey: ByteArray,
+    val data: VaultData,
+) {
+    fun withData(newData: VaultData): UnlockedVault = UnlockedVault(header, vaultKey, newData)
+
+    fun close() {
+        vaultKey.fill(0)
+    }
+}
+
+class CreatedVault(
+    val bytes: ByteArray,
+    val session: UnlockedVault,
+)
+
+/**
  * Single-file encrypted vault container.
  *
  * Layout:
@@ -71,7 +92,17 @@ object VaultContainer {
         password: CharArray,
         data: VaultData,
         kdfParams: KdfParams = KdfParams(),
-    ): ByteArray {
+    ): ByteArray = createSession(password, data, kdfParams).bytes
+
+    /**
+     * Creates a vault and returns both the file bytes and an already-unlocked
+     * session. This avoids deriving Argon2id twice during first-run setup.
+     */
+    fun createSession(
+        password: CharArray,
+        data: VaultData,
+        kdfParams: KdfParams = KdfParams(),
+    ): CreatedVault {
         require(password.isNotEmpty()) { "password must not be empty" }
 
         val vaultId = UUID.randomUUID().toString()
@@ -116,17 +147,13 @@ object VaultContainer {
             ),
         )
 
-        val headerBytes = json.encodeToString(header).toByteArray(StandardCharsets.UTF_8)
-        return ByteBuffer.allocate(FILE_HEADER_SIZE + headerBytes.size + ciphertext.size)
-            .put(MAGIC.toByteArray(StandardCharsets.US_ASCII))
-            .put(FORMAT_VERSION.toByte())
-            .putInt(headerBytes.size)
-            .put(headerBytes)
-            .put(ciphertext)
-            .array()
+        return CreatedVault(
+            bytes = assemble(header, ciphertext),
+            session = UnlockedVault(header, vaultKey, payload),
+        )
     }
 
-    fun open(password: CharArray, bytes: ByteArray): VaultData {
+    fun unlock(password: CharArray, bytes: ByteArray): UnlockedVault {
         val parsed = parse(bytes)
         val header = parsed.header
         val slot = header.slots.firstOrNull { it.type == SLOT_TYPE_PASSWORD }
@@ -164,15 +191,77 @@ object VaultContainer {
             throw VaultFormatException("Wrong password or corrupted payload", e)
         }
 
-        return try {
-            val data = json.decodeFromString<VaultData>(
+        val data = try {
+            val decoded = json.decodeFromString<VaultData>(
                 gunzip(plaintext).toString(StandardCharsets.UTF_8),
             )
-            require(data.vaultId == header.vaultId) { "Vault id mismatch" }
-            data
+            require(decoded.vaultId == header.vaultId) { "Vault id mismatch" }
+            decoded
         } catch (e: Exception) {
             throw VaultFormatException("Invalid vault payload", e)
         }
+
+        return UnlockedVault(header, vaultKey, data)
+    }
+
+    fun open(password: CharArray, bytes: ByteArray): VaultData {
+        val session = unlock(password, bytes)
+        val data = session.data
+        session.close()
+        return data
+    }
+
+    /**
+     * Re-encrypts the session payload with a fresh nonce, keeping the existing
+     * slots (and therefore the same master password).
+     */
+    fun seal(session: UnlockedVault): ByteArray {
+        val data = session.data
+        if (data.vaultId != session.header.vaultId) {
+            throw VaultFormatException("Vault id mismatch")
+        }
+        val (nonce, ciphertext) = encryptPayload(session.vaultKey, data, session.header.vaultId)
+        val header = session.header.copy(payloadNonce = Codec.b64(nonce))
+        return assemble(header, ciphertext)
+    }
+
+    /**
+     * Replaces the password slot with one derived from [newPassword]. The vault
+     * key stays the same, so the payload is only re-encrypted, not re-keyed.
+     */
+    fun changePassword(
+        session: UnlockedVault,
+        newPassword: CharArray,
+        kdfParams: KdfParams = KdfParams(),
+    ): ByteArray {
+        require(newPassword.isNotEmpty()) { "password must not be empty" }
+
+        val salt = Crypto.randomBytes(Crypto.SALT_SIZE)
+        val slotId = UUID.randomUUID().toString()
+        val passwordKey = Crypto.argon2id(newPassword, salt, kdfParams)
+        val wrapped = Aead.encrypt(
+            key = passwordKey,
+            plaintext = session.vaultKey,
+            aad = slotAad(slotId, SLOT_TYPE_PASSWORD),
+        )
+        val newSlot = KeySlot(
+            id = slotId,
+            type = SLOT_TYPE_PASSWORD,
+            salt = Codec.b64(salt),
+            kdf = kdfParams,
+            nonce = Codec.b64(wrapped.nonce),
+            wrappedKey = Codec.b64(wrapped.ciphertext),
+        )
+        val slots = session.header.slots.filterNot { it.type == SLOT_TYPE_PASSWORD } + newSlot
+        val (nonce, ciphertext) = encryptPayload(
+            session.vaultKey,
+            session.data,
+            session.header.vaultId,
+        )
+        return assemble(
+            session.header.copy(payloadNonce = Codec.b64(nonce), slots = slots),
+            ciphertext,
+        )
     }
 
     fun inspect(bytes: ByteArray): VaultHeader = parse(bytes).header
@@ -223,6 +312,33 @@ object VaultContainer {
         }
 
         return ParsedVault(header, ciphertext)
+    }
+
+    private fun encryptPayload(
+        vaultKey: ByteArray,
+        data: VaultData,
+        vaultId: String,
+    ): Pair<ByteArray, ByteArray> {
+        val compressed = gzip(json.encodeToString(data).toByteArray(StandardCharsets.UTF_8))
+        val nonce = Crypto.randomBytes(Crypto.NONCE_SIZE)
+        val ciphertext = Aead.encryptWithNonce(
+            key = vaultKey,
+            nonce = nonce,
+            plaintext = compressed,
+            aad = payloadAad(vaultId),
+        ).ciphertext
+        return nonce to ciphertext
+    }
+
+    private fun assemble(header: VaultHeader, ciphertext: ByteArray): ByteArray {
+        val headerBytes = json.encodeToString(header).toByteArray(StandardCharsets.UTF_8)
+        return ByteBuffer.allocate(FILE_HEADER_SIZE + headerBytes.size + ciphertext.size)
+            .put(MAGIC.toByteArray(StandardCharsets.US_ASCII))
+            .put(FORMAT_VERSION.toByte())
+            .putInt(headerBytes.size)
+            .put(headerBytes)
+            .put(ciphertext)
+            .array()
     }
 
     private fun payloadAad(vaultId: String): ByteArray =
