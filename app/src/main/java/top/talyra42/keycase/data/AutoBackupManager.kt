@@ -28,14 +28,19 @@ object AutoBackupManager {
         val directory = root.findFile(DIRECTORY_NAME)
             ?: root.createDirectory(DIRECTORY_NAME)
             ?: error("无法创建 KeyCase 文件夹")
-        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US).format(Date())
+        val stamp = SimpleDateFormat("yyyyMMdd-HHmmss-SSS", Locale.US).format(Date())
         val filename = "keycase-$stamp.kcbackup"
         val file = directory.createFile("application/octet-stream", filename)
             ?: error("无法创建备份文件")
-        context.contentResolver.openOutputStream(file.uri)?.use { output ->
-            output.write(bytes)
-            output.flush()
-        } ?: error("无法写入备份文件")
+        try {
+            context.contentResolver.openOutputStream(file.uri)?.use { output ->
+                output.write(bytes)
+                output.flush()
+            } ?: error("无法写入备份文件")
+        } catch (e: Exception) {
+            runCatching { file.delete() }
+            throw e
+        }
         prune(directory)
         return filename
     }
@@ -43,7 +48,9 @@ object AutoBackupManager {
     private fun prune(directory: DocumentFile) {
         val backups = directory.listFiles()
             .filter { it.isFile && it.name?.endsWith(".kcbackup") == true }
-            .sortedByDescending { it.lastModified() }
+            // Filenames embed a sortable timestamp; provider lastModified values
+            // are often coarse or zero, which could delete the newest backup.
+            .sortedByDescending { it.name.orEmpty() }
         backups.drop(MAX_BACKUPS).forEach { runCatching { it.delete() } }
     }
 }

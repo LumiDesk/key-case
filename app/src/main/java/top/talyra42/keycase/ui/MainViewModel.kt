@@ -338,6 +338,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 VaultContainer.unlock(currentChars, onDisk).close()
                 val rotated = VaultContainer.changePasswordSession(unlocked, newChars, KdfParams())
                 store.write(rotated.bytes)
+                autoBackupIfConfigured(rotated.bytes)
                 session?.close()
                 session = rotated.session
                 _state.update {
@@ -402,7 +403,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val next = current.withData(
                     current.data.copy(items = current.data.items + items),
                 )
-                store.write(VaultContainer.seal(next))
+                val bytes = VaultContainer.seal(next)
+                store.write(bytes)
+                autoBackupIfConfigured(bytes)
                 session = next
                 _state.update {
                     it.copy(
@@ -536,6 +539,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val imported = VaultContainer.unlock(chars, bytes)
                 store.backupBeforeImport()
                 store.write(bytes)
+                autoBackupIfConfigured(bytes)
                 session?.close()
                 session = imported
                 _state.update {
@@ -588,7 +592,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     items = data.items + importedItems,
                 )
                 val next = current.withData(merged)
-                store.write(VaultContainer.seal(next))
+                val sealedBytes = VaultContainer.seal(next)
+                store.write(sealedBytes)
+                autoBackupIfConfigured(sealedBytes)
                 session = next
                 _state.update {
                     it.copy(
