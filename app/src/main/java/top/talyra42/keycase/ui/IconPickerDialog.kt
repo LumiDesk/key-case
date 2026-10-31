@@ -64,6 +64,7 @@ fun IconPickerDialog(
     current: IconRef?,
     onDismiss: () -> Unit,
     onPick: (IconRef?) -> Unit,
+    onPrepareExternal: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -141,7 +142,10 @@ fun IconPickerDialog(
                     shape = MaterialTheme.shapes.small,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { imagePicker.launch("image/*") }) {
+                    TextButton(onClick = {
+                        onPrepareExternal()
+                        imagePicker.launch("image/*")
+                    }) {
                         Icon(
                             Icons.Outlined.AddPhotoAlternate,
                             contentDescription = null,
@@ -150,7 +154,10 @@ fun IconPickerDialog(
                         Spacer(Modifier.width(6.dp))
                         Text("导入图片…")
                     }
-                    TextButton(onClick = { packPicker.launch("*/*") }) {
+                    TextButton(onClick = {
+                        onPrepareExternal()
+                        packPicker.launch("*/*")
+                    }) {
                         Icon(
                             Icons.Outlined.UploadFile,
                             contentDescription = null,

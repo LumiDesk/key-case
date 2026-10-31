@@ -217,7 +217,10 @@ fun SettingsScreen(
                     icon = Icons.Outlined.UploadFile,
                     title = "导入图标包",
                     subtitle = iconPackStatus ?: "从 Aegis ZIP 导入 PNG 图标",
-                    onClick = { iconPackLauncher.launch("*/*") },
+                    onClick = {
+                        onPrepareExternal()
+                        iconPackLauncher.launch("*/*")
+                    },
                 )
                 SettingsDivider()
                 ActionRow(

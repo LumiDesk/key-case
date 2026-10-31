@@ -294,6 +294,7 @@ private fun VaultRoot(
                 viewModel.upsertItem(updated, "")
                 passwordEditor = null
             },
+            onPrepareExternal = viewModel::prepareExternalActivity,
         )
     }
 
@@ -307,6 +308,7 @@ private fun VaultRoot(
                 viewModel.upsertItem(updated, "")
                 tokenEditor = null
             },
+            onPrepareExternal = viewModel::prepareExternalActivity,
         )
     }
 }

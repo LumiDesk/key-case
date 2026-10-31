@@ -37,7 +37,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,8 +55,10 @@ fun CreateVaultScreen(
     error: String?,
     onCreate: (password: String, confirm: String) -> Unit,
 ) {
-    var password by rememberSaveable { mutableStateOf("") }
-    var confirm by rememberSaveable { mutableStateOf("") }
+    // Never persist the master password in saved instance state. A rotation or
+    // process recreation asks the user to type it again instead.
+    var password by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf("") }
 
     AuthFrame(
         title = "创建本地保险库",
@@ -129,7 +130,7 @@ fun UnlockScreen(
     biometricEnabled: Boolean = false,
     onBiometric: () -> Unit = {},
 ) {
-    var password by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var autoPrompted by remember { mutableStateOf(false) }
     LaunchedEffect(biometricEnabled) {
         if (biometricEnabled && !autoPrompted) {

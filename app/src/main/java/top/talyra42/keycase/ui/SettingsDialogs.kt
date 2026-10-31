@@ -1,4 +1,4 @@
-﻿package top.talyra42.keycase.ui
+package top.talyra42.keycase.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -32,7 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,9 +52,12 @@ fun ChangeMasterPasswordDialog(
     onDismiss: () -> Unit,
     onSubmit: (current: String, newPassword: String, confirm: String) -> Unit,
 ) {
-    var current by rememberSaveable { mutableStateOf("") }
-    var newPassword by rememberSaveable { mutableStateOf("") }
-    var confirm by rememberSaveable { mutableStateOf("") }
+    // All credentials and secret-bearing links below are memory-only. Saving
+    // them in instance state would outlive the dialog and defeat the vault's
+    // threat model.
+    var current by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    var confirm by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -124,7 +126,7 @@ fun ImportAegisDialog(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit,
 ) {
-    var password by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -168,7 +170,7 @@ fun GoogleMigrationImportDialog(
     onDismiss: () -> Unit,
     onImport: (String) -> Unit,
 ) {
-    var link by rememberSaveable { mutableStateOf("") }
+    var link by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(
@@ -223,7 +225,7 @@ fun ImportBackupDialog(
     onDismiss: () -> Unit,
     onSubmit: (String) -> Unit,
 ) {
-    var password by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(

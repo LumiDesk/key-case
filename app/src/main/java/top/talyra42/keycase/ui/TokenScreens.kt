@@ -382,6 +382,7 @@ fun TokenEditorScreen(
     initialUri: String? = null,
     onBack: () -> Unit,
     onSave: (VaultItem) -> Unit,
+    onPrepareExternal: () -> Unit,
 ) {
     val existingSecret = item?.totp
     val scanned = remember(initialUri) {
@@ -394,7 +395,9 @@ fun TokenEditorScreen(
     var account by rememberSaveable(item?.id, initialUri) {
         mutableStateOf(item?.username ?: scanned?.account.orEmpty())
     }
-    var secret by rememberSaveable(item?.id, initialUri) {
+    // The TOTP secret is intentionally memory-only; it must not be written to
+    // saved instance state.
+    var secret by remember(item?.id, initialUri) {
         mutableStateOf(existingSecret?.secret ?: scanned?.secret.orEmpty())
     }
     var digits by rememberSaveable(item?.id, initialUri) {
@@ -630,6 +633,7 @@ fun TokenEditorScreen(
                 icon = picked
                 showIconPicker = false
             },
+            onPrepareExternal = onPrepareExternal,
         )
     }
 }
@@ -639,7 +643,7 @@ private fun OtpauthImportDialog(
     onDismiss: () -> Unit,
     onImport: (top.talyra42.keycase.core.otp.ParsedOtp) -> Unit,
 ) {
-    var uri by rememberSaveable { mutableStateOf("") }
+    var uri by remember { mutableStateOf("") }
     var localError by remember { mutableStateOf<String?>(null) }
 
     AlertDialog(

@@ -609,12 +609,15 @@ fun PasswordEditorScreen(
     item: VaultItem?,
     onBack: () -> Unit,
     onSave: (VaultItem) -> Unit,
+    onPrepareExternal: () -> Unit,
 ) {
     var title by rememberSaveable(item?.id) { mutableStateOf(item?.title.orEmpty()) }
     var username by rememberSaveable(item?.id) { mutableStateOf(item?.username.orEmpty()) }
-    var password by rememberSaveable(item?.id) { mutableStateOf(item?.password.orEmpty()) }
+    // Secrets and free-form notes stay in memory only. They are deliberately
+    // excluded from saved instance state and must be retyped after recreation.
+    var password by remember(item?.id) { mutableStateOf(item?.password.orEmpty()) }
     var url by rememberSaveable(item?.id) { mutableStateOf(item?.urls?.firstOrNull().orEmpty()) }
-    var notes by rememberSaveable(item?.id) { mutableStateOf(item?.notes.orEmpty()) }
+    var notes by remember(item?.id) { mutableStateOf(item?.notes.orEmpty()) }
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
@@ -766,6 +769,7 @@ fun PasswordEditorScreen(
                 icon = picked
                 showIconPicker = false
             },
+            onPrepareExternal = onPrepareExternal,
         )
     }
 }
