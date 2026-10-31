@@ -181,7 +181,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun deleteItem(itemId: String) {
         val data = _state.value.data ?: return
+        val now = Instant.now().toString()
+        persist(
+            data.copy(
+                items = data.items.map {
+                    if (it.id == itemId) it.copy(deletedAt = now, updatedAt = now) else it
+                },
+            ),
+        )
+    }
+
+    fun restoreItem(itemId: String) {
+        val data = _state.value.data ?: return
+        val now = Instant.now().toString()
+        persist(
+            data.copy(
+                items = data.items.map {
+                    if (it.id == itemId) it.copy(deletedAt = null, updatedAt = now) else it
+                },
+            ),
+        )
+    }
+
+    fun purgeItem(itemId: String) {
+        val data = _state.value.data ?: return
         persist(data.copy(items = data.items.filterNot { it.id == itemId }))
+    }
+
+    fun emptyTrash() {
+        val data = _state.value.data ?: return
+        persist(data.copy(items = data.items.filter { it.deletedAt == null }))
     }
 
     fun addGroup(name: String) {

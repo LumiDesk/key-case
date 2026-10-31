@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Folder
@@ -68,6 +69,8 @@ fun SettingsScreen(
     onImportGoogle: (String) -> Unit,
     onPrepareExternal: () -> Unit,
     onCustomAccent: (Int) -> Unit,
+    onOpenSecurity: () -> Unit,
+    onOpenTrash: () -> Unit,
     onAddGroup: (String) -> Unit,
     onRenameGroup: (String, String) -> Unit,
     onDeleteGroup: (String) -> Unit,
@@ -182,12 +185,26 @@ fun SettingsScreen(
                     subtitle = "${data.groups.size} 个分组",
                     onClick = { showGroups = true },
                 )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Delete,
+                    title = "回收站",
+                    subtitle = "${data.items.count { it.deletedAt != null }} 个已删除条目",
+                    onClick = onOpenTrash,
+                )
             }
         }
 
         item {
             SettingsLabel("安全")
             AppCard {
+                ActionRow(
+                    icon = Icons.Outlined.Shield,
+                    title = "安全中心",
+                    subtitle = "${securityIssues(data.items.filter { it.deletedAt == null }).size} 个条目待处理",
+                    onClick = onOpenSecurity,
+                )
+                SettingsDivider()
                 ActionRow(
                     icon = Icons.Outlined.Lock,
                     title = "修改主密码",

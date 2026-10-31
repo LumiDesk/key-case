@@ -88,7 +88,7 @@ fun TokenListScreen(
     var ascending by rememberSaveable { mutableStateOf(true) }
     val listState = rememberLazyListState()
     val items = data.items
-        .filter { it.kind == ItemKind.TOTP || it.totp != null }
+        .filter { (it.kind == ItemKind.TOTP || it.totp != null) && it.deletedAt == null }
         .filter {
             query.isBlank() ||
                 it.title.contains(query, ignoreCase = true) ||

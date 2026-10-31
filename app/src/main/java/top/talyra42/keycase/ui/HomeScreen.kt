@@ -38,10 +38,11 @@ fun HomeScreen(
     onOpenGroups: () -> Unit,
     onOpenSecurity: () -> Unit,
 ) {
-    val passwords = data.items.filter { it.kind == ItemKind.LOGIN }
-    val tokens = data.items.filter { it.kind == ItemKind.TOTP || it.totp != null }
+    val activeItems = data.items.filter { it.deletedAt == null }
+    val passwords = activeItems.filter { it.kind == ItemKind.LOGIN }
+    val tokens = activeItems.filter { it.kind == ItemKind.TOTP || it.totp != null }
     val issues = passwordIssueCount(passwords)
-    val recent = data.items.sortedByDescending { it.updatedAt }.take(4)
+    val recent = activeItems.sortedByDescending { it.updatedAt }.take(4)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -124,7 +125,7 @@ fun HomeScreen(
         item {
             SectionHeader(
                 title = "最近使用",
-                action = if (data.items.isNotEmpty()) "全部" else null,
+                action = if (activeItems.isNotEmpty()) "全部" else null,
                 onAction = onOpenAllPasswords,
             )
         }

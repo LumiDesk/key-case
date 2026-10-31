@@ -64,6 +64,8 @@ import top.talyra42.keycase.ui.theme.KeyCaseTheme
 
 sealed interface Route {
     data object Main : Route
+    data object Security : Route
+    data object Trash : Route
     data class Detail(val itemId: String) : Route
     data class PasswordEditor(val itemId: String?) : Route
     data class TokenEditor(val itemId: String?, val initialUri: String? = null) : Route
@@ -155,12 +157,28 @@ private fun VaultRoot(
                     },
                 )
             },
+            onOpenSecurity = { route = Route.Security },
+            onOpenTrash = { route = Route.Trash },
             onLock = viewModel::lock,
             onAccent = viewModel::setAccent,
             onDarkMode = viewModel::setDarkMode,
             onExport = viewModel::exportBackup,
             error = state.error,
             onClearError = viewModel::clearError,
+        )
+
+        Route.Security -> SecurityScreen(
+            items = data.items,
+            onBack = { route = Route.Main },
+            onOpenItem = { item -> route = Route.Detail(item.id) },
+        )
+
+        Route.Trash -> TrashScreen(
+            items = data.items,
+            onBack = { route = Route.Main },
+            onRestore = viewModel::restoreItem,
+            onPurge = viewModel::purgeItem,
+            onEmpty = viewModel::emptyTrash,
         )
 
         is Route.Detail -> {
@@ -230,6 +248,8 @@ private fun MainScaffold(
     onAddPassword: () -> Unit,
     onAddToken: () -> Unit,
     onScanToken: () -> Unit,
+    onOpenSecurity: () -> Unit,
+    onOpenTrash: () -> Unit,
     onLock: () -> Unit,
     onAccent: (Int) -> Unit,
     onDarkMode: (DarkMode) -> Unit,
@@ -300,7 +320,7 @@ private fun MainScaffold(
                         onOpenAllPasswords = { onTab(1) },
                         onOpenTokens = { onTab(2) },
                         onOpenGroups = { onTab(3) },
-                        onOpenSecurity = { onTab(1) },
+                        onOpenSecurity = onOpenSecurity,
                     )
                     1 -> PasswordListScreen(
                         data = data,
@@ -322,6 +342,8 @@ private fun MainScaffold(
                         onImportGoogle = viewModel::importGoogleMigration,
                         onPrepareExternal = viewModel::prepareExternalActivity,
                         onCustomAccent = viewModel::setCustomAccent,
+                        onOpenSecurity = onOpenSecurity,
+                        onOpenTrash = onOpenTrash,
                         onAddGroup = viewModel::addGroup,
                         onRenameGroup = viewModel::renameGroup,
                         onDeleteGroup = viewModel::deleteGroup,

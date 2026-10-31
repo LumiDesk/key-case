@@ -100,7 +100,7 @@ fun PasswordListScreen(
     var ascending by rememberSaveable { mutableStateOf(true) }
     val listState = rememberLazyListState()
     val items = data.items
-        .filter { it.kind == ItemKind.LOGIN }
+        .filter { it.kind == ItemKind.LOGIN && it.deletedAt == null }
         .filter {
             query.isBlank() ||
                 it.title.contains(query, ignoreCase = true) ||
