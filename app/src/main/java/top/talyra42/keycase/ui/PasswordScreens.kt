@@ -255,15 +255,15 @@ fun PasswordListScreen(
 fun ItemDetailScreen(
     item: VaultItem,
     groups: List<VaultGroup>,
+    showCodes: Boolean = true,
+    showNext: Boolean = false,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onIconChange: (IconRef?) -> Unit,
 ) {
     val context = LocalContext.current
     var revealed by remember(item.id) { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
-    var showIconPicker by remember { mutableStateOf(false) }
     val groupName = groups.firstOrNull { it.id in item.groupIds }?.name
 
     Scaffold(
@@ -294,39 +294,11 @@ fun ItemDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box(modifier = Modifier.size(98.dp)) {
-                BrandAvatar(
-                    title = item.title.ifBlank { item.issuer },
-                    size = 82.dp,
-                    modifier = Modifier.align(Alignment.TopStart),
-                    iconRef = item.icon,
-                )
-                Box(
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(44.dp)
-                        .clickable { showIconPicker = true },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Surface(
-                        modifier = Modifier.size(30.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surface,
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.outlineVariant,
-                        ),
-                        shadowElevation = 2.dp,
-                    ) {
-                        Icon(
-                            Icons.Outlined.Edit,
-                            contentDescription = "更换图标",
-                            modifier = Modifier.padding(6.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
+            BrandAvatar(
+                title = item.title.ifBlank { item.issuer },
+                size = 82.dp,
+                iconRef = item.icon,
+            )
             Spacer(Modifier.height(14.dp))
             Text(
                 text = item.title.ifBlank { "未命名" },
@@ -397,6 +369,8 @@ fun ItemDetailScreen(
                 Spacer(Modifier.height(14.dp))
                 TotpCard(
                     secret = secret,
+                    showCodes = showCodes,
+                    showNext = showNext,
                     onCopy = { code -> copyText(context, code) },
                 )
             }
@@ -416,22 +390,13 @@ fun ItemDetailScreen(
             onDismiss = { showDelete = false },
         )
     }
-
-    if (showIconPicker) {
-        IconPickerDialog(
-            current = item.icon,
-            onDismiss = { showIconPicker = false },
-            onPick = { icon ->
-                onIconChange(icon)
-                showIconPicker = false
-            },
-        )
-    }
 }
 
 @Composable
 private fun TotpCard(
     secret: TotpSecret,
+    showCodes: Boolean,
+    showNext: Boolean,
     onCopy: (String) -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -444,11 +409,16 @@ private fun TotpCard(
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
+    val nextCode = if (showNext) {
+        runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
+    } else {
+        null
+    }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { if (code != "—") onCopy(code) },
+            .clickable { if (showCodes && code != "—") onCopy(code) },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -468,13 +438,21 @@ private fun TotpCard(
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = code.chunked(3).joinToString(" "),
+                    text = if (showCodes) code.chunked(3).joinToString(" ") else "••• •••",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
+                if (showCodes && nextCode != null) {
+                    Text(
+                        text = "下一组 " + nextCode.chunked(3).joinToString(" "),
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                    )
+                }
             }
             Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(

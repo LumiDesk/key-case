@@ -51,6 +51,18 @@ object ImportedIconPack {
         return result.sortedBy { it.name.lowercase() }
     }
 
+    fun delete(context: Context, packName: String): Boolean {
+        var deleted = false
+        root(context).listFiles()?.filter { it.isDirectory }?.forEach { dir ->
+            runCatching {
+                val manifest = JSONObject(File(dir, "pack.json").readText())
+                val name = manifest.optString("name").ifBlank { dir.name }
+                if (name == packName) deleted = dir.deleteRecursively() || deleted
+            }
+        }
+        return deleted
+    }
+
     fun import(context: Context, uri: Uri): ImportResult {
         val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
             ?: error("Could not read the icon pack")

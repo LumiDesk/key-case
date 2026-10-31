@@ -44,6 +44,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -123,11 +124,15 @@ fun TokenListScreen(
         .lastOrNull { it.value <= listState.firstVisibleItemIndex }
         ?.key
 
-    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var barNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var codeNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(active) {
         if (!active) return@LaunchedEffect
         while (true) {
-            now = System.currentTimeMillis()
+            barNow = System.currentTimeMillis()
+            if ((barNow / 1000L) % 30L == 0L) {
+                codeNow = barNow
+            }
             delay(1000)
         }
     }
@@ -162,6 +167,20 @@ fun TokenListScreen(
                             .rotate(if (ascending) 0f else 180f),
                     )
                 }
+            }
+
+            if (items.isNotEmpty()) {
+                val barPeriod = (items.first().totp?.period ?: 30).coerceAtLeast(1)
+                val barRemaining = barPeriod - ((barNow / 1000L) % barPeriod)
+                LinearProgressIndicator(
+                    progress = { barRemaining / barPeriod.toFloat() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .height(2.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                )
             }
 
             AnimatedVisibility(
@@ -224,57 +243,43 @@ fun TokenListScreen(
                         }
                         items(section.items, key = { it.id }) { item ->
                             val secret = item.totp
-                            val code = secret?.let { runCatching { it.codeAt(now) }.getOrNull() } ?: "—"
+                            val code = secret?.let { runCatching { it.codeAt(codeNow) }.getOrNull() } ?: "—"
                             val nextCode = if (showNext && secret != null) {
-                                runCatching { secret.codeAt(now + secret.period * 1000L) }.getOrNull()
+                                runCatching { secret.codeAt(codeNow + secret.period * 1000L) }.getOrNull()
                             } else {
                                 null
                             }
-                            val period = (secret?.period ?: 30).coerceAtLeast(1)
-                            val remaining = period - ((now / 1000L) % period)
                             VaultItemRow(
                                 item = item,
                                 onClick = { onOpenItem(item) },
                                 trailing = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (showCodes) {
-                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                Surface(
-                                                    shape = RoundedCornerShape(8.dp),
-                                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                                    modifier = Modifier.clickable {
-                                                        if (code != "—") copyText(context, code)
-                                                    },
-                                                ) {
-                                                    Text(
-                                                        text = code.chunked(3).joinToString(" "),
-                                                        fontFamily = FontFamily.Monospace,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                        style = MaterialTheme.typography.labelLarge,
-                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                                    )
-                                                }
-                                                nextCode?.let {
-                                                    Text(
-                                                        text = it.chunked(3).joinToString(" "),
-                                                        fontFamily = FontFamily.Monospace,
-                                                        fontSize = 10.sp,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        modifier = Modifier.padding(top = 2.dp),
-                                                    )
-                                                }
+                                    if (showCodes) {
+                                        Column(horizontalAlignment = Alignment.End) {
+                                            Surface(
+                                                shape = RoundedCornerShape(8.dp),
+                                                color = MaterialTheme.colorScheme.primaryContainer,
+                                                modifier = Modifier.clickable {
+                                                    if (code != "—") copyText(context, code)
+                                                },
+                                            ) {
+                                                Text(
+                                                    text = code.chunked(3).joinToString(" "),
+                                                    fontFamily = FontFamily.Monospace,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                    style = MaterialTheme.typography.labelLarge,
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                )
                                             }
-                                            Spacer(Modifier.width(6.dp))
-                                        }
-                                        Box(modifier = Modifier.size(21.dp), contentAlignment = Alignment.Center) {
-                                            CircularProgressIndicator(
-                                                progress = { remaining / period.toFloat() },
-                                                modifier = Modifier.fillMaxSize(),
-                                                strokeWidth = 1.8.dp,
-                                                color = MaterialTheme.colorScheme.primary,
-                                                trackColor = MaterialTheme.colorScheme.outlineVariant,
-                                            )
+                                            nextCode?.let {
+                                                Text(
+                                                    text = it.chunked(3).joinToString(" "),
+                                                    fontFamily = FontFamily.Monospace,
+                                                    fontSize = 10.sp,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    modifier = Modifier.padding(top = 2.dp),
+                                                )
+                                            }
                                         }
                                     }
                                 },

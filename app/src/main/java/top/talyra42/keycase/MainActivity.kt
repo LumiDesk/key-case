@@ -1,6 +1,8 @@
 package top.talyra42.keycase
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,6 +15,8 @@ import top.talyra42.keycase.ui.MainViewModel
 class MainActivity : FragmentActivity() {
     private lateinit var viewModel: MainViewModel
     private val biometricVault by lazy { BiometricVault(this) }
+    private val autoLockHandler = Handler(Looper.getMainLooper())
+    private val autoLockRunnable = Runnable { viewModel.onHostStopped() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,10 +62,26 @@ class MainActivity : FragmentActivity() {
         )
     }
 
+    override fun onStart() {
+        super.onStart()
+        autoLockHandler.removeCallbacks(autoLockRunnable)
+    }
+
     override fun onStop() {
         super.onStop()
         if (!isChangingConfigurations) {
-            viewModel.onHostStopped()
+            val delay = viewModel.settings.value.autoLockSeconds
+            if (delay <= 0) {
+                viewModel.onHostStopped()
+            } else {
+                autoLockHandler.removeCallbacks(autoLockRunnable)
+                autoLockHandler.postDelayed(autoLockRunnable, delay * 1000L)
+            }
         }
+    }
+
+    override fun onDestroy() {
+        autoLockHandler.removeCallbacks(autoLockRunnable)
+        super.onDestroy()
     }
 }

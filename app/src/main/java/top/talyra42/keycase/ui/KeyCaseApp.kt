@@ -253,6 +253,8 @@ private fun VaultRoot(
                 ItemDetailScreen(
                     item = item,
                     groups = data.groups,
+                    showCodes = settings.showTokenCodes,
+                    showNext = settings.showNextToken,
                     onBack = { route = Route.Main },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
@@ -264,9 +266,6 @@ private fun VaultRoot(
                     onDelete = {
                         viewModel.deleteItem(item.id)
                         route = Route.Main
-                    },
-                    onIconChange = { icon ->
-                        viewModel.upsertItem(item.copy(icon = icon), "")
                     },
                 )
             }
@@ -404,8 +403,8 @@ private fun MainScaffold(
         floatingActionButton = {
             AnimatedVisibility(
                 visible = pagerState.currentPage == 1 || pagerState.currentPage == 2,
-                enter = fadeIn(tween(160)) + scaleIn(tween(180), initialScale = 0.82f),
-                exit = fadeOut(tween(120)) + scaleOut(tween(140), targetScale = 0.82f),
+                enter = fadeIn(tween(220)) + scaleIn(tween(240), initialScale = 0.78f),
+                exit = fadeOut(tween(200)) + scaleOut(tween(220), targetScale = 0.78f),
             ) {
                 when (pagerState.currentPage) {
                     1 -> FloatingActionButton(
@@ -472,6 +471,7 @@ private fun MainScaffold(
                         onShowTokenCodes = viewModel::setShowTokenCodes,
                         onShowNextToken = viewModel::setShowNextToken,
                         onSecureScreen = viewModel::setSecureScreen,
+                        onAutoLock = viewModel::setAutoLockSeconds,
                         onOpenSecurity = onOpenSecurity,
                         onOpenTrash = onOpenTrash,
                         biometricAvailable = biometricAvailable,
@@ -506,8 +506,8 @@ private fun ExpandableTokenFab(
     ) {
         AnimatedVisibility(
             visible = expanded,
-            enter = fadeIn(tween(160)) + expandVertically(expandFrom = Alignment.Bottom),
-            exit = fadeOut(tween(120)) + shrinkVertically(shrinkTowards = Alignment.Bottom),
+            enter = fadeIn(tween(220)) + expandVertically(tween(220), expandFrom = Alignment.Bottom),
+            exit = fadeOut(tween(180)) + shrinkVertically(tween(200), shrinkTowards = Alignment.Bottom),
         ) {
             Column(
                 horizontalAlignment = Alignment.End,

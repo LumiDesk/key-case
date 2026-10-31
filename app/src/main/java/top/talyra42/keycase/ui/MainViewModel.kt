@@ -35,6 +35,7 @@ data class AppSettings(
     val showTokenCodes: Boolean = true,
     val showNextToken: Boolean = false,
     val secureScreen: Boolean = false,
+    val autoLockSeconds: Int = 0,
 )
 
 data class UiState(
@@ -458,6 +459,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putBoolean(KEY_SECURE_SCREEN, enabled).apply()
     }
 
+    fun setAutoLockSeconds(seconds: Int) {
+        val safe = seconds.coerceIn(0, 300)
+        _settings.update { it.copy(autoLockSeconds = safe) }
+        prefs.edit().putInt(KEY_AUTO_LOCK, safe).apply()
+    }
+
     fun exportBackup(uri: Uri) {
         val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -580,6 +587,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             showTokenCodes = prefs.getBoolean(KEY_SHOW_CODES, true),
             showNextToken = prefs.getBoolean(KEY_NEXT_TOKEN, false),
             secureScreen = prefs.getBoolean(KEY_SECURE_SCREEN, false),
+            autoLockSeconds = prefs.getInt(KEY_AUTO_LOCK, 0),
         )
     }
 
@@ -625,5 +633,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_SHOW_CODES = "showTokenCodes"
         private const val KEY_NEXT_TOKEN = "showNextToken"
         private const val KEY_SECURE_SCREEN = "secureScreen"
+        private const val KEY_AUTO_LOCK = "autoLockSeconds"
     }
 }

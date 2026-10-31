@@ -34,16 +34,19 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,6 +84,7 @@ fun SettingsScreen(
     onShowTokenCodes: (Boolean) -> Unit,
     onShowNextToken: (Boolean) -> Unit,
     onSecureScreen: (Boolean) -> Unit,
+    onAutoLock: (Int) -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
     biometricAvailable: Boolean,
@@ -126,6 +130,7 @@ fun SettingsScreen(
     var showCustomAccent by remember { mutableStateOf(false) }
     var showGoogleImport by remember { mutableStateOf(false) }
     var showIconPreview by remember { mutableStateOf(false) }
+    var showAutoLock by remember { mutableStateOf(false) }
     val itemCounts = remember(data.items) {
         data.groups.associate { group ->
             group.id to data.items.count { group.id in it.groupIds }
@@ -279,6 +284,18 @@ fun SettingsScreen(
                 )
                 SettingsDivider()
                 ActionRow(
+                    icon = Icons.Outlined.Lock,
+                    title = "自动锁定",
+                    subtitle = when (settings.autoLockSeconds) {
+                        0 -> "退到后台立即锁定"
+                        30 -> "退到后台 30 秒后锁定"
+                        60 -> "退到后台 1 分钟后锁定"
+                        else -> "退到后台 5 分钟后锁定"
+                    },
+                    onClick = { showAutoLock = true },
+                )
+                SettingsDivider()
+                ActionRow(
                     icon = Icons.Outlined.Fingerprint,
                     title = "生物识别解锁",
                     subtitle = when {
@@ -403,6 +420,45 @@ fun SettingsScreen(
     }
     if (showIconPreview) {
         IconPackPreviewDialog(onDismiss = { showIconPreview = false })
+    }
+    if (showAutoLock) {
+        AlertDialog(
+            onDismissRequest = { showAutoLock = false },
+            title = { Text("自动锁定") },
+            text = {
+                Column {
+                    listOf(
+                        0 to "立即",
+                        30 to "30 秒",
+                        60 to "1 分钟",
+                        300 to "5 分钟",
+                    ).forEach { (seconds, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onAutoLock(seconds)
+                                    showAutoLock = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = settings.autoLockSeconds == seconds,
+                                onClick = {
+                                    onAutoLock(seconds)
+                                    showAutoLock = false
+                                },
+                            )
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showAutoLock = false }) { Text("取消") }
+            },
+        )
     }
     if (showGoogleImport) {        GoogleMigrationImportDialog(
             onDismiss = { showGoogleImport = false },
