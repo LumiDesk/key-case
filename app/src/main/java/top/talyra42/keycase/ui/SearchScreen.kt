@@ -14,12 +14,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,6 +40,7 @@ import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultItem
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     data: VaultData,
@@ -62,22 +66,29 @@ fun SearchScreen(
     val passwords = results.filter { it.kind == ItemKind.LOGIN }
     val tokens = results.filter { it.kind == ItemKind.TOTP || it.totp != null }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("搜索") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                    }
+                },
+            )
+        },
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 4.dp, end = 16.dp, top = 8.dp, bottom = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                .padding(padding)
+                .fillMaxSize(),
         ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
-            }
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it },
                 modifier = Modifier
-                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
                     .focusRequester(focusRequester),
                 placeholder = { Text("搜索密码、账号、令牌") },
                 leadingIcon = {
@@ -87,9 +98,8 @@ fun SearchScreen(
                 shape = MaterialTheme.shapes.large,
                 textStyle = MaterialTheme.typography.bodyMedium,
             )
-        }
 
-        when {
+            when {
             normalized.isEmpty() -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
@@ -159,6 +169,7 @@ fun SearchScreen(
                 }
             }
         }
+    }
     }
 }
 

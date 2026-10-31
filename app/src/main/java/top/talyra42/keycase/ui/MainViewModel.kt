@@ -194,6 +194,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         keepUnlockedForExternal = true
     }
 
+    /**
+     * Consumes the one-shot "an external picker/activity is open" flag.
+     * MainActivity checks this before applying immediate or delayed auto-lock.
+     */
+    fun shouldKeepUnlockedForExternal(): Boolean {
+        if (!keepUnlockedForExternal) return false
+        keepUnlockedForExternal = false
+        return true
+    }
+
     fun onHostStopped() {
         if (keepUnlockedForExternal) {
             keepUnlockedForExternal = false

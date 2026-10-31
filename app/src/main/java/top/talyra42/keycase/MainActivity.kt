@@ -70,6 +70,7 @@ class MainActivity : FragmentActivity() {
     override fun onStop() {
         super.onStop()
         if (!isChangingConfigurations) {
+            if (viewModel.shouldKeepUnlockedForExternal()) return
             val delay = viewModel.settings.value.autoLockSeconds
             if (delay <= 0) {
                 viewModel.onHostStopped()

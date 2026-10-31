@@ -262,6 +262,7 @@ fun SettingsScreen(
                     checked = settings.autoBackup,
                     onCheckedChange = { enabled ->
                         if (enabled && settings.backupTreeUri.isBlank()) {
+                            onPrepareExternal()
                             backupFolderLauncher.launch(null)
                         } else {
                             onAutoBackup(enabled)
@@ -273,7 +274,10 @@ fun SettingsScreen(
                     icon = Icons.Outlined.Folder,
                     title = "备份目录",
                     subtitle = settings.backupFolderName.ifBlank { "未选择，点击选择 Documents 等目录" },
-                    onClick = { backupFolderLauncher.launch(null) },
+                    onClick = {
+                        onPrepareExternal()
+                        backupFolderLauncher.launch(null)
+                    },
                 )
                 SettingsDivider()
                 ActionRow(
