@@ -25,7 +25,7 @@ The app is built for Android and is intentionally offline. There is no sync serv
 
 - [Agent guide](AGENTS.md)
 - [Design system](DESIGN.md)
-- [App icon options](docs/icon-options/preview-v2.html)
+- [App icon options](docs/icon-options/preview-b-dark.html)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
 - [Vault container format v1](docs/design/vault-format-v1.md)
