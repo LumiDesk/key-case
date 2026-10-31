@@ -25,7 +25,7 @@ The app is built for Android and is intentionally offline. There is no sync serv
 
 - [Agent guide](AGENTS.md)
 - [Design system](DESIGN.md)
-- [App icon options](docs/icon-options/preview.html)
+- [App icon options](docs/icon-options/preview-v2.html)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
 - [Vault container format v1](docs/design/vault-format-v1.md)
@@ -94,7 +94,7 @@ The `:core` module is deliberately free of Android APIs so its security-critical
 
 The built-in icon pack is [Aegis Simple Icons](https://github.com/alexbakker/aegis-simple-icons), derived from [Simple Icons](https://simpleicons.org/). Simple Icons are CC0; brand logos remain trademarks of their owners. The pack is stored at `app/src/main/assets/iconpacks/aegis-simple-icons-v269.zip`.
 
-The app reads `pack.json`, matches an item's title/issuer against the pack's issuer list, and renders the matching SVG path into a Compose `ImageVector`; unmatched items use the first-character avatar. The avatar pencil in the detail screen opens a searchable picker over the built-in pack, and can also import a local image as a custom icon (stored inside the encrypted vault). Importing user Aegis packs is still planned.
+The app reads `pack.json`, matches an item's title/issuer against the pack's issuer list, and renders the matching SVG path into a Compose `ImageVector`; unmatched items use an avatar placeholder while loading and the first character when no icon matches. User Aegis packs can be imported, previewed, and deleted from Settings; icons are selected from the editor's icon row, not from the detail screen.
 
 ## License
 

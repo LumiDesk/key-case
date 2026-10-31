@@ -62,7 +62,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "小提示 · 点击验证码可直接复制",
+                        text = "密码留在本机，安心只属于你。",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

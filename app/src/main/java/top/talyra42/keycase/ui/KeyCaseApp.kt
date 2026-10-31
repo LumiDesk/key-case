@@ -255,6 +255,7 @@ private fun VaultRoot(
                     groups = data.groups,
                     showCodes = settings.showTokenCodes,
                     showNext = settings.showNextToken,
+                    codeGrouping = settings.codeGrouping,
                     onBack = { route = Route.Main },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
@@ -455,6 +456,7 @@ private fun MainScaffold(
                         active = pagerState.currentPage == 2,
                         showCodes = settings.showTokenCodes,
                         showNext = settings.showNextToken,
+                        codeGrouping = settings.codeGrouping,
                     )
                     else -> SettingsScreen(
                         data = data,
@@ -470,6 +472,7 @@ private fun MainScaffold(
                         onCustomAccent = viewModel::setCustomAccent,
                         onShowTokenCodes = viewModel::setShowTokenCodes,
                         onShowNextToken = viewModel::setShowNextToken,
+                        onCodeGrouping = viewModel::setCodeGrouping,
                         onSecureScreen = viewModel::setSecureScreen,
                         onAutoLock = viewModel::setAutoLockSeconds,
                         onOpenSecurity = onOpenSecurity,

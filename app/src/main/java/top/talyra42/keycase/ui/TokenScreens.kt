@@ -109,6 +109,7 @@ fun TokenListScreen(
     active: Boolean = true,
     showCodes: Boolean = true,
     showNext: Boolean = false,
+    codeGrouping: CodeGrouping = CodeGrouping.AUTO,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -206,7 +207,7 @@ fun TokenListScreen(
                 val barPeriod = (items.first().totp?.period ?: 30).coerceAtLeast(1)
                 val barRemaining = barPeriod - ((barNow / 1000L) % barPeriod)
                 LaunchedEffect(barRemaining, active) {
-                    if (active && barRemaining == 5L) {
+                    if (active && barRemaining in 1L..5L) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
                 }
@@ -292,6 +293,7 @@ fun TokenListScreen(
                         }
                         items(section.items, key = { it.id }) { item ->
                             val secret = item.totp
+                            val digits = secret?.digits ?: 6
                             val code = secret?.let { runCatching { it.codeAt(codeNow) }.getOrNull() } ?: "—"
                             val nextCode = if (showNext && secret != null) {
                                 runCatching { secret.codeAt(codeNow + secret.period * 1000L) }.getOrNull()
@@ -299,6 +301,18 @@ fun TokenListScreen(
                                 null
                             }
                             val visible = showCodes || revealedId == item.id
+                            val codeText = if (visible) {
+                                formatTokenCode(code, digits, codeGrouping)
+                            } else {
+                                hiddenTokenCode(digits, codeGrouping)
+                            }
+                            val nextText = if (visible && nextCode != null) {
+                                formatTokenCode(nextCode, digits, codeGrouping)
+                            } else if (nextCode != null) {
+                                hiddenTokenCode(digits, codeGrouping)
+                            } else {
+                                null
+                            }
                             VaultItemRow(
                                 item = item,
                                 onClick = {
@@ -322,11 +336,7 @@ fun TokenListScreen(
                                                 },
                                         ) {
                                             Text(
-                                                text = if (visible) {
-                                                    code.chunked(3).joinToString(" ")
-                                                } else {
-                                                    "••• •••"
-                                                },
+                                                text = codeText,
                                                 fontFamily = FontFamily.Monospace,
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -334,13 +344,9 @@ fun TokenListScreen(
                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                             )
                                         }
-                                        nextCode?.let {
+                                        nextText?.let {
                                             Text(
-                                                text = if (visible) {
-                                                    it.chunked(3).joinToString(" ")
-                                                } else {
-                                                    "••• •••"
-                                                },
+                                                text = it,
                                                 fontFamily = FontFamily.Monospace,
                                                 fontSize = 10.sp,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,

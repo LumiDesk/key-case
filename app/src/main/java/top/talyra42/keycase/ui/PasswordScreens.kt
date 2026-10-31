@@ -270,6 +270,7 @@ fun ItemDetailScreen(
     groups: List<VaultGroup>,
     showCodes: Boolean = true,
     showNext: Boolean = false,
+    codeGrouping: CodeGrouping = CodeGrouping.AUTO,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -384,6 +385,7 @@ fun ItemDetailScreen(
                     secret = secret,
                     showCodes = showCodes,
                     showNext = showNext,
+                    codeGrouping = codeGrouping,
                     onCopy = { code -> copyText(context, code) },
                 )
             }
@@ -410,6 +412,7 @@ private fun TotpCard(
     secret: TotpSecret,
     showCodes: Boolean,
     showNext: Boolean,
+    codeGrouping: CodeGrouping,
     onCopy: (String) -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -424,14 +427,29 @@ private fun TotpCard(
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     LaunchedEffect(remaining) {
-        if (remaining == 5L) {
+        if (remaining in 1L..5L) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
     val visible = showCodes || revealed
+    val digits = secret.digits
     val nextCode = if (showNext) {
         runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
+    } else {
+        null
+    }
+    val codeText = if (visible) {
+        formatTokenCode(code, digits, codeGrouping)
+    } else {
+        hiddenTokenCode(digits, codeGrouping)
+    }
+    val nextText = if (nextCode != null) {
+        if (visible) {
+            formatTokenCode(nextCode, digits, codeGrouping)
+        } else {
+            hiddenTokenCode(digits, codeGrouping)
+        }
     } else {
         null
     }
@@ -475,20 +493,16 @@ private fun TotpCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (visible) code.chunked(3).joinToString(" ") else "••• •••",
+                    text = codeText,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-                if (nextCode != null) {
+                if (nextText != null) {
                     Text(
-                        text = if (visible) {
-                            nextCode.chunked(3).joinToString(" ")
-                        } else {
-                            "••• •••"
-                        },
+                        text = nextText,
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),

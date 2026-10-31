@@ -149,7 +149,7 @@ private val EN = mapOf(
     "从 Aegis ZIP 导入 PNG 图标" to "Import PNG icons from an Aegis ZIP",
     "无法读取图标包" to "Could not read the icon pack",
     "图标" to "Icons",
-    "小提示 · 点击验证码可直接复制" to "Tip · Tap a code to copy",
+    "密码留在本机，安心只属于你。" to "Your passwords stay on this device.",
     "还没有分组，可在设置 → 分组中创建。" to "No groups yet. Create one in Settings → Groups.",
     "分组（可选）" to "Group (optional)",
     "未分组" to "No group",

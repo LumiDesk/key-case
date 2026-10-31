@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.UploadFile
@@ -83,6 +84,7 @@ fun SettingsScreen(
     onCustomAccent: (Int) -> Unit,
     onShowTokenCodes: (Boolean) -> Unit,
     onShowNextToken: (Boolean) -> Unit,
+    onCodeGrouping: (CodeGrouping) -> Unit,
     onSecureScreen: (Boolean) -> Unit,
     onAutoLock: (Int) -> Unit,
     onOpenSecurity: () -> Unit,
@@ -131,6 +133,7 @@ fun SettingsScreen(
     var showGoogleImport by remember { mutableStateOf(false) }
     var showIconPreview by remember { mutableStateOf(false) }
     var showAutoLock by remember { mutableStateOf(false) }
+    var showCodeGrouping by remember { mutableStateOf(false) }
     val itemCounts = remember(data.items) {
         data.groups.associate { group ->
             group.id to data.items.count { group.id in it.groupIds }
@@ -259,7 +262,7 @@ fun SettingsScreen(
             AppCard {
                 SwitchRow(
                     title = "显示验证码",
-                    subtitle = "关闭后列表只显示倒计时圆圈",
+                    subtitle = "关闭后数字显示为圆点，点击可查看并复制",
                     checked = settings.showTokenCodes,
                     onCheckedChange = onShowTokenCodes,
                 )
@@ -269,6 +272,18 @@ fun SettingsScreen(
                     subtitle = "在当前验证码下方显示下一组",
                     checked = settings.showNextToken,
                     onCheckedChange = onShowNextToken,
+                )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Schedule,
+                    title = "验证码分组",
+                    subtitle = when (settings.codeGrouping) {
+                        CodeGrouping.AUTO -> "自动 · 6 位按 3+3，8 位按 4+4"
+                        CodeGrouping.THREE -> "每 3 位分隔"
+                        CodeGrouping.FOUR -> "每 4 位分隔"
+                        CodeGrouping.NONE -> "不分隔"
+                    },
+                    onClick = { showCodeGrouping = true },
                 )
             }
         }
@@ -457,6 +472,45 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showAutoLock = false }) { Text("取消") }
+            },
+        )
+    }
+    if (showCodeGrouping) {
+        AlertDialog(
+            onDismissRequest = { showCodeGrouping = false },
+            title = { Text("验证码分组") },
+            text = {
+                Column {
+                    listOf(
+                        CodeGrouping.AUTO to "自动（6 位 3+3，8 位 4+4）",
+                        CodeGrouping.THREE to "每 3 位",
+                        CodeGrouping.FOUR to "每 4 位",
+                        CodeGrouping.NONE to "不分隔",
+                    ).forEach { (mode, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onCodeGrouping(mode)
+                                    showCodeGrouping = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            RadioButton(
+                                selected = settings.codeGrouping == mode,
+                                onClick = {
+                                    onCodeGrouping(mode)
+                                    showCodeGrouping = false
+                                },
+                            )
+                            Text(label)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCodeGrouping = false }) { Text("取消") }
             },
         )
     }

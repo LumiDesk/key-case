@@ -28,6 +28,8 @@ import java.util.UUID
 
 enum class DarkMode { SYSTEM, LIGHT, DARK }
 
+enum class CodeGrouping { AUTO, THREE, FOUR, NONE }
+
 data class AppSettings(
     val accentIndex: Int = 0,
     val customAccent: Int? = null,
@@ -36,6 +38,7 @@ data class AppSettings(
     val showNextToken: Boolean = false,
     val secureScreen: Boolean = false,
     val autoLockSeconds: Int = 0,
+    val codeGrouping: CodeGrouping = CodeGrouping.AUTO,
 )
 
 data class UiState(
@@ -465,6 +468,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putInt(KEY_AUTO_LOCK, safe).apply()
     }
 
+    fun setCodeGrouping(grouping: CodeGrouping) {
+        _settings.update { it.copy(codeGrouping = grouping) }
+        prefs.edit().putString(KEY_CODE_GROUPING, grouping.name).apply()
+    }
+
     fun exportBackup(uri: Uri) {
         val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -588,6 +596,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             showNextToken = prefs.getBoolean(KEY_NEXT_TOKEN, false),
             secureScreen = prefs.getBoolean(KEY_SECURE_SCREEN, false),
             autoLockSeconds = prefs.getInt(KEY_AUTO_LOCK, 0),
+            codeGrouping = runCatching {
+                CodeGrouping.valueOf(
+                    prefs.getString(KEY_CODE_GROUPING, CodeGrouping.AUTO.name)!!,
+                )
+            }.getOrDefault(CodeGrouping.AUTO),
         )
     }
 
@@ -634,5 +647,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_NEXT_TOKEN = "showNextToken"
         private const val KEY_SECURE_SCREEN = "secureScreen"
         private const val KEY_AUTO_LOCK = "autoLockSeconds"
+        private const val KEY_CODE_GROUPING = "codeGrouping"
     }
 }
