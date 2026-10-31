@@ -52,7 +52,7 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk "KeyCase-${current}.apk"
           if gh release view "$current" >/dev/null 2>&1; then
             gh release upload "$current" "KeyCase-${current}.apk" --clobber
-            gh release edit "$current" --notes "$notes"
+            gh release edit "$current" --notes "$notes" --draft=false --tag "$current"
           else
             gh release create "$current" "KeyCase-${current}.apk" \
               --title "$current" \
