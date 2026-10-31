@@ -325,6 +325,7 @@ private fun VaultRoot(
                         route = detailReturn
                     },
                     onAdvanceHotp = { viewModel.advanceHotp(item.id) },
+                    onToggleFavorite = { viewModel.toggleFavorite(item.id) },
                 )
             }
         }
@@ -552,6 +553,10 @@ private fun MainScaffold(
                         onEnableBiometric = onEnableBiometric,
                         onDisableBiometric = onDisableBiometric,
                         onChangePassword = viewModel::changeMasterPassword,
+                        onDeleteVault = {
+                            onDisableBiometric()
+                            viewModel.deleteVault()
+                        },
                     )
                 }
             }

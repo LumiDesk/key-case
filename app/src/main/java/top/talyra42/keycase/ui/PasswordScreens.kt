@@ -38,6 +38,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -45,6 +46,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
+import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SortByAlpha
@@ -84,6 +86,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.draw.rotate
@@ -289,8 +292,10 @@ fun ItemDetailScreen(
     onEdit: () -> Unit,
     onDelete: () -> Unit,
     onAdvanceHotp: () -> Unit,
+    onToggleFavorite: () -> Unit,
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     var revealed by remember(item.id) { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
     var advancedOpen by remember(item.id) { mutableStateOf(false) }
@@ -306,6 +311,17 @@ fun ItemDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (item.favorite) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = if (item.favorite) "取消收藏" else "收藏",
+                            tint = if (item.favorite) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        )
+                    }
                     IconButton(onClick = onEdit) {
                         Icon(Icons.Outlined.Edit, contentDescription = "编辑")
                     }
@@ -373,8 +389,21 @@ fun ItemDetailScreen(
                 }
                 if (item.urls.isNotEmpty()) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                    InfoRow(label = "网址", value = item.urls.first()) {
-                        CopyButton { copyText(context, item.urls.first()) }
+                    val url = item.urls.first()
+                    val openUrl = safeHttpUrl(url)
+                    InfoRow(label = "网址", value = url) {
+                        if (openUrl != null) {
+                            IconButton(onClick = {
+                                runCatching { uriHandler.openUri(openUrl) }
+                            }) {
+                                Icon(
+                                    Icons.Outlined.OpenInNew,
+                                    contentDescription = "打开网址",
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
+                        }
+                        CopyButton { copyText(context, url) }
                     }
                 }
                 if (item.notes.isNotBlank()) {

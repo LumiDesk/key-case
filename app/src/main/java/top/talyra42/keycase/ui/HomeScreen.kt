@@ -45,9 +45,9 @@ fun HomeScreen(
 ) {
     val activeItems = data.items.filter { it.deletedAt == null }
     val passwords = activeItems.filter { it.kind == ItemKind.LOGIN }
-    val tokens = activeItems.filter { it.kind == ItemKind.TOTP || it.totp != null }
+    val tokens = activeItems.filter { it.kind == ItemKind.TOTP }
     val issues = passwordIssueCount(passwords)
-    val recent = activeItems.sortedByDescending { it.updatedAt }.take(6)
+    val recent = activeItems.sortedByDescending { it.updatedAt }.take(5)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -132,7 +132,7 @@ fun HomeScreen(
 
         item {
             SectionHeader(
-                title = "最近使用",
+                title = "最近更新",
             )
         }
 
@@ -149,7 +149,22 @@ fun HomeScreen(
                     )
                 } else {
                     recent.forEachIndexed { index, item ->
-                        VaultItemRow(item = item, onClick = { onOpenItem(item) })
+                        VaultItemRow(
+                            item = item,
+                            onClick = { onOpenItem(item) },
+                            trailing = {
+                                Icon(
+                                    imageVector = if (item.kind == ItemKind.TOTP) {
+                                        Icons.Outlined.Schedule
+                                    } else {
+                                        Icons.Outlined.VpnKey
+                                    },
+                                    contentDescription = if (item.kind == ItemKind.TOTP) "动态令牌" else "密码",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+                                    modifier = Modifier.size(14.dp),
+                                )
+                            },
+                        )
                         if (index != recent.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 58.dp),

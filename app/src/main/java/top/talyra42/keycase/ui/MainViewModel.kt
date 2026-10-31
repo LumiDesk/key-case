@@ -256,6 +256,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         persist(data.copy(items = items))
     }
 
+    fun toggleFavorite(itemId: String) {
+        val data = _state.value.data ?: return
+        val now = Instant.now().toString()
+        persist(
+            data.copy(
+                items = data.items.map {
+                    if (it.id == itemId) {
+                        it.copy(favorite = !it.favorite, updatedAt = now)
+                    } else {
+                        it
+                    }
+                },
+            ),
+        )
+    }
+
     fun deleteItem(itemId: String) {
         val data = _state.value.data ?: return
         val now = Instant.now().toString()
@@ -288,6 +304,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun emptyTrash() {
         val data = _state.value.data ?: return
         persist(data.copy(items = data.items.filter { it.deletedAt == null }))
+    }
+
+    fun deleteVault() {
+        session?.close()
+        session = null
+        store.deleteAll()
+        _state.update {
+            UiState(vaultExists = false, locked = true)
+        }
     }
 
     fun changeMasterPassword(current: String, newPassword: String, confirm: String) {

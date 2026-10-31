@@ -102,6 +102,7 @@ fun SettingsScreen(
     onEnableBiometric: () -> Unit,
     onDisableBiometric: () -> Unit,
     onChangePassword: (String, String, String) -> Unit,
+    onDeleteVault: () -> Unit,
 ) {
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
@@ -160,6 +161,7 @@ fun SettingsScreen(
     var showIconPreview by remember { mutableStateOf(false) }
     var showAutoLock by remember { mutableStateOf(false) }
     var showCodeGrouping by remember { mutableStateOf(false) }
+    var showDeleteVault by remember { mutableStateOf(false) }
 
     fun checkUpdates() {
         if (checkingUpdate) return
@@ -190,7 +192,7 @@ fun SettingsScreen(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "${data.items.size} 个条目 · 本地加密",
+                text = "${data.items.count { it.deletedAt == null }} 个条目 · 本地加密",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -258,7 +260,7 @@ fun SettingsScreen(
                 ActionRow(
                     icon = Icons.Outlined.Folder,
                     title = "从 Aegis 导入",
-                    subtitle = "合并 TOTP 条目与分组",
+                    subtitle = "合并 TOTP 条目",
                     onClick = {
                         onPrepareExternal()
                         aegisLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
@@ -314,7 +316,8 @@ fun SettingsScreen(
                         java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault())
                             .format(java.util.Date(settings.lastBackupAt))
                     },
-                    onClick = {},
+                    onClick = null,
+                    trailingChevron = false,
                 )
                 SettingsDivider()
                 ActionRow(
@@ -472,6 +475,18 @@ fun SettingsScreen(
                     title = "检查更新",
                     subtitle = if (checkingUpdate) "正在检查…" else "当前版本 v$versionName",
                     onClick = { checkUpdates() },
+                )
+            }
+        }
+
+        item {
+            SettingsLabel("危险")
+            AppCard {
+                ActionRow(
+                    icon = Icons.Outlined.Delete,
+                    title = "删除保险库",
+                    subtitle = "永久删除本机所有密码和令牌",
+                    onClick = { showDeleteVault = true },
                 )
             }
         }
@@ -642,12 +657,25 @@ fun SettingsScreen(
             },
         )
     }
-    if (showGoogleImport) {        GoogleMigrationImportDialog(
+    if (showGoogleImport) {
+        GoogleMigrationImportDialog(
             onDismiss = { showGoogleImport = false },
             onImport = {
                 onImportGoogle(it)
                 showGoogleImport = false
             },
+        )
+    }
+    if (showDeleteVault) {
+        ConfirmDialog(
+            title = "删除保险库？",
+            text = "所有密码和令牌将被永久删除，无法恢复。",
+            confirmLabel = "删除保险库",
+            onConfirm = {
+                showDeleteVault = false
+                onDeleteVault()
+            },
+            onDismiss = { showDeleteVault = false },
         )
     }
 }
@@ -786,12 +814,13 @@ private fun ActionRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
+    trailingChevron: Boolean = true,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -817,12 +846,14 @@ private fun ActionRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Icon(
-            Icons.Outlined.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp),
-        )
+        if (trailingChevron) {
+            Icon(
+                Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
     }
 }
 

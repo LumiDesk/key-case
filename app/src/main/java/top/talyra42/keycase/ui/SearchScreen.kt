@@ -21,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -66,10 +65,10 @@ fun SearchScreen(
         }
     }
     val passwords = results.filter { it.kind == ItemKind.LOGIN }
-    val tokens = results.filter { it.kind == ItemKind.TOTP || it.totp != null }
+    val tokens = results.filter { it.kind == ItemKind.TOTP }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("搜索") },
