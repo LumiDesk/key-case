@@ -50,6 +50,11 @@ jobs:
             notes="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${current}"
           fi
           cp app/build/outputs/apk/release/app-release.apk "KeyCase-${current}.apk"
-          gh release create "$current" "KeyCase-${current}.apk" \
-            --title "$current" \
-            --notes "$notes"
+          if gh release view "$current" >/dev/null 2>&1; then
+            gh release upload "$current" "KeyCase-${current}.apk" --clobber
+            gh release edit "$current" --notes "$notes"
+          else
+            gh release create "$current" "KeyCase-${current}.apk" \
+              --title "$current" \
+              --notes "$notes"
+          fi
