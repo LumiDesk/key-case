@@ -81,6 +81,7 @@ object VaultContainer {
     const val FILE_HEADER_SIZE: Int = 9
     private const val MAX_HEADER_BYTES: Int = 1024 * 1024
     private const val MAX_PAYLOAD_BYTES: Int = 64 * 1024 * 1024
+    private const val MAX_PLAINTEXT_BYTES: Int = 64 * 1024 * 1024
     private const val SLOT_TYPE_PASSWORD = "password"
 
     private val json = Json {
@@ -401,5 +402,19 @@ object VaultContainer {
     }
 
     private fun gunzip(data: ByteArray): ByteArray =
-        GZIPInputStream(ByteArrayInputStream(data)).use { it.readBytes() }
+        GZIPInputStream(ByteArrayInputStream(data)).use { input ->
+            val out = ByteArrayOutputStream()
+            val buffer = ByteArray(16 * 1024)
+            var total = 0
+            while (true) {
+                val read = input.read(buffer)
+                if (read < 0) break
+                total += read
+                if (total > MAX_PLAINTEXT_BYTES) {
+                    throw VaultFormatException("Vault payload is too large")
+                }
+                out.write(buffer, 0, read)
+            }
+            out.toByteArray()
+        }
 }

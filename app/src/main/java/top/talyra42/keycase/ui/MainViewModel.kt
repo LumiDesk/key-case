@@ -24,6 +24,7 @@ import top.talyra42.keycase.core.vault.UnlockedVault
 import top.talyra42.keycase.core.vault.VaultContainer
 import top.talyra42.keycase.data.AndroidVaultStore
 import top.talyra42.keycase.data.AutoBackupManager
+import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.UUID
 
@@ -495,9 +496,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _state.update { it.copy(busy = true, error = null) }
             val chars = password.toCharArray()
             try {
-                val bytes = app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?: error("无法读取备份文件")
+                val bytes = readLimited(app, uri)
                 val imported = VaultContainer.unlock(chars, bytes)
+                store.backupBeforeImport()
                 store.write(bytes)
                 session?.close()
                 session = imported
@@ -508,7 +509,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         data = imported.data,
                         busy = false,
                         error = null,
-                        message = "备份导入成功",
+                        message = "备份导入成功，原保险库已保留为安全副本",
                     )
                 }
             } catch (e: Exception) {
@@ -521,13 +522,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun importAegis(uri: Uri, password: String) {        val app = getApplication<Application>()
+    fun importAegis(uri: Uri, password: String) {
+        val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(busy = true, error = null) }
             val chars = password.toCharArray()
             try {
-                val bytes = app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?: error("无法读取 Aegis 文件")
+                val bytes = readLimited(app, uri)
                 val result = AegisImporter.import(bytes, chars)
                 val current = session ?: error("Vault is locked")
                 val data = current.data
@@ -609,6 +610,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         runCatching { writeBackup(bytes) }
     }
 
+    private fun readLimited(
+        context: Context,
+        uri: Uri,
+        maxBytes: Int = MAX_IMPORT_BYTES,
+    ): ByteArray {
+        val input = context.contentResolver.openInputStream(uri)
+            ?: error("无法读取文件")
+        return input.use { stream ->
+            val out = ByteArrayOutputStream()
+            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+            var total = 0
+            while (true) {
+                val read = stream.read(buffer)
+                if (read < 0) break
+                total += read
+                if (total > maxBytes) {
+                    error("文件过大（上限 ${maxBytes / (1024 * 1024)} MB）")
+                }
+                out.write(buffer, 0, read)
+            }
+            out.toByteArray()
+        }
+    }
+
     private fun writeBackup(bytes: ByteArray) {
         val current = _settings.value
         if (current.backupTreeUri.isBlank()) error("请先选择备份目录")
@@ -659,6 +684,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     companion object {
+        private const val MAX_IMPORT_BYTES = 64 * 1024 * 1024
         private const val KEY_ACCENT = "accent"
         private const val KEY_CUSTOM = "customAccent"
         private const val KEY_DARK = "dark"
