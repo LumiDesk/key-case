@@ -181,16 +181,3 @@ fun HomeScreen(
         }
     }
 }
-
-fun passwordIssueCount(items: List<VaultItem>): Int {
-    val common = setOf("123456", "password", "12345678", "qwerty", "111111", "abc123")
-    val reused = items.groupBy { it.password }.filterValues { it.size > 1 }.keys
-    return items.count { item ->
-        val password = item.password
-        password.isBlank() ||
-            password.length < 8 ||
-            password.all(Char::isDigit) ||
-            password.lowercase() in common ||
-            password in reused
-    }
-}

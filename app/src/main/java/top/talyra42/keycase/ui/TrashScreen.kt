@@ -42,28 +42,6 @@ import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.ui.icons.BrandAvatar
 
-data class SecurityIssue(
-    val item: VaultItem,
-    val reason: String,
-)
-
-fun securityIssues(items: List<VaultItem>): List<SecurityIssue> {
-    val common = setOf("123456", "password", "12345678", "qwerty", "111111", "abc123")
-    val reused = items.groupBy { it.password }.filterValues { it.size > 1 }.keys
-    return items.mapNotNull { item ->
-        val password = item.password
-        val reason = when {
-            password.isBlank() -> "没有密码"
-            password.length < 8 -> "密码太短"
-            password.all(Char::isDigit) -> "只有数字"
-            password.lowercase() in common -> "常见弱密码"
-            password in reused -> "密码重复"
-            else -> null
-        }
-        reason?.let { SecurityIssue(item, it) }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecurityScreen(
