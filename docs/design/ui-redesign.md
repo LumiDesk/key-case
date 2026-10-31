@@ -60,3 +60,4 @@ Amber uses dark foreground text (`luminance > 0.30` selects ink instead of white
 | Settings (light) | `docs/screenshots/settings-light.png` |
 | Settings (dark) | `docs/screenshots/settings-dark.png` |
 | Group management | `docs/screenshots/groups.png` |
+| Icon picker | `docs/screenshots/icon-picker.png` |

@@ -3,7 +3,7 @@
 **Local-first, offline Android password manager and TOTP authenticator.**
 No account, no cloud, **no `INTERNET` permission**.
 
-> Status: working debug build. Create/unlock, password CRUD, TOTP codes, QR scanning, groups, accent/dark theme, encrypted backup export/import, master-password rotation, auto-lock, and automatic Aegis icon matching are implemented and verified on an Android 37 emulator. Biometric unlock, Aegis/Google Authenticator import, and a full icon picker are still planned.
+> Status: working debug build. Create/unlock, password CRUD, TOTP codes, QR scanning, groups, accent/dark theme, custom colors, encrypted backup export/import, master-password rotation, auto-lock, Aegis icon matching, and an explicit icon picker are implemented and verified on an Android 37 emulator. Biometric unlock, Aegis/Google Authenticator import, and imported icon packs are still planned.
 
 ## What it is
 
@@ -42,8 +42,8 @@ The app is built for Android and is intentionally offline. There is no sync serv
 | TOTP list with live codes and QR scan | TOTP detail |
 | ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
 | Settings, grouped rows | Dark mode |
-| ![Groups](docs/screenshots/groups.png) | |
-| Group management | |
+| ![Groups](docs/screenshots/groups.png) | ![Icon picker](docs/screenshots/icon-picker.png) |
+| Group management | Icon picker |
 
 ## Build
 
@@ -87,7 +87,7 @@ The `:core` module is deliberately free of Android APIs so its security-critical
 
 The built-in icon pack is [Aegis Simple Icons](https://github.com/alexbakker/aegis-simple-icons), derived from [Simple Icons](https://simpleicons.org/). Simple Icons are CC0; brand logos remain trademarks of their owners. The pack is stored at `app/src/main/assets/iconpacks/aegis-simple-icons-v269.zip`.
 
-The app reads `pack.json`, matches an item's title/issuer against the pack's issuer list, and renders the matching SVG path into a Compose `ImageVector`; unmatched items use the first-character avatar. User-imported packs and an explicit icon picker are planned.
+The app reads `pack.json`, matches an item's title/issuer against the pack's issuer list, and renders the matching SVG path into a Compose `ImageVector`; unmatched items use the first-character avatar. The avatar pencil in the detail screen opens a searchable picker over the built-in pack. Importing user packs is still planned.
 
 ## License
 
