@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Schedule
@@ -42,14 +41,14 @@ fun HomeScreen(
     val passwords = data.items.filter { it.kind == ItemKind.LOGIN }
     val tokens = data.items.filter { it.kind == ItemKind.TOTP || it.totp != null }
     val issues = passwordIssueCount(passwords)
-    val recent = data.items.sortedByDescending { it.updatedAt }.take(5)
+    val recent = data.items.sortedByDescending { it.updatedAt }.take(4)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             start = 16.dp,
             end = 16.dp,
-            top = 20.dp,
+            top = 16.dp,
             bottom = 96.dp,
         ),
     ) {
@@ -78,15 +77,15 @@ fun HomeScreen(
                         Icons.Outlined.Shield,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(10.dp).size(20.dp),
+                        modifier = Modifier.padding(8.dp).size(18.dp),
                     )
                 }
             }
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.height(14.dp))
         }
 
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
                     title = "全部密码",
                     count = passwords.size,
@@ -103,8 +102,8 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
             }
-            Spacer(Modifier.height(10.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Spacer(Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
                     title = "分组",
                     count = data.groups.size,
@@ -143,7 +142,7 @@ fun HomeScreen(
                         VaultItemRow(item = item, onClick = { onOpenItem(item) })
                         if (index != recent.lastIndex) {
                             HorizontalDivider(
-                                modifier = Modifier.padding(start = 64.dp),
+                                modifier = Modifier.padding(start = 58.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant,
                             )
                         }

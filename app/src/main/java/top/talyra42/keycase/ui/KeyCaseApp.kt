@@ -2,18 +2,33 @@ package top.talyra42.keycase.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -36,7 +51,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.journeyapps.barcodescanner.ScanContract
@@ -254,14 +271,10 @@ private fun MainScaffold(
                 ) {
                     Icon(Icons.Outlined.Add, contentDescription = "新建密码")
                 }
-                2 -> FloatingActionButton(
-                    onClick = onAddToken,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Outlined.Add, contentDescription = "新建动态令牌")
-                }
+                2 -> ExpandableTokenFab(
+                    onManualAdd = onAddToken,
+                    onScan = onScanToken,
+                )
             }
         },
     ) { padding ->
@@ -269,42 +282,114 @@ private fun MainScaffold(
             if (busy) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            when (tab) {
-                0 -> HomeScreen(
-                    data = data,
-                    onOpenItem = onOpenItem,
-                    onOpenAllPasswords = { onTab(1) },
-                    onOpenTokens = { onTab(2) },
-                    onOpenGroups = { onTab(3) },
-                    onOpenSecurity = { onTab(1) },
+            AnimatedContent(
+                targetState = tab,
+                transitionSpec = {
+                    val direction = if (targetState > initialState) 1 else -1
+                    (slideInHorizontally(tween(220)) { direction * it / 12 } +
+                        fadeIn(tween(180))) togetherWith
+                        (slideOutHorizontally(tween(160)) { -direction * it / 16 } +
+                            fadeOut(tween(120)))
+                },
+                label = "mainTab",
+            ) { currentTab ->
+                when (currentTab) {
+                    0 -> HomeScreen(
+                        data = data,
+                        onOpenItem = onOpenItem,
+                        onOpenAllPasswords = { onTab(1) },
+                        onOpenTokens = { onTab(2) },
+                        onOpenGroups = { onTab(3) },
+                        onOpenSecurity = { onTab(1) },
+                    )
+                    1 -> PasswordListScreen(
+                        data = data,
+                        onOpenItem = onOpenItem,
+                    )
+                    2 -> TokenListScreen(
+                        data = data,
+                        onOpenItem = onOpenItem,
+                    )
+                    else -> SettingsScreen(
+                        data = data,
+                        settings = settings,
+                        onLock = onLock,
+                        onAccent = onAccent,
+                        onDarkMode = onDarkMode,
+                        onExport = onExport,
+                        onImport = viewModel::importBackup,
+                        onImportAegis = viewModel::importAegis,
+                        onImportGoogle = viewModel::importGoogleMigration,
+                        onPrepareExternal = viewModel::prepareExternalActivity,
+                        onCustomAccent = viewModel::setCustomAccent,
+                        onAddGroup = viewModel::addGroup,
+                        onRenameGroup = viewModel::renameGroup,
+                        onDeleteGroup = viewModel::deleteGroup,
+                        onChangePassword = viewModel::changeMasterPassword,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandableTokenFab(
+    onManualAdd: () -> Unit,
+    onScan: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(
+        targetValue = if (expanded) 45f else 0f,
+        animationSpec = tween(220),
+        label = "tokenFabRotation",
+    )
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn(tween(160)) + expandVertically(expandFrom = Alignment.Bottom),
+            exit = fadeOut(tween(120)) + shrinkVertically(shrinkTowards = Alignment.Bottom),
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        expanded = false
+                        onScan()
+                    },
+                    icon = { Icon(Icons.Outlined.QrCodeScanner, contentDescription = null) },
+                    text = { Text("扫码") },
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                 )
-                1 -> PasswordListScreen(
-                    data = data,
-                    onOpenItem = onOpenItem,
-                )
-                2 -> TokenListScreen(
-                    data = data,
-                    onOpenItem = onOpenItem,
-                    onScan = onScanToken,
-                    onImportGoogle = viewModel::importGoogleMigration,
-                )
-                else -> SettingsScreen(
-                    data = data,
-                    settings = settings,
-                    onLock = onLock,
-                    onAccent = onAccent,
-                    onDarkMode = onDarkMode,
-                    onExport = onExport,
-                    onImport = viewModel::importBackup,
-                    onImportAegis = viewModel::importAegis,
-                    onPrepareExternal = viewModel::prepareExternalActivity,
-                    onCustomAccent = viewModel::setCustomAccent,
-                    onAddGroup = viewModel::addGroup,
-                    onRenameGroup = viewModel::renameGroup,
-                    onDeleteGroup = viewModel::deleteGroup,
-                    onChangePassword = viewModel::changeMasterPassword,
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        expanded = false
+                        onManualAdd()
+                    },
+                    icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
+                    text = { Text("手动添加") },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
             }
+        }
+        FloatingActionButton(
+            onClick = { expanded = !expanded },
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Icon(
+                Icons.Outlined.Add,
+                contentDescription = if (expanded) "收起添加入口" else "添加动态令牌",
+                modifier = Modifier.rotate(rotation),
+            )
         }
     }
 }

@@ -1,5 +1,10 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,29 +17,32 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.QrCodeScanner
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.SortByAlpha
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -74,14 +82,32 @@ import java.util.UUID
 fun TokenListScreen(
     data: VaultData,
     onOpenItem: (VaultItem) -> Unit,
-    onScan: () -> Unit,
-    onImportGoogle: (String) -> Unit,
 ) {
-    var menuOpen by remember { mutableStateOf(false) }
-    var showGoogleImport by remember { mutableStateOf(false) }
+    var query by rememberSaveable { mutableStateOf("") }
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
+    var ascending by rememberSaveable { mutableStateOf(true) }
+    val listState = rememberLazyListState()
     val items = data.items
         .filter { it.kind == ItemKind.TOTP || it.totp != null }
-        .sortedBy { it.title.lowercase() }
+        .filter {
+            query.isBlank() ||
+                it.title.contains(query, ignoreCase = true) ||
+                it.username.contains(query, ignoreCase = true) ||
+                it.issuer.contains(query, ignoreCase = true)
+        }
+    val sections = sectionsOf(items, ascending = ascending)
+    val sectionStarts = remember(sections) {
+        buildMap {
+            var index = 0
+            sections.forEach { section ->
+                put(section.letter, index)
+                index += section.items.size + 1
+            }
+        }
+    }
+    val activeLetter = sectionStarts.entries
+        .lastOrNull { it.value <= listState.firstVisibleItemIndex }
+        ?.key
 
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(Unit) {
@@ -91,156 +117,145 @@ fun TokenListScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = "动态令牌",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
+                Spacer(Modifier.width(7.dp))
                 Text(
-                    text = "${items.size} 个验证码 · 每 30 秒更新",
-                    style = MaterialTheme.typography.bodySmall,
+                    text = "${items.size}",
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            }
-            FilledTonalButton(onClick = onScan) {
-                Icon(
-                    Icons.Outlined.QrCodeScanner,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-                Spacer(Modifier.width(6.dp))
-                Text("扫码")
-            }
-            Box {
-                IconButton(onClick = { menuOpen = true }) {
-                    Icon(Icons.Outlined.MoreVert, contentDescription = "更多导入方式")
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { searchOpen = !searchOpen }) {
+                    Icon(
+                        if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
+                        contentDescription = if (searchOpen) "关闭搜索" else "搜索",
+                        modifier = Modifier.size(20.dp),
+                    )
                 }
-                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                    DropdownMenuItem(
-                        text = { Text("从 Google Authenticator 导入") },
-                        onClick = {
-                            menuOpen = false
-                            showGoogleImport = true
-                        },
+                IconButton(onClick = { ascending = !ascending }) {
+                    Icon(
+                        Icons.Outlined.SortByAlpha,
+                        contentDescription = "排序",
+                        modifier = Modifier.size(20.dp),
                     )
                 }
             }
-        }
 
-        if (items.isEmpty()) {
-            EmptyState(
-                icon = Icons.Outlined.Schedule,
-                title = "还没有动态令牌",
-                subtitle = "扫码或点右下角 + 手动添加。",
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    start = 20.dp,
-                    end = 20.dp,
-                    bottom = 96.dp,
-                ),
+            AnimatedVisibility(
+                visible = searchOpen,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
             ) {
-                items(items.size, key = { items[it].id }) { index ->
-                    val item = items[index]
-                    val secret = item.totp
-                    val code = secret?.let { runCatching { it.codeAt(now) }.getOrNull() } ?: "—"
-                    VaultItemRow(
-                        item = item,
-                        onClick = { onOpenItem(item) },
-                        trailing = {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    placeholder = { Text("搜索服务、账号或发行方") },
+                    leadingIcon = {
+                        Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
+                    },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.small,
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            if (items.isEmpty()) {
+                EmptyState(
+                    icon = Icons.Outlined.Schedule,
+                    title = if (query.isBlank()) "还没有动态令牌" else "没有匹配的令牌",
+                    subtitle = if (query.isBlank()) "点右下角 + 扫码或手动添加。" else "换个关键词试试。",
+                )
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        start = 16.dp,
+                        end = 26.dp,
+                        bottom = 96.dp,
+                    ),
+                ) {
+                    sections.forEach { section ->
+                        item(key = "header-${section.letter}") {
+                            LetterSectionHeader(section.letter)
+                        }
+                        items(section.items, key = { it.id }) { item ->
+                            val secret = item.totp
+                            val code = secret?.let { runCatching { it.codeAt(now) }.getOrNull() } ?: "—"
                             val period = (secret?.period ?: 30).coerceAtLeast(1)
                             val remaining = period - ((now / 1000L) % period)
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text(
-                                    text = code.chunked(3).joinToString(" "),
-                                    fontFamily = FontFamily.Monospace,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontSize = 16.sp,
-                                )
-                                Text(
-                                    text = "${remaining}s",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        },
-                    )
+                            VaultItemRow(
+                                item = item,
+                                onClick = { onOpenItem(item) },
+                                trailing = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Surface(
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = MaterialTheme.colorScheme.primaryContainer,
+                                        ) {
+                                            Text(
+                                                text = code.chunked(3).joinToString(" "),
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                            )
+                                        }
+                                        Spacer(Modifier.width(6.dp))
+                                        Box(modifier = Modifier.size(21.dp), contentAlignment = Alignment.Center) {
+                                            CircularProgressIndicator(
+                                                progress = { remaining / period.toFloat() },
+                                                modifier = Modifier.fillMaxSize(),
+                                                strokeWidth = 1.8.dp,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                trackColor = MaterialTheme.colorScheme.outlineVariant,
+                                            )
+                                            Text(
+                                                text = remaining.toString(),
+                                                fontSize = 7.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
+                                },
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 56.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
+                    }
                 }
             }
         }
+
+        if (items.isNotEmpty()) {
+            AlphabetIndex(
+                letters = AlphabetLetters,
+                active = activeLetter,
+                listState = listState,
+                sectionStarts = sectionStarts,
+                availableLetters = sections.map { it.letter }.toSet(),
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
+        }
     }
-
-    if (showGoogleImport) {
-        GoogleMigrationImportDialog(
-            onDismiss = { showGoogleImport = false },
-            onImport = { link ->
-                onImportGoogle(link)
-                showGoogleImport = false
-            },
-        )
-    }
-}
-
-@Composable
-private fun GoogleMigrationImportDialog(
-    onDismiss: () -> Unit,
-    onImport: (String) -> Unit,
-) {
-    var link by rememberSaveable { mutableStateOf("") }
-    var localError by remember { mutableStateOf<String?>(null) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        shape = MaterialTheme.shapes.large,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("Google Authenticator 导入") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(
-                    "在 Google Authenticator 中选择“转移账号”并复制导出的 otpauth-migration 链接。链接只在本机解析。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                OutlinedTextField(
-                    value = link,
-                    onValueChange = { link = it },
-                    label = { Text("otpauth-migration:// 链接") },
-                    minLines = 3,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.small,
-                )
-                localError?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val trimmed = link.trim()
-                    if (!trimmed.startsWith("otpauth-migration://")) {
-                        localError = "请输入 otpauth-migration:// 链接"
-                    } else {
-                        onImport(trimmed)
-                    }
-                },
-            ) { Text("导入") }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
-        },
-    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

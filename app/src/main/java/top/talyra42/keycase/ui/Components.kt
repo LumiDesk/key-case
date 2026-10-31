@@ -113,7 +113,7 @@ fun StatCard(
     }
     Card(
         onClick = onClick,
-        modifier = modifier.height(88.dp),
+        modifier = modifier.height(72.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = container,
@@ -125,37 +125,37 @@ fun StatCard(
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 14.dp),
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(11.dp),
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
+                    .size(30.dp)
                     .background(
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                        RoundedCornerShape(10.dp),
+                        RoundedCornerShape(9.dp),
                     ),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
                     icon,
                     contentDescription = null,
-                    modifier = Modifier.size(19.dp),
+                    modifier = Modifier.size(17.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
             Column(verticalArrangement = Arrangement.Center) {
                 Text(
                     text = count.toString(),
-                    fontSize = 25.sp,
-                    lineHeight = 28.sp,
+                    fontSize = 21.sp,
+                    lineHeight = 23.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                 )
@@ -231,26 +231,26 @@ fun VaultItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 14.dp, vertical = 10.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         BrandAvatar(
             title = item.title.ifBlank { item.issuer.ifBlank { "?" } },
-            size = 38.dp,
+            size = 34.dp,
             iconRef = item.icon,
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title.ifBlank { "未命名" },
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = item.username.ifBlank { item.issuer }.ifBlank { "—" },
-                style = MaterialTheme.typography.bodySmall,
+                style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

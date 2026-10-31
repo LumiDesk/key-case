@@ -4,6 +4,11 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,11 +31,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.SortByAlpha
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.VpnKey
@@ -85,6 +96,9 @@ fun PasswordListScreen(
     onOpenItem: (VaultItem) -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
+    var searchOpen by rememberSaveable { mutableStateOf(false) }
+    var ascending by rememberSaveable { mutableStateOf(true) }
+    val listState = rememberLazyListState()
     val items = data.items
         .filter { it.kind == ItemKind.LOGIN }
         .filter {
@@ -93,54 +107,133 @@ fun PasswordListScreen(
                 it.username.contains(query, ignoreCase = true) ||
                 it.urls.any { url -> url.contains(query, ignoreCase = true) }
         }
-        .sortedBy { it.title.lowercase() }
-
-    Column(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
-            Text(
-                text = "密码",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = "${data.items.count { it.kind == ItemKind.LOGIN }} 个条目",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.height(12.dp))
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("搜索名称、账号或网址") },
-                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
-            )
+    val sections = sectionsOf(items, ascending = ascending)
+    val sectionStarts = remember(sections) {
+        buildMap {
+            var index = 0
+            sections.forEach { section ->
+                put(section.letter, index)
+                index += section.items.size + 1
+            }
         }
+    }
+    val activeLetter = sectionStarts.entries
+        .lastOrNull { it.value <= listState.firstVisibleItemIndex }
+        ?.key
 
-        if (items.isEmpty()) {
-            EmptyState(
-                icon = Icons.Outlined.VpnKey,
-                title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
-                subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
-            )
-        } else {
-            androidx.compose.foundation.lazy.LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    start = 20.dp,
-                    end = 20.dp,
-                    bottom = 96.dp,
-                ),
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 6.dp, top = 12.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                items(items.size, key = { items[it].id }) { index ->
-                    VaultItemRow(item = items[index], onClick = { onOpenItem(items[index]) })
-                    if (index != items.lastIndex) {
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                Text(
+                    text = "密码",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                )
+                Spacer(Modifier.width(7.dp))
+                Text(
+                    text = "${items.size}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.weight(1f))
+                IconButton(onClick = { searchOpen = !searchOpen }) {
+                    Icon(
+                        if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
+                        contentDescription = if (searchOpen) "关闭搜索" else "搜索",
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+                IconButton(onClick = { ascending = !ascending }) {
+                    Icon(
+                        Icons.Outlined.SortByAlpha,
+                        contentDescription = "排序",
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = searchOpen,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    placeholder = { Text("搜索名称、账号或网址") },
+                    leadingIcon = {
+                        Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
+                    },
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.small,
+                    textStyle = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            if (items.isEmpty()) {
+                EmptyState(
+                    icon = Icons.Outlined.VpnKey,
+                    title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
+                    subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
+                )
+            } else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        start = 16.dp,
+                        end = 26.dp,
+                        bottom = 96.dp,
+                    ),
+                ) {
+                    sections.forEach { section ->
+                        item(key = "header-${section.letter}") {
+                            LetterSectionHeader(section.letter)
+                        }
+                        items(section.items, key = { it.id }) { item ->
+                            VaultItemRow(
+                                item = item,
+                                onClick = { onOpenItem(item) },
+                                trailing = if (item.favorite) {
+                                    {
+                                        Icon(
+                                            Icons.Outlined.Star,
+                                            contentDescription = "收藏",
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(15.dp),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                            )
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 56.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
                     }
                 }
             }
+        }
+
+        if (items.isNotEmpty()) {
+            AlphabetIndex(
+                letters = AlphabetLetters,
+                active = activeLetter,
+                listState = listState,
+                sectionStarts = sectionStarts,
+                availableLetters = sections.map { it.letter }.toSet(),
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
         }
     }
 }
