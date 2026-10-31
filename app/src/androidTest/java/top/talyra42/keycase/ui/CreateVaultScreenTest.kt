@@ -1,7 +1,7 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Assert.assertEquals
@@ -29,7 +29,7 @@ class CreateVaultScreenTest {
             }
         }
 
-        compose.onNodeWithText("创建保险库").performClick()
+        compose.onNode(hasText("创建保险库") or hasText("Create vault")).performClick()
 
         assertEquals("", captured?.first)
         assertEquals("", captured?.second)

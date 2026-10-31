@@ -41,7 +41,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -67,9 +66,10 @@ sealed interface Route {
     data object Security : Route
     data object Trash : Route
     data class Detail(val itemId: String) : Route
-    data class PasswordEditor(val itemId: String?) : Route
-    data class TokenEditor(val itemId: String?, val initialUri: String? = null) : Route
 }
+
+private data class PasswordEditorTarget(val itemId: String?)
+private data class TokenEditorTarget(val itemId: String?, val initialUri: String? = null)
 
 @Composable
 fun KeyCaseApp(viewModel: MainViewModel) {
@@ -112,13 +112,15 @@ private fun VaultRoot(
     val data = state.data ?: return
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var route by remember { mutableStateOf<Route>(Route.Main) }
+    var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
+    var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
         if (!contents.isNullOrBlank()) {
             if (contents.startsWith("otpauth-migration://")) {
                 viewModel.importGoogleMigration(contents)
             } else {
-                route = Route.TokenEditor(itemId = null, initialUri = contents)
+                tokenEditor = TokenEditorTarget(itemId = null, initialUri = contents)
             }
         }
     }
@@ -144,8 +146,8 @@ private fun VaultRoot(
             tab = tab,
             onTab = { tab = it },
             onOpenItem = openItem,
-            onAddPassword = { route = Route.PasswordEditor(null) },
-            onAddToken = { route = Route.TokenEditor(null) },
+            onAddPassword = { passwordEditor = PasswordEditorTarget(null) },
+            onAddToken = { tokenEditor = TokenEditorTarget(null) },
             onScanToken = {
                 viewModel.prepareExternalActivity()
                 scanLauncher.launch(
@@ -191,10 +193,10 @@ private fun VaultRoot(
                     groups = data.groups,
                     onBack = { route = Route.Main },
                     onEdit = {
-                        route = if (item.kind == ItemKind.TOTP) {
-                            Route.TokenEditor(item.id)
+                        if (item.kind == ItemKind.TOTP) {
+                            tokenEditor = TokenEditorTarget(item.id)
                         } else {
-                            Route.PasswordEditor(item.id)
+                            passwordEditor = PasswordEditorTarget(item.id)
                         }
                     },
                     onDelete = {
@@ -207,32 +209,32 @@ private fun VaultRoot(
                 )
             }
         }
+    }
 
-        is Route.PasswordEditor -> {
-            val item = current.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
-            PasswordEditorScreen(
-                item = item,
-                groups = data.groups,
-                onBack = { route = Route.Main },
-                onSave = { updated, group ->
-                    viewModel.upsertItem(updated, group)
-                    route = Route.Main
-                },
-            )
-        }
+    passwordEditor?.let { target ->
+        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+        PasswordEditorScreen(
+            item = item,
+            groups = data.groups,
+            onBack = { passwordEditor = null },
+            onSave = { updated, group ->
+                viewModel.upsertItem(updated, group)
+                passwordEditor = null
+            },
+        )
+    }
 
-        is Route.TokenEditor -> {
-            val item = current.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
-            TokenEditorScreen(
-                item = item,
-                initialUri = current.initialUri,
-                onBack = { route = Route.Main },
-                onSave = { updated ->
-                    viewModel.upsertItem(updated, "")
-                    route = Route.Main
-                },
-            )
-        }
+    tokenEditor?.let { target ->
+        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+        TokenEditorScreen(
+            item = item,
+            initialUri = target.initialUri,
+            onBack = { tokenEditor = null },
+            onSave = { updated ->
+                viewModel.upsertItem(updated, "")
+                tokenEditor = null
+            },
+        )
     }
 }
 

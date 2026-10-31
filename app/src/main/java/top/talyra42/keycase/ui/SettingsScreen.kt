@@ -41,7 +41,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -439,6 +438,7 @@ private fun ThemeSetting(mode: DarkMode, onDarkMode: (DarkMode) -> Unit) {
                     selected = mode == value,
                     onClick = { onDarkMode(value) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                    icon = {},
                     label = { Text(label, style = MaterialTheme.typography.labelMedium) },
                 )
             }

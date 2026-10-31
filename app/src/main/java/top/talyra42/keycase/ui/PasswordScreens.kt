@@ -57,7 +57,6 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -140,12 +139,6 @@ fun PasswordListScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(Modifier.width(7.dp))
-                Text(
-                    text = "${items.size}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { searchOpen = !searchOpen }) {
                     Icon(
@@ -185,16 +178,23 @@ fun PasswordListScreen(
             }
 
             if (items.isEmpty()) {
-                EmptyState(
-                    icon = Icons.Outlined.VpnKey,
-                    title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
-                    subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
-                    action = if (query.isBlank()) {
-                        { FilledTonalButton(onClick = onAdd) { Text("添加密码") } }
-                    } else {
-                        null
-                    },
-                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    EmptyState(
+                        icon = Icons.Outlined.VpnKey,
+                        title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
+                        subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
+                        action = if (query.isBlank()) {
+                            { FilledTonalButton(onClick = onAdd) { Text("添加密码") } }
+                        } else {
+                            null
+                        },
+                    )
+                }
             } else {
                 LazyColumn(
                     state = listState,
@@ -268,7 +268,7 @@ fun ItemDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (item.kind == ItemKind.TOTP) "动态令牌" else "密码") },
+                title = { Text(if (item.kind == ItemKind.TOTP) "令牌详情" else "登录密码") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
@@ -366,7 +366,7 @@ fun ItemDetailScreen(
                 if (item.password.isNotBlank()) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
                     InfoRow(
-                        label = "密码",
+                        label = "登录密码",
                         value = if (revealed) item.password else "••••••••",
                     ) {
                         IconButton(onClick = { revealed = !revealed }) {
@@ -588,7 +588,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("密码") },
+                label = { Text("登录密码") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,

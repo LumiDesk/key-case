@@ -1,8 +1,8 @@
 package top.talyra42.keycase.ui
 
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
@@ -27,7 +27,7 @@ class PasswordEditorSheetTest {
             }
         }
 
-        compose.onNodeWithText("新建密码").assertIsDisplayed()
-        compose.onNodeWithText("保存密码").assertIsDisplayed()
+        compose.onNode(hasText("新建密码") or hasText("New password")).assertIsDisplayed()
+        compose.onNode(hasText("保存密码") or hasText("Save password")).assertIsDisplayed()
     }
 }

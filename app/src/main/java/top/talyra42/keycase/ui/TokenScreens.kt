@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,6 +34,8 @@ import androidx.compose.material.icons.outlined.SortByAlpha
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -41,12 +44,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -133,12 +137,6 @@ fun TokenListScreen(
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(Modifier.width(7.dp))
-                Text(
-                    text = "${items.size}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
                 Spacer(Modifier.weight(1f))
                 IconButton(onClick = { searchOpen = !searchOpen }) {
                     Icon(
@@ -178,21 +176,28 @@ fun TokenListScreen(
             }
 
             if (items.isEmpty()) {
-                EmptyState(
-                    icon = Icons.Outlined.Schedule,
-                    title = if (query.isBlank()) "还没有动态令牌" else "没有匹配的令牌",
-                    subtitle = if (query.isBlank()) "扫码或手动添加第一个令牌。" else "换个关键词试试。",
-                    action = if (query.isBlank()) {
-                        {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilledTonalButton(onClick = onScan) { Text("扫码添加") }
-                                FilledTonalButton(onClick = onAdd) { Text("手动添加") }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    EmptyState(
+                        icon = Icons.Outlined.Schedule,
+                        title = if (query.isBlank()) "还没有动态令牌" else "没有匹配的令牌",
+                        subtitle = if (query.isBlank()) "扫码或手动添加第一个令牌。" else "换个关键词试试。",
+                        action = if (query.isBlank()) {
+                            {
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    FilledTonalButton(onClick = onScan) { Text("扫码添加") }
+                                    FilledTonalButton(onClick = onAdd) { Text("手动添加") }
+                                }
                             }
-                        }
-                    } else {
-                        null
-                    },
-                )
+                        } else {
+                            null
+                        },
+                    )
+                }
             } else {
                 LazyColumn(
                     state = listState,
@@ -309,70 +314,83 @@ fun TokenEditorScreen(
         )
     }
     var showImport by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (item == null) "添加动态令牌" else "编辑动态令牌") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "取消")
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = {
-                            val normalized = secret.trim().uppercase().replace(" ", "")
-                            if (normalized.isBlank()) {
-                                error = "请输入密钥"
-                                return@TextButton
-                            }
-                            val valid = runCatching { Base32.decode(normalized) }.isSuccess
-                            if (!valid) {
-                                error = "密钥不是有效的 Base32"
-                                return@TextButton
-                            }
-                            val now = Instant.now().toString()
-                            val updated = (item ?: VaultItem(
-                                id = UUID.randomUUID().toString(),
-                                kind = ItemKind.TOTP,
-                                createdAt = now,
-                            )).copy(
-                                kind = ItemKind.TOTP,
-                                title = issuer.trim().ifBlank { account.trim().ifBlank { "动态令牌" } },
-                                issuer = issuer.trim(),
-                                username = account.trim(),
-                                totp = TotpSecret(
-                                    type = OtpType.TOTP,
-                                    secret = normalized,
-                                    algorithm = algorithm,
-                                    digits = digits,
-                                    period = period,
-                                ),
-                                updatedAt = now,
-                            )
-                            onSave(updated)
-                        },
-                    ) { Text("保存") }
-                },
-            )
-        },
-    ) { padding ->
+    fun save() {
+        val normalized = secret.trim().uppercase().replace(" ", "")
+        if (normalized.isBlank()) {
+            error = "请输入密钥"
+            return
+        }
+        if (runCatching { Base32.decode(normalized) }.isFailure) {
+            error = "密钥不是有效的 Base32"
+            return
+        }
+        val now = Instant.now().toString()
+        val updated = (item ?: VaultItem(
+            id = UUID.randomUUID().toString(),
+            kind = ItemKind.TOTP,
+            createdAt = now,
+        )).copy(
+            kind = ItemKind.TOTP,
+            title = issuer.trim().ifBlank { account.trim().ifBlank { "动态令牌" } },
+            issuer = issuer.trim(),
+            username = account.trim(),
+            totp = TotpSecret(
+                type = OtpType.TOTP,
+                secret = normalized,
+                algorithm = algorithm,
+                digits = digits,
+                period = period,
+            ),
+            updatedAt = now,
+        )
+        onSave(updated)
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onBack,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
         Column(
             modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
+                .fillMaxWidth()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(11.dp),
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (item == null) "添加动态令牌" else "编辑动态令牌",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "密钥只保存在本地加密保险库",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Outlined.Close, contentDescription = "关闭")
+                }
+            }
             OutlinedTextField(
                 value = issuer,
                 onValueChange = { issuer = it },
                 label = { Text("服务名称") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
                 placeholder = { Text("例如 GitHub") },
             )
             OutlinedTextField(
@@ -381,7 +399,7 @@ fun TokenEditorScreen(
                 label = { Text("账号") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
                 placeholder = { Text("例如 lin.dev") },
             )
             OutlinedTextField(
@@ -390,7 +408,7 @@ fun TokenEditorScreen(
                 label = { Text("密钥（Base32）") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
                 visualTransformation = if (revealed) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -406,7 +424,7 @@ fun TokenEditorScreen(
                 },
             )
             if (!error.isNullOrBlank()) {
-                Text(error!!, color = MaterialTheme.colorScheme.error)
+                Text(error!!, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             TextButton(onClick = { showImport = true }) {
                 Icon(Icons.Outlined.Link, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -449,12 +467,16 @@ fun TokenEditorScreen(
                     label = { Text("60 秒") },
                 )
             }
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = "密钥只保存在加密容器里，不联网。",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Spacer(Modifier.height(2.dp))
+            Button(
+                onClick = ::save,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Text("保存令牌", fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 
