@@ -112,13 +112,14 @@ class VaultContainerTest {
         val session = VaultContainer.unlock(password, bytes)
         val newPassword = "a new master password".toCharArray()
 
-        val rotated = VaultContainer.changePassword(session, newPassword, fastKdf)
+        val rotated = VaultContainer.changePasswordSession(session, newPassword, fastKdf)
 
         assertThrows(VaultFormatException::class.java) {
-            VaultContainer.open(password, rotated)
+            VaultContainer.open(password, rotated.bytes)
         }
-        val reopened = VaultContainer.open(newPassword, rotated)
+        val reopened = VaultContainer.open(newPassword, rotated.bytes)
         assertEquals(session.data.items, reopened.items)
-        assertEquals(1, VaultContainer.inspect(rotated).slots.count { it.type == "password" })
+        assertEquals(session.data.items, rotated.session.data.items)
+        assertEquals(1, VaultContainer.inspect(rotated.bytes).slots.count { it.type == "password" })
     }
 }

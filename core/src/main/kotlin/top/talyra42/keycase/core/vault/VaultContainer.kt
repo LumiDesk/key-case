@@ -233,7 +233,17 @@ object VaultContainer {
         session: UnlockedVault,
         newPassword: CharArray,
         kdfParams: KdfParams = KdfParams(),
-    ): ByteArray {
+    ): ByteArray = changePasswordSession(session, newPassword, kdfParams).bytes
+
+    /**
+     * Like [changePassword], but also returns an updated session so the caller
+     * does not have to derive the new password key again.
+     */
+    fun changePasswordSession(
+        session: UnlockedVault,
+        newPassword: CharArray,
+        kdfParams: KdfParams = KdfParams(),
+    ): CreatedVault {
         require(newPassword.isNotEmpty()) { "password must not be empty" }
 
         val salt = Crypto.randomBytes(Crypto.SALT_SIZE)
@@ -258,9 +268,10 @@ object VaultContainer {
             session.data,
             session.header.vaultId,
         )
-        return assemble(
-            session.header.copy(payloadNonce = Codec.b64(nonce), slots = slots),
-            ciphertext,
+        val header = session.header.copy(payloadNonce = Codec.b64(nonce), slots = slots)
+        return CreatedVault(
+            bytes = assemble(header, ciphertext),
+            session = UnlockedVault(header, session.vaultKey, session.data),
         )
     }
 
