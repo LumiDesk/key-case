@@ -117,7 +117,7 @@ object AegisIconPack {
         labels.asSequence()
             .filter { it.isNotBlank() }
             .distinct()
-            .take(64)
+            .take(16)
             .forEach { label ->
                 val filename = findFilename(context, label) ?: return@forEach
                 bitmapFor(context, filename, maxSize = 112)
