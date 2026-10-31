@@ -137,6 +137,9 @@ private val EN = mapOf(
     "在“密码”或“令牌”里添加第一条。" to "Add your first item in Passwords or Tokens.",
     "最近使用" to "Recently used",
     "导入图片…" to "Import image…",
+    "导入图标包…" to "Import icon pack…",
+    "已导入图标包" to "Imported packs",
+    "已导入 %d 个图标" to "Imported %d icons",
     "没有匹配的图标。" to "No matching icons.",
     "使用字母头像" to "Use letter avatar",
     "搜索图标名称" to "Search icon names",
@@ -323,6 +326,7 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^(\d+) 个条目需要处理$""") to { "${it.groupValues[1]} items need attention" },
     Regex("""^(\d+) 个条目 · 本地加密$""") to { "${it.groupValues[1]} items · encrypted locally" },
     Regex("""^(\d+) 秒后更新$""") to { "${it.groupValues[1]}s until refresh" },
+    Regex("""^已导入 (\d+) 个图标$""") to { "Imported ${it.groupValues[1]} icons" },
     Regex("""^删除分组“(.+)”？$""") to { "Delete group “${it.groupValues[1]}”?" },
 )
 

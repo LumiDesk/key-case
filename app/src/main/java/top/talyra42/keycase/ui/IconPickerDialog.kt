@@ -7,6 +7,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,18 +21,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
@@ -39,6 +44,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,6 +54,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.talyra42.keycase.core.model.IconRef
 import top.talyra42.keycase.ui.icons.AegisIconPack
+import top.talyra42.keycase.ui.icons.ImportedIconPack
 import java.io.ByteArrayOutputStream
 import androidx.compose.runtime.rememberCoroutineScope
 
@@ -62,8 +69,16 @@ fun IconPickerDialog(
     val icons by produceState<List<AegisIconPack.PackIcon>>(emptyList()) {
         value = withContext(Dispatchers.IO) { AegisIconPack.entries(context) }
     }
+    var packReload by remember { mutableIntStateOf(0) }
+    val importedIcons by produceState<List<ImportedIconPack.PackIcon>>(
+        initialValue = emptyList(),
+        packReload,
+    ) {
+        value = withContext(Dispatchers.IO) { ImportedIconPack.list(context) }
+    }
     var query by rememberSaveable { mutableStateOf("") }
     var imageError by remember { mutableStateOf<String?>(null) }
+    var packStatus by remember { mutableStateOf<String?>(null) }
     val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
             scope.launch {
@@ -77,9 +92,33 @@ fun IconPickerDialog(
             }
         }
     }
+    val packPicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    runCatching { ImportedIconPack.import(context, uri) }
+                }.onSuccess { result ->
+                    packReload++
+                    packStatus = "已导入 ${result.imported} 个图标"
+                }.onFailure {
+                    imageError = it.message ?: "无法读取图标包"
+                }
+            }
+        }
+    }
     val filtered = remember(icons, query) {
         icons.asSequence()
             .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
+            .take(160)
+            .toList()
+    }
+    val filteredImported = remember(importedIcons, query) {
+        importedIcons.asSequence()
+            .filter {
+                query.isBlank() ||
+                    it.name.contains(query, ignoreCase = true) ||
+                    it.issuer.orEmpty().contains(query, ignoreCase = true)
+            }
             .take(160)
             .toList()
     }
@@ -110,6 +149,15 @@ fun IconPickerDialog(
                         Spacer(Modifier.width(6.dp))
                         Text("导入图片…")
                     }
+                    TextButton(onClick = { packPicker.launch("*/*") }) {
+                        Icon(
+                            Icons.Outlined.UploadFile,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("导入图标包…")
+                    }
                     imageError?.let {
                         Text(
                             it,
@@ -119,9 +167,17 @@ fun IconPickerDialog(
                         )
                     }
                 }
+                packStatus?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                }
                 Spacer(Modifier.height(8.dp))
                 when {
-                    icons.isEmpty() -> Row(
+                    icons.isEmpty() && importedIcons.isEmpty() -> Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 24.dp),
@@ -132,7 +188,7 @@ fun IconPickerDialog(
                         Text("正在读取内置图标…", style = MaterialTheme.typography.bodySmall)
                     }
 
-                    filtered.isEmpty() -> Text(
+                    filtered.isEmpty() && filteredImported.isEmpty() -> Text(
                         "没有匹配的图标。",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -140,6 +196,65 @@ fun IconPickerDialog(
                     )
 
                     else -> LazyColumn(modifier = Modifier.heightIn(max = 380.dp)) {
+                        if (filteredImported.isNotEmpty()) {
+                            item {
+                                Text(
+                                    "已导入图标包",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                )
+                            }
+                            items(filteredImported, key = { it.file.absolutePath }) { icon ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            scope.launch {
+                                                runCatching {
+                                                    withContext(Dispatchers.IO) {
+                                                        ImportedIconPack.encodeForVault(icon.file)
+                                                    }
+                                                }.onSuccess { encoded ->
+                                                    onPick(
+                                                        IconRef(
+                                                            kind = "custom",
+                                                            value = encoded,
+                                                            mime = "image/png",
+                                                        ),
+                                                    )
+                                                    onDismiss()
+                                                }.onFailure {
+                                                    imageError = it.message ?: "无法读取图标"
+                                                }
+                                            }
+                                        }
+                                        .padding(horizontal = 4.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    ImportedIconPreview(icon.file)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = icon.name,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                        icon.issuer?.let {
+                                            Text(
+                                                text = it,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            item { HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp)) }
+                        }
                         items(filtered.size, key = { filtered[it].filename }) { index ->
                             val icon = filtered[index]
                             val selected = current?.kind == "pack" && current.value == icon.filename
@@ -186,6 +301,30 @@ fun IconPickerDialog(
             ) { Text("使用字母头像") }
         },
     )
+}
+
+@Composable
+private fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
+    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, file.absolutePath) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
+            }.getOrNull()
+        }
+    }
+    val image = bitmap
+    if (image == null) {
+        LetterAvatar(title = file.nameWithoutExtension, size = size.dp)
+    } else {
+        Image(
+            bitmap = image,
+            contentDescription = null,
+            modifier = Modifier
+                .size(size.dp)
+                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
+                .padding(4.dp),
+        )
+    }
 }
 
 @Composable
