@@ -149,6 +149,10 @@ private val EN = mapOf(
     "从 Aegis ZIP 导入 PNG 图标" to "Import PNG icons from an Aegis ZIP",
     "无法读取图标包" to "Could not read the icon pack",
     "图标" to "Icons",
+    "小提示 · 点击验证码可直接复制" to "Tip · Tap a code to copy",
+    "还没有分组，可在设置 → 分组中创建。" to "No groups yet. Create one in Settings → Groups.",
+    "分组（可选）" to "Group (optional)",
+    "未分组" to "No group",
     "高级设置" to "Advanced settings",
     "点击更换图标" to "Tap to change icon",
     "预览图标包" to "Preview icon packs",
@@ -370,6 +374,8 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^内置图标包 · (\d+)$""") to { "Built-in · ${it.groupValues[1]}" },
     Regex("""^已导入图标包 · (\d+)$""") to { "Imported · ${it.groupValues[1]}" },
     Regex("""^下一组 (.+)$""") to { "Next ${it.groupValues[1]}" },
+    Regex("""^(\d+) 个已删除条目$""") to { "${it.groupValues[1]} deleted items" },
+    Regex("""^删除于 (.+)$""") to { "Deleted ${it.groupValues[1]}" },
     Regex("""^删除分组“(.+)”？$""") to { "Delete group “${it.groupValues[1]}”?" },
 )
 

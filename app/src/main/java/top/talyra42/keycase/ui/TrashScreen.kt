@@ -1,6 +1,5 @@
 package top.talyra42.keycase.ui
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.VaultItem
+import top.talyra42.keycase.ui.icons.BrandAvatar
 
 data class SecurityIssue(
     val item: VaultItem,
@@ -191,37 +191,71 @@ fun TrashScreen(
                     .padding(padding)
                     .fillMaxSize(),
                 contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
+                    start = 12.dp,
+                    end = 12.dp,
+                    top = 8.dp,
                     bottom = 24.dp,
                 ),
             ) {
+                item {
+                    Text(
+                        text = "${deleted.size} 个已删除条目",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 8.dp),
+                    )
+                }
                 items(deleted, key = { it.id }) { item ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Box(modifier = Modifier.weight(1f)) {
-                            VaultItemRow(item = item, onClick = {})
-                        }
-                        IconButton(onClick = { onRestore(item.id) }) {
-                            Icon(Icons.Outlined.Restore, contentDescription = "恢复")
-                        }
-                        IconButton(onClick = { onPurge(item.id) }) {
-                            Icon(
-                                Icons.Outlined.Delete,
-                                contentDescription = "永久删除",
-                                tint = MaterialTheme.colorScheme.error,
+                    AppCard(modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 10.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            BrandAvatar(
+                                title = item.title.ifBlank { item.issuer },
+                                size = 38.dp,
+                                iconRef = item.icon,
                             )
+                            Spacer(Modifier.width(10.dp))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.title.ifBlank { "未命名" },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Medium,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    text = item.username.ifBlank {
+                                        if (item.kind == ItemKind.TOTP) "动态令牌" else "登录密码"
+                                    },
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    text = "删除于 " + item.deletedAt.orEmpty().take(10),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.outline,
+                                )
+                            }
+                            IconButton(onClick = { onRestore(item.id) }) {
+                                Icon(
+                                    Icons.Outlined.Restore,
+                                    contentDescription = "恢复",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                            IconButton(onClick = { onPurge(item.id) }) {
+                                Icon(
+                                    Icons.Outlined.Delete,
+                                    contentDescription = "永久删除",
+                                    tint = MaterialTheme.colorScheme.error,
+                                )
+                            }
                         }
                     }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(start = 52.dp),
-                        color = MaterialTheme.colorScheme.outlineVariant,
-                    )
                 }
             }
         }

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Folder
@@ -17,9 +16,7 @@ import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,7 +39,7 @@ fun HomeScreen(
     val passwords = activeItems.filter { it.kind == ItemKind.LOGIN }
     val tokens = activeItems.filter { it.kind == ItemKind.TOTP || it.totp != null }
     val issues = passwordIssueCount(passwords)
-    val recent = activeItems.sortedByDescending { it.updatedAt }.take(4)
+    val recent = activeItems.sortedByDescending { it.updatedAt }.take(6)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -65,20 +62,9 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "密码与动态令牌 · 仅本机",
+                        text = "小提示 · 点击验证码可直接复制",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                ) {
-                    Icon(
-                        Icons.Outlined.Shield,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(8.dp).size(18.dp),
                     )
                 }
             }
@@ -93,7 +79,6 @@ fun HomeScreen(
                     icon = Icons.Outlined.VpnKey,
                     onClick = onOpenAllPasswords,
                     modifier = Modifier.weight(1f),
-                    highlighted = true,
                 )
                 StatCard(
                     title = "动态令牌",

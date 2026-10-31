@@ -55,7 +55,11 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -78,7 +82,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
@@ -408,6 +414,7 @@ private fun TotpCard(
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var revealed by remember(secret.secret) { mutableStateOf(false) }
+    val haptic = LocalHapticFeedback.current
     LaunchedEffect(secret.secret) {
         while (true) {
             now = System.currentTimeMillis()
@@ -416,6 +423,11 @@ private fun TotpCard(
     }
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
+    LaunchedEffect(remaining) {
+        if (remaining == 5L) {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        }
+    }
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
     val visible = showCodes || revealed
     val nextCode = if (showNext) {
@@ -533,6 +545,7 @@ fun PasswordEditorScreen(
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var groupMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -652,14 +665,53 @@ fun PasswordEditorScreen(
                 shape = MaterialTheme.shapes.small,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             )
-            OutlinedTextField(
-                value = group,
-                onValueChange = { group = it },
-                label = { Text("分组（可选）") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.small,
-            )
+            ExposedDropdownMenuBox(
+                expanded = groupMenu,
+                onExpandedChange = { groupMenu = !groupMenu },
+            ) {
+                OutlinedTextField(
+                    value = group.ifBlank { "未分组" },
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("分组（可选）") },
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                    shape = MaterialTheme.shapes.small,
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = groupMenu)
+                    },
+                )
+                ExposedDropdownMenu(
+                    expanded = groupMenu,
+                    onDismissRequest = { groupMenu = false },
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("未分组") },
+                        onClick = {
+                            group = ""
+                            groupMenu = false
+                        },
+                    )
+                    groups.forEach { option ->
+                        DropdownMenuItem(
+                            text = { Text(option.name) },
+                            onClick = {
+                                group = option.name
+                                groupMenu = false
+                            },
+                        )
+                    }
+                }
+            }
+            if (groups.isEmpty()) {
+                Text(
+                    "还没有分组，可在设置 → 分组中创建。",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },

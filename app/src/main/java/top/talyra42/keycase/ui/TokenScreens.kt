@@ -76,7 +76,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -112,6 +114,7 @@ fun TokenListScreen(
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
     var revealedId by rememberSaveable { mutableStateOf<String?>(null) }
+    val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val items = data.items
@@ -202,6 +205,11 @@ fun TokenListScreen(
             if (items.isNotEmpty()) {
                 val barPeriod = (items.first().totp?.period ?: 30).coerceAtLeast(1)
                 val barRemaining = barPeriod - ((barNow / 1000L) % barPeriod)
+                LaunchedEffect(barRemaining, active) {
+                    if (active && barRemaining == 5L) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    }
+                }
                 val animatedProgress by animateFloatAsState(
                     targetValue = barRemaining / barPeriod.toFloat(),
                     animationSpec = tween(durationMillis = 950, easing = LinearEasing),
