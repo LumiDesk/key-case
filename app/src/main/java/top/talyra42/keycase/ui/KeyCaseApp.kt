@@ -47,14 +47,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -139,7 +136,6 @@ private fun VaultRoot(
     onDisableBiometric: () -> Unit,
 ) {
     val data = state.data ?: return
-    var tab by rememberSaveable { mutableIntStateOf(0) }
     var route by remember { mutableStateOf<Route>(Route.Main) }
     var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
     var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
@@ -172,8 +168,6 @@ private fun VaultRoot(
             data = data,
             settings = settings,
             busy = state.busy,
-            tab = tab,
-            onTab = { tab = it },
             onOpenItem = openItem,
             onAddPassword = { passwordEditor = PasswordEditorTarget(null) },
             onAddToken = { tokenEditor = TokenEditorTarget(null) },
@@ -280,8 +274,6 @@ private fun MainScaffold(
     data: top.talyra42.keycase.core.model.VaultData,
     settings: AppSettings,
     busy: Boolean,
-    tab: Int,
-    onTab: (Int) -> Unit,
     onOpenItem: (VaultItem) -> Unit,
     onAddPassword: () -> Unit,
     onAddToken: () -> Unit,
@@ -308,26 +300,22 @@ private fun MainScaffold(
     val exitMessage = localized("再按一次退出")
     val localizedError = localized(error.orEmpty())
     val localizedMessage = localized(message.orEmpty())
-    val pagerState = rememberPagerState(initialPage = tab, pageCount = { 4 })
+    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
     var lastBackAt by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.settledPage }.collect { settled ->
-            if (tab != settled) onTab(settled)
-        }
-    }
-    LaunchedEffect(tab) {
-        if (tab != pagerState.currentPage) {
-            if (kotlin.math.abs(tab - pagerState.currentPage) > 1) {
-                pagerState.scrollToPage(tab)
+    fun goToPage(page: Int) {
+        scope.launch {
+            if (kotlin.math.abs(page - pagerState.currentPage) > 1) {
+                pagerState.scrollToPage(page)
             } else {
-                pagerState.animateScrollToPage(tab, animationSpec = tween(220))
+                pagerState.animateScrollToPage(page, animationSpec = tween(220))
             }
         }
     }
+
     BackHandler(enabled = backEnabled) {
-        if (tab != 0) {
-            onTab(0)
+        if (pagerState.currentPage != 0) {
+            goToPage(0)
         } else {
             val now = System.currentTimeMillis()
             if (now - lastBackAt <= 2000L) {
@@ -371,10 +359,10 @@ private fun MainScaffold(
                     containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 0.dp,
                 ) {
-                    NavigationItem(0, tab, onTab, "首页", Icons.Outlined.Home)
-                    NavigationItem(1, tab, onTab, "密码", Icons.Outlined.VpnKey)
-                    NavigationItem(2, tab, onTab, "令牌", Icons.Outlined.Schedule)
-                    NavigationItem(3, tab, onTab, "设置", Icons.Outlined.Settings)
+                    NavigationItem(0, pagerState.currentPage, { goToPage(it) }, "首页", Icons.Outlined.Home)
+                    NavigationItem(1, pagerState.currentPage, { goToPage(it) }, "密码", Icons.Outlined.VpnKey)
+                    NavigationItem(2, pagerState.currentPage, { goToPage(it) }, "令牌", Icons.Outlined.Schedule)
+                    NavigationItem(3, pagerState.currentPage, { goToPage(it) }, "设置", Icons.Outlined.Settings)
                 }
             }
         },
@@ -408,16 +396,16 @@ private fun MainScaffold(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = 0,
+                beyondViewportPageCount = 1,
                 key = { it },
             ) { page ->
                 when (page) {
                     0 -> HomeScreen(
                         data = data,
                         onOpenItem = onOpenItem,
-                        onOpenAllPasswords = { onTab(1) },
-                        onOpenTokens = { onTab(2) },
-                        onOpenGroups = { onTab(3) },
+                        onOpenAllPasswords = { goToPage(1) },
+                        onOpenTokens = { goToPage(2) },
+                        onOpenGroups = { goToPage(3) },
                         onOpenSecurity = onOpenSecurity,
                     )
                     1 -> PasswordListScreen(
@@ -430,6 +418,7 @@ private fun MainScaffold(
                         onOpenItem = onOpenItem,
                         onAdd = onAddToken,
                         onScan = onScanToken,
+                        active = pagerState.currentPage == 2,
                     )
                     else -> SettingsScreen(
                         data = data,

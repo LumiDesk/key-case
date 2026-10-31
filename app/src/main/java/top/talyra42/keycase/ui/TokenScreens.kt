@@ -92,6 +92,7 @@ fun TokenListScreen(
     onOpenItem: (VaultItem) -> Unit,
     onAdd: () -> Unit,
     onScan: () -> Unit,
+    active: Boolean = true,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -122,7 +123,8 @@ fun TokenListScreen(
         ?.key
 
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    LaunchedEffect(Unit) {
+    LaunchedEffect(active) {
+        if (!active) return@LaunchedEffect
         while (true) {
             now = System.currentTimeMillis()
             delay(1000)
@@ -264,11 +266,6 @@ fun TokenListScreen(
                                                 strokeWidth = 1.8.dp,
                                                 color = MaterialTheme.colorScheme.primary,
                                                 trackColor = MaterialTheme.colorScheme.outlineVariant,
-                                            )
-                                            Text(
-                                                text = remaining.toString(),
-                                                fontSize = 7.sp,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
                                         }
                                     }

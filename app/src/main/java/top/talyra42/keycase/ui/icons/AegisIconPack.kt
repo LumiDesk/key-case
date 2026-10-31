@@ -9,9 +9,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -260,8 +264,10 @@ fun BrandAvatar(
         return
     }
     val context = LocalContext.current
-    val vector by produceState<ImageVector?>(initialValue = null, title, iconRef) {
-        value = withContext(Dispatchers.IO) {
+    var icon by remember(title, iconRef) { mutableStateOf<ImageVector?>(null) }
+    var loading by remember(title, iconRef) { mutableStateOf(true) }
+    LaunchedEffect(title, iconRef) {
+        icon = withContext(Dispatchers.IO) {
             if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
                 AegisIconPack.vectorFor(context, iconRef.value, title)
                     ?: AegisIconPack.find(context, title)
@@ -269,8 +275,19 @@ fun BrandAvatar(
                 AegisIconPack.find(context, title)
             }
         }
+        loading = false
     }
-    val icon = vector
+    if (loading) {
+        Box(
+            modifier = modifier
+                .size(size)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                    RoundedCornerShape(size * 0.32f),
+                ),
+        )
+        return
+    }
     if (icon == null) {
         LetterAvatar(title = title, size = size, modifier = modifier)
     } else {
@@ -279,7 +296,7 @@ fun BrandAvatar(
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = icon!!,
                 contentDescription = null,
                 tint = Color.Unspecified,
                 modifier = Modifier.size(size),
@@ -295,25 +312,36 @@ private fun CustomIconAvatar(
     size: Dp,
     modifier: Modifier,
 ) {
-    val bitmap by produceState<ImageBitmap?>(
-        initialValue = IconBitmapCache.get("b64:${encoded.hashCode()}:96"),
-        encoded,
-    ) {
-        value = withContext(Dispatchers.IO) {
-            runCatching {
-                val bytes = Base64.decode(encoded, Base64.DEFAULT)
-                IconBitmapCache.decodeBase64(encoded.hashCode().toString(), bytes)
-            }.getOrNull()
+    val cached = remember(encoded) { IconBitmapCache.get("b64:${encoded.hashCode()}:96") }
+    var image by remember(encoded) { mutableStateOf(cached) }
+    var loading by remember(encoded) { mutableStateOf(cached == null) }
+    LaunchedEffect(encoded) {
+        if (image == null) {
+            image = withContext(Dispatchers.IO) {
+                runCatching {
+                    val bytes = Base64.decode(encoded, Base64.DEFAULT)
+                    IconBitmapCache.decodeBase64(encoded.hashCode().toString(), bytes)
+                }.getOrNull()
+            }
         }
+        loading = false
     }
-    val image = bitmap
-    if (image == null) {
+    if (loading) {
+        Box(
+            modifier = modifier
+                .size(size)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
+                    RoundedCornerShape(size * 0.32f),
+                ),
+        )
+    } else if (image == null) {
         LetterAvatar(title = title, size = size, modifier = modifier)
     } else {
         Image(
-            bitmap = image,
+            bitmap = image!!,
             contentDescription = null,
-            contentScale = ContentScale.Crop,
+            contentScale = ContentScale.Fit,
             modifier = modifier
                 .size(size)
                 .clip(RoundedCornerShape(size * 0.32f)),

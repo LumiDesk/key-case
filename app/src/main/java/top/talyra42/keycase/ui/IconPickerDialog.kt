@@ -35,6 +35,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -341,13 +342,24 @@ fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
 @Composable
 fun PackIconPreview(filename: String, name: String, size: Int = 32) {
     val context = LocalContext.current
-    val vector by produceState<ImageVector?>(null, filename) {
-        value = withContext(Dispatchers.IO) {
+    var icon by remember(filename) { mutableStateOf<ImageVector?>(null) }
+    var loading by remember(filename) { mutableStateOf(true) }
+    LaunchedEffect(filename, name) {
+        icon = withContext(Dispatchers.IO) {
             AegisIconPack.vectorFor(context, filename, name)
         }
+        loading = false
     }
-    val icon = vector
-    if (icon == null) {
+    if (loading) {
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .size(size.dp)
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                    RoundedCornerShape((size * 0.3f).dp),
+                ),
+        )
+    } else if (icon == null) {
         LetterAvatar(title = name, size = size.dp)
     } else {
         androidx.compose.foundation.layout.Box(
@@ -355,7 +367,7 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
             contentAlignment = Alignment.Center,
         ) {
             Icon(
-                imageVector = icon,
+                imageVector = icon!!,
                 contentDescription = null,
                 tint = androidx.compose.ui.graphics.Color.Unspecified,
                 modifier = Modifier.size((size * 0.9f).dp),
