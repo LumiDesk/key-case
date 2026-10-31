@@ -32,6 +32,7 @@ data class VaultItem(
     val favorite: Boolean = false,
     val createdAt: String = "",
     val updatedAt: String = "",
+    val deletedAt: String? = null,
 )
 
 @Serializable
