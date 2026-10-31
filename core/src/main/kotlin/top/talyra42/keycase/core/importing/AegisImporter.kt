@@ -42,12 +42,17 @@ data class AegisImportResult(
  */
 object AegisImporter {
     private val json = Json { ignoreUnknownKeys = true }
+    const val MAX_FILE_BYTES = 64 * 1024 * 1024
     private const val SLOT_TYPE_PASSWORD = 1
     private const val MAX_SCRYPT_N = 1 shl 20
     private const val MAX_SCRYPT_R = 32
     private const val MAX_SCRYPT_P = 16
+    private const val MAX_SCRYPT_MEMORY_BYTES = 256L * 1024 * 1024
 
     fun import(bytes: ByteArray, password: CharArray? = null): AegisImportResult {
+        if (bytes.size > MAX_FILE_BYTES) {
+            throw AegisImportException("Aegis 文件过大")
+        }
         val root = try {
             json.parseToJsonElement(String(bytes, StandardCharsets.UTF_8)).jsonObject
         } catch (e: Exception) {
@@ -123,6 +128,11 @@ object AegisImporter {
         }
         if (r !in 1..MAX_SCRYPT_R || p !in 1..MAX_SCRYPT_P) {
             throw AegisImportException("scrypt 参数超出支持范围")
+        }
+        // scrypt allocates roughly 128*N*r bytes. Reject parameters that would
+        // exhaust memory before calling into BouncyCastle.
+        if (128L * n * r > MAX_SCRYPT_MEMORY_BYTES) {
+            throw AegisImportException("scrypt 内存参数超出支持范围")
         }
         val salt = slot.string("salt")?.let(::hex)
             ?: throw AegisImportException("缺少 scrypt salt")
