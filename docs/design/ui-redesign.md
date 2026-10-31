@@ -56,7 +56,7 @@ Accent changes and light/dark switches animate every large surface with `animate
 - [x] Token creation is only via the expandable FAB.
 - [x] All import actions are in Settings → 数据.
 - [ ] Largest Dynamic Type and landscape still need a dedicated pass.
-- [ ] Imported Aegis icon packs are not implemented yet; the built-in picker and custom image import are.
+- [x] Imported Aegis bitmap icon packs are available from the icon picker; SVG-only packs are skipped.
 
 ## Screens to review
 

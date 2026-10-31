@@ -3,7 +3,7 @@
 **Local-first, offline Android password manager and TOTP authenticator.**
 No account, no cloud, **no `INTERNET` permission**.
 
-> Status: working debug build. Create/unlock, password CRUD, TOTP codes, QR scanning, groups, trash, security center, accent/dark theme with animated transitions, visual color picker, encrypted backup export/import, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, a searchable icon picker, and custom image icons are implemented and verified on an Android 37 emulator. Biometric unlock and imported Aegis icon packs are still planned.
+> Status: working debug build. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, groups, trash, security center, accent/dark theme with animated transitions, visual color picker, encrypted backup export/import, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, and custom image icons are implemented and verified on an Android 37 emulator. UI copy follows the device language (Chinese/English).
 
 ## What it is
 
