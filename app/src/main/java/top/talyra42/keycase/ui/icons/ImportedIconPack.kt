@@ -86,7 +86,7 @@ object ImportedIconPack {
                 continue
             }
             val data = findEntry(entries, filename)
-            if (data == null || BitmapFactory.decodeByteArray(data, 0, data.size) == null) {
+            if (data == null || !isValidBitmap(data)) {
                 skipped++
                 continue
             }
@@ -102,7 +102,7 @@ object ImportedIconPack {
     }
 
     fun encodeForVault(file: File, maxSize: Int = 192): String {
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+        val bitmap = decodeSampled(file, maxSize)
             ?: error("Could not read icon")
         val scale = minOf(1f, maxSize.toFloat() / maxOf(bitmap.width, bitmap.height))
         val scaled = if (scale < 1f) {
@@ -155,6 +155,27 @@ object ImportedIconPack {
             }
         }
         return obj.optString("issuer").takeIf { it.isNotBlank() }
+    }
+
+    private fun isValidBitmap(data: ByteArray): Boolean {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(data, 0, data.size, bounds)
+        return bounds.outWidth > 0 && bounds.outHeight > 0
+    }
+
+    private fun decodeSampled(file: File, maxSize: Int): android.graphics.Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, bounds)
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= maxSize) {
+            sample *= 2
+        }
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = sample
+            inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888
+        }
+        return BitmapFactory.decodeFile(file.absolutePath, options)
     }
 
     private fun root(context: Context): File =

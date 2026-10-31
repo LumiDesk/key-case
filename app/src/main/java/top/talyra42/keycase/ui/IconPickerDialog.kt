@@ -387,8 +387,20 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
 }
 
 private fun loadScaledIcon(context: Context, uri: Uri): String? {
-    val input = context.contentResolver.openInputStream(uri) ?: return null
-    val bitmap = input.use { BitmapFactory.decodeStream(it) } ?: return null
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, bounds)
+    } ?: return null
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = imageSampleSize(bounds.outWidth, bounds.outHeight, 160)
+        inPreferredConfig = Bitmap.Config.ARGB_8888
+    }
+    val bitmap = context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, options)
+    } ?: return null
+
     val maxSide = maxOf(bitmap.width, bitmap.height)
     val scale = if (maxSide > 160) 160f / maxSide else 1f
     val scaled = if (scale < 1f) {
@@ -404,4 +416,12 @@ private fun loadScaledIcon(context: Context, uri: Uri): String? {
     val output = ByteArrayOutputStream()
     scaled.compress(Bitmap.CompressFormat.PNG, 100, output)
     return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+}
+
+private fun imageSampleSize(width: Int, height: Int, maxSide: Int): Int {
+    var sample = 1
+    while (maxOf(width, height) / (sample * 2) >= maxSide) {
+        sample *= 2
+    }
+    return sample
 }
