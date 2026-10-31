@@ -253,6 +253,8 @@ private val EN = mapOf(
     "名称" to "Name",
     "排序" to "Sort",
     "删除后无法恢复。" to "This cannot be undone.",
+    "移到回收站？" to "Move to Trash?",
+    "删除后可在回收站恢复。" to "You can restore it from Trash.",
     "删除这个条目？" to "Delete this item?",
     "生成密码" to "Generate password",
     "收藏" to "Favorite",
@@ -392,6 +394,8 @@ private val EN = mapOf(
     "删除的密码和令牌会先放在这里。" to "Deleted passwords and tokens appear here first.",
     "所有已删除条目会被永久删除，无法恢复。" to "All deleted items will be permanently removed.",
     "永久删除" to "Delete permanently",
+    "永久删除这个条目？" to "Delete this item permanently?",
+    "此操作无法撤销。" to "This action cannot be undone.",
     "只有数字" to "Digits only",
 )
 

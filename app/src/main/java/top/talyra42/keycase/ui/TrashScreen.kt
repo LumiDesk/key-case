@@ -153,6 +153,7 @@ fun TrashScreen(
 ) {
     val deleted = items.filter { it.deletedAt != null }
     var confirmEmpty by remember { mutableStateOf(false) }
+    var pendingPurge by remember { mutableStateOf<VaultItem?>(null) }
 
     Scaffold(
         topBar = {
@@ -235,7 +236,7 @@ fun TrashScreen(
                                     maxLines = 1,
                                 )
                                 Text(
-                                    text = "删除于 " + item.deletedAt.orEmpty().take(10),
+                                    text = "删除于 " + formatDeletedAt(item.deletedAt.orEmpty()),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.outline,
                                 )
@@ -247,7 +248,7 @@ fun TrashScreen(
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
-                            IconButton(onClick = { onPurge(item.id) }) {
+                            IconButton(onClick = { pendingPurge = item }) {
                                 Icon(
                                     Icons.Outlined.Delete,
                                     contentDescription = "永久删除",
@@ -271,6 +272,19 @@ fun TrashScreen(
                 onEmpty()
             },
             onDismiss = { confirmEmpty = false },
+        )
+    }
+
+    pendingPurge?.let { item ->
+        ConfirmDialog(
+            title = "永久删除这个条目？",
+            text = "此操作无法撤销。",
+            confirmLabel = "永久删除",
+            onConfirm = {
+                pendingPurge = null
+                onPurge(item.id)
+            },
+            onDismiss = { pendingPurge = null },
         )
     }
 }

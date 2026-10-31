@@ -76,9 +76,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -118,6 +121,11 @@ fun TokenListScreen(
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val listState = rememberLazyListState()
+    val searchFocus = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(searchOpen) {
+        if (searchOpen) searchFocus.requestFocus()
+    }
     val items = data.items
         .filter { (it.kind == ItemKind.TOTP || it.totp != null) && it.deletedAt == null }
         .filter {
@@ -185,7 +193,14 @@ fun TokenListScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { searchOpen = !searchOpen; revealedId = null }) {
+                IconButton(onClick = {
+                    if (searchOpen) {
+                        query = ""
+                        keyboard?.hide()
+                    }
+                    searchOpen = !searchOpen
+                    revealedId = null
+                }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
                         contentDescription = if (searchOpen) "关闭搜索" else "搜索",
@@ -243,7 +258,8 @@ fun TokenListScreen(
                     onValueChange = { query = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .focusRequester(searchFocus),
                     placeholder = { Text("搜索服务、账号或发行方") },
                     leadingIcon = {
                         Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))

@@ -80,14 +80,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -117,6 +121,11 @@ fun PasswordListScreen(
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
     val listState = rememberLazyListState()
+    val searchFocus = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(searchOpen) {
+        if (searchOpen) searchFocus.requestFocus()
+    }
     val items = data.items
         .filter { it.kind == ItemKind.LOGIN && it.deletedAt == null }
         .filter {
@@ -153,7 +162,13 @@ fun PasswordListScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { searchOpen = !searchOpen }) {
+                IconButton(onClick = {
+                    if (searchOpen) {
+                        query = ""
+                        keyboard?.hide()
+                    }
+                    searchOpen = !searchOpen
+                }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
                         contentDescription = if (searchOpen) "关闭搜索" else "搜索",
@@ -181,7 +196,8 @@ fun PasswordListScreen(
                     onValueChange = { query = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .focusRequester(searchFocus),
                     placeholder = { Text("搜索名称、账号或网址") },
                     leadingIcon = {
                         Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -363,7 +379,7 @@ fun ItemDetailScreen(
                     InfoRow(label = "备注", value = item.notes, muted = true)
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "更新", value = item.updatedAt.take(16).replace('T', ' '), muted = true)
+                InfoRow(label = "更新", value = formatUpdatedAt(item.updatedAt), muted = true)
             }
 
             item.totp?.let { secret ->
@@ -391,8 +407,8 @@ fun ItemDetailScreen(
 
     if (showDelete) {
         ConfirmDialog(
-            title = "删除这个条目？",
-            text = "删除后无法恢复。",
+            title = "移到回收站？",
+            text = "删除后可在回收站恢复。",
             onConfirm = {
                 showDelete = false
                 onDelete()
@@ -738,7 +754,11 @@ fun PasswordEditorScreen(
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Uri,
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrectEnabled = false,
+                ),
             )
             OutlinedTextField(
                 value = notes,
