@@ -201,7 +201,7 @@ fun SettingsScreen(
                 ActionRow(
                     icon = Icons.Outlined.Shield,
                     title = "安全中心",
-                    subtitle = "${securityIssues(data.items.filter { it.deletedAt == null }).size} 个条目待处理",
+                    subtitle = "${securityIssues(data.items.filter { it.deletedAt == null && it.kind == top.talyra42.keycase.core.model.ItemKind.LOGIN }).size} 个条目待处理",
                     onClick = onOpenSecurity,
                 )
                 SettingsDivider()
