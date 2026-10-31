@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Shield
@@ -72,10 +77,10 @@ fun SecurityScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("安全中心") },
+                title = { Text(stringResource(R.string.s_9e5447826cdd)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
             )
@@ -105,7 +110,7 @@ fun SecurityScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "列表只做本地检查，不会上传密码。",
+                        text = stringResource(R.string.s_511bf881372a),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -127,7 +132,7 @@ fun SecurityScreen(
                                     text = issue.reason,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.width(64.dp),
+                                    modifier = Modifier.widthIn(min = 64.dp),
                                 )
                             },
                         )
@@ -158,17 +163,17 @@ fun TrashScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("回收站") },
+                title = { Text(stringResource(R.string.s_64ea8751fba9)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
                 actions = {
                     TextButton(
                         onClick = { confirmEmpty = true },
                         enabled = deleted.isNotEmpty(),
-                    ) { Text("清空") }
+                    ) { Text(stringResource(R.string.s_84fcd70d4280)) }
                 },
             )
         },
@@ -244,14 +249,14 @@ fun TrashScreen(
                             IconButton(onClick = { onRestore(item.id) }) {
                                 Icon(
                                     Icons.Outlined.Restore,
-                                    contentDescription = "恢复",
+                                    contentDescription = stringResource(R.string.s_79748ca1c6e5),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
                             IconButton(onClick = { pendingPurge = item }) {
                                 Icon(
                                     Icons.Outlined.Delete,
-                                    contentDescription = "永久删除",
+                                    contentDescription = stringResource(R.string.s_a7fadbe126d2),
                                     tint = MaterialTheme.colorScheme.error,
                                 )
                             }

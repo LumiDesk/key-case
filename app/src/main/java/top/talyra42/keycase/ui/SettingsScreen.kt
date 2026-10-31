@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,6 +11,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +68,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +82,7 @@ import top.talyra42.keycase.data.UpdateChecker
 import top.talyra42.keycase.ui.icons.ImportedIconPack
 import top.talyra42.keycase.ui.theme.AccentNames
 import top.talyra42.keycase.ui.theme.AccentPalette
+import top.talyra42.keycase.ui.theme.onAccent
 
 @Composable
 fun SettingsScreen(
@@ -187,7 +197,7 @@ fun SettingsScreen(
     ) {
         item {
             Text(
-                text = "设置",
+                text = stringResource(R.string.s_7debf9cb0372),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
             )
@@ -525,7 +535,7 @@ fun SettingsScreen(
             },
             dismissButton = if (update.available) {
                 {
-                    TextButton(onClick = { updateInfo = null }) { Text("稍后") }
+                    TextButton(onClick = { updateInfo = null }) { Text(stringResource(R.string.s_479fcc1cc066)) }
                 }
             } else {
                 null
@@ -535,10 +545,10 @@ fun SettingsScreen(
     if (updateError) {
         AlertDialog(
             onDismissRequest = { updateError = false },
-            title = { Text("检查更新失败") },
-            text = { Text("请检查网络连接后重试。") },
+            title = { Text(stringResource(R.string.s_c76c74e8094b)) },
+            text = { Text(stringResource(R.string.s_51e9b77a7720)) },
             confirmButton = {
-                TextButton(onClick = { updateError = false }) { Text("好") }
+                TextButton(onClick = { updateError = false }) { Text(stringResource(R.string.s_27e4fe4c3fe2)) }
             },
         )
     }
@@ -582,7 +592,7 @@ fun SettingsScreen(
     if (showAutoLock) {
         AlertDialog(
             onDismissRequest = { showAutoLock = false },
-            title = { Text("自动锁定") },
+            title = { Text(stringResource(R.string.s_4553a16a3a0b)) },
             text = {
                 Column {
                     listOf(
@@ -614,14 +624,14 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showAutoLock = false }) { Text("取消") }
+                TextButton(onClick = { showAutoLock = false }) { Text(stringResource(R.string.s_4d0b4688c787)) }
             },
         )
     }
     if (showCodeGrouping) {
         AlertDialog(
             onDismissRequest = { showCodeGrouping = false },
-            title = { Text("验证码分组") },
+            title = { Text(stringResource(R.string.s_8276e61c0585)) },
             text = {
                 Column {
                     listOf(
@@ -653,7 +663,7 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showCodeGrouping = false }) { Text("取消") }
+                TextButton(onClick = { showCodeGrouping = false }) { Text(stringResource(R.string.s_4d0b4688c787)) }
             },
         )
     }
@@ -706,7 +716,7 @@ private fun AccentSetting(
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("强调色", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.s_6f67371e0527), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             Text(
                 if (customAccent != null) "自定义" else AccentNames[selectedIndex.coerceIn(0, AccentNames.lastIndex)],
                 style = MaterialTheme.typography.labelSmall,
@@ -720,44 +730,64 @@ private fun AccentSetting(
         ) {
             AccentPalette.forEachIndexed { index, color ->
                 val selected = customAccent == null && selectedIndex == index
+                val label = localized(AccentNames[index])
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .border(
-                            width = if (selected) 2.dp else 0.dp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            shape = CircleShape,
+                        .size(48.dp)
+                        .selectable(
+                            selected = selected,
+                            role = Role.RadioButton,
+                            onClick = { onAccent(index) },
                         )
-                        .padding(2.dp)
-                        .background(color, CircleShape)
-                        .clickable { onAccent(index) },
+                        .semantics { contentDescription = label },
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (selected) {
-                        Icon(
-                            Icons.Outlined.Check,
-                            contentDescription = "已选择",
-                            tint = if (color == AccentPalette[3]) Color.Black else Color.White,
-                            modifier = Modifier.size(14.dp),
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .border(
+                                width = if (selected) 2.dp else 0.dp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                shape = CircleShape,
+                            )
+                            .padding(2.dp)
+                            .background(color, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (selected) {
+                            Icon(
+                                Icons.Outlined.Check,
+                                contentDescription = null,
+                                tint = onAccent(color),
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
                     }
                 }
             }
             if (customAccent != null) {
+                val customLabel = localized("自定义颜色")
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                        .padding(2.dp)
-                        .background(Color(customAccent), CircleShape),
+                        .size(48.dp)
+                        .semantics { contentDescription = customLabel },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        Icons.Outlined.Check,
-                        contentDescription = "自定义颜色",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(14.dp),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                            .padding(2.dp)
+                            .background(Color(customAccent), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
                 }
             }
             IconButton(
@@ -766,7 +796,7 @@ private fun AccentSetting(
             ) {
                 Icon(
                     Icons.Outlined.Palette,
-                    contentDescription = "打开取色板",
+                    contentDescription = stringResource(R.string.s_367808b1d149),
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -787,7 +817,7 @@ private fun ThemeSetting(mode: DarkMode, onDarkMode: (DarkMode) -> Unit) {
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("显示模式", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.s_4a8bb8aba399), style = MaterialTheme.typography.titleSmall)
         }
         Spacer(Modifier.height(10.dp))
         val modes = listOf(
@@ -867,7 +897,11 @@ private fun SwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            )
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -881,7 +915,7 @@ private fun SwitchRow(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                 checkedTrackColor = MaterialTheme.colorScheme.primary,

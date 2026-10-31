@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -53,7 +57,7 @@ fun IconPackPreviewDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("图标包预览") },
+        title = { Text(stringResource(R.string.s_8774aa546e81)) },
         text = {
             if (builtIn.isEmpty() && imported.isEmpty()) {
                 Box(
@@ -96,7 +100,7 @@ fun IconPackPreviewDialog(onDismiss: () -> Unit) {
                     if (imported.isEmpty()) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             Text(
-                                "还没有导入图标包。可在“设置 → 图标”或图标选择器中导入 Aegis ZIP。",
+                                stringResource(R.string.s_41f091b4548e),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -124,7 +128,7 @@ fun IconPackPreviewDialog(onDismiss: () -> Unit) {
                                     ) {
                                         Icon(
                                             Icons.Outlined.Delete,
-                                            contentDescription = "删除图标包",
+                                            contentDescription = stringResource(R.string.s_b50cf8aaa30a),
                                             tint = MaterialTheme.colorScheme.error,
                                         )
                                     }
@@ -141,7 +145,7 @@ fun IconPackPreviewDialog(onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("完成") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_33246f6a5e5b)) }
         },
     )
 }

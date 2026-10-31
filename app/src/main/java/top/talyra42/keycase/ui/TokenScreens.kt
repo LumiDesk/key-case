@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -193,7 +198,7 @@ fun TokenListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "动态令牌",
+                    text = stringResource(R.string.s_ef773bdc3a26),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
@@ -267,7 +272,7 @@ fun TokenListScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .focusRequester(searchFocus),
-                    placeholder = { Text("搜索服务、账号或发行方") },
+                    placeholder = { Text(stringResource(R.string.s_3c9585ca7fcd)) },
                     leadingIcon = {
                         Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
                     },
@@ -291,8 +296,8 @@ fun TokenListScreen(
                         action = if (query.isBlank()) {
                             {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    FilledTonalButton(onClick = onScan) { Text("扫码添加") }
-                                    FilledTonalButton(onClick = onAdd) { Text("手动添加") }
+                                    FilledTonalButton(onClick = onScan) { Text(stringResource(R.string.s_a129d1844b2e)) }
+                                    FilledTonalButton(onClick = onAdd) { Text(stringResource(R.string.s_0307a7752d6c)) }
                                 }
                             }
                         } else {
@@ -534,13 +539,13 @@ fun TokenEditorScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "密钥只保存在本地加密保险库",
+                        text = stringResource(R.string.s_b6d055439fb7),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 IconButton(onClick = ::requestClose) {
-                    Icon(Icons.Outlined.Close, contentDescription = "关闭")
+                    Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.s_6c14bd7f6f9e))
                 }
             }
             EditorIconRow(
@@ -551,25 +556,25 @@ fun TokenEditorScreen(
             OutlinedTextField(
                 value = issuer,
                 onValueChange = { issuer = it },
-                label = { Text("服务名称") },
+                label = { Text(stringResource(R.string.s_d82acb1b50f4)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
-                placeholder = { Text("例如 GitHub") },
+                placeholder = { Text(stringResource(R.string.s_67adcaa3dbc0)) },
             )
             OutlinedTextField(
                 value = account,
                 onValueChange = { account = it },
-                label = { Text("账号") },
+                label = { Text(stringResource(R.string.s_901384917949)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
-                placeholder = { Text("例如 lin.dev") },
+                placeholder = { Text(stringResource(R.string.s_9caa9fceede3)) },
             )
             OutlinedTextField(
                 value = secret,
                 onValueChange = { secret = it },
-                label = { Text("密钥（Base32）") },
+                label = { Text(stringResource(R.string.s_0bfaa3233e7c)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -593,13 +598,13 @@ fun TokenEditorScreen(
             TextButton(onClick = { showImport = true }) {
                 Icon(Icons.Outlined.Link, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("从 otpauth 链接导入")
+                Text(stringResource(R.string.s_a32396a99bc5))
             }
             TextButton(
                 onClick = { advanced = !advanced },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("高级设置", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start)
+                Text(stringResource(R.string.s_dd07e641ca66), modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start)
                 Icon(
                     if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
                     contentDescription = null,
@@ -611,7 +616,7 @@ fun TokenEditorScreen(
                 exit = shrinkVertically() + fadeOut(),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("类型", style = MaterialTheme.typography.labelLarge)
+                    Text(stringResource(R.string.s_e4e46c7235d1), style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OtpType.entries.forEach { option ->
                             FilterChip(
@@ -623,12 +628,12 @@ fun TokenEditorScreen(
                     }
                     if (type == OtpType.STEAM) {
                         Text(
-                            "Steam Guard 使用 SHA1、5 位字符和 30 秒周期。",
+                            stringResource(R.string.s_08eafe88e084),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     } else {
-                        Text("算法", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.s_60f424bf4ef4), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             HashAlgorithm.entries.forEach { option ->
                                 FilterChip(
@@ -638,32 +643,32 @@ fun TokenEditorScreen(
                                 )
                             }
                         }
-                        Text("位数", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.s_bded7acbd452), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(
                                 selected = digits == 6,
                                 onClick = { digits = 6 },
-                                label = { Text("6 位") },
+                                label = { Text(stringResource(R.string.s_a6263945772c)) },
                             )
                             FilterChip(
                                 selected = digits == 8,
                                 onClick = { digits = 8 },
-                                label = { Text("8 位") },
+                                label = { Text(stringResource(R.string.s_6ae5128722e7)) },
                             )
                         }
                     }
                     if (type == OtpType.TOTP) {
-                        Text("周期", style = MaterialTheme.typography.labelLarge)
+                        Text(stringResource(R.string.s_8a12b12125c2), style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FilterChip(
                                 selected = period == 30,
                                 onClick = { period = 30 },
-                                label = { Text("30 秒") },
+                                label = { Text(stringResource(R.string.s_262ed709875c)) },
                             )
                             FilterChip(
                                 selected = period == 60,
                                 onClick = { period = 60 },
-                                label = { Text("60 秒") },
+                                label = { Text(stringResource(R.string.s_005d45d94f22)) },
                             )
                         }
                     }
@@ -673,7 +678,7 @@ fun TokenEditorScreen(
                             onValueChange = { value ->
                                 counter = value.filter(Char::isDigit).toLongOrNull() ?: 0L
                             },
-                            label = { Text("计数器") },
+                            label = { Text(stringResource(R.string.s_ef258428cdc8)) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
                             shape = MaterialTheme.shapes.small,
@@ -689,10 +694,10 @@ fun TokenEditorScreen(
                 onClick = ::save,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .heightIn(min = 50.dp),
                 shape = RoundedCornerShape(14.dp),
             ) {
-                Text("保存令牌", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.s_6484b1da0921), fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -753,18 +758,18 @@ private fun OtpauthImportDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("从 otpauth 链接导入") },
+        title = { Text(stringResource(R.string.s_a32396a99bc5)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "粘贴 otpauth://totp/、hotp/ 或 steam/ 链接；密钥只在本机解析。",
+                    stringResource(R.string.s_89ad265a8a8f),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 OutlinedTextField(
                     value = uri,
                     onValueChange = { uri = it },
-                    label = { Text("otpauth:// 链接") },
+                    label = { Text(stringResource(R.string.s_da31debfb073)) },
                     minLines = 3,
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
@@ -784,10 +789,10 @@ private fun OtpauthImportDialog(
                         onImport(parsed)
                     }
                 },
-            ) { Text("导入") }
+            ) { Text(stringResource(R.string.s_60e2bcad85ac)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }

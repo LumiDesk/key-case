@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -25,6 +29,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,15 +43,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
-import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SortByAlpha
@@ -162,7 +167,7 @@ fun PasswordListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "密码",
+                    text = stringResource(R.string.s_c839a8ff1788),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
@@ -203,7 +208,7 @@ fun PasswordListScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 4.dp)
                         .focusRequester(searchFocus),
-                    placeholder = { Text("搜索名称、账号或网址") },
+                    placeholder = { Text(stringResource(R.string.s_1c00042939a0)) },
                     leadingIcon = {
                         Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
                     },
@@ -225,7 +230,7 @@ fun PasswordListScreen(
                         title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
                         subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
                         action = if (query.isBlank()) {
-                            { FilledTonalButton(onClick = onAdd) { Text("添加密码") } }
+                            { FilledTonalButton(onClick = onAdd) { Text(stringResource(R.string.s_da1b9ab96ac7)) } }
                         } else {
                             null
                         },
@@ -253,7 +258,7 @@ fun PasswordListScreen(
                                     {
                                         Icon(
                                             Icons.Outlined.Star,
-                                            contentDescription = "收藏",
+                                            contentDescription = stringResource(R.string.s_d07cee786ae5),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(15.dp),
                                         )
@@ -307,7 +312,7 @@ fun ItemDetailScreen(
                 title = { Text(if (item.kind == ItemKind.TOTP) "令牌详情" else "登录密码") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
                 actions = {
@@ -323,10 +328,10 @@ fun ItemDetailScreen(
                         )
                     }
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Outlined.Edit, contentDescription = "编辑")
+                        Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.s_a7f814c0a40d))
                     }
                     IconButton(onClick = { showDelete = true }) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "删除")
+                        Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.s_3755f56f2f83))
                     }
                 },
             )
@@ -397,8 +402,8 @@ fun ItemDetailScreen(
                                 runCatching { uriHandler.openUri(openUrl) }
                             }) {
                                 Icon(
-                                    Icons.Outlined.OpenInNew,
-                                    contentDescription = "打开网址",
+                                    Icons.AutoMirrored.Outlined.OpenInNew,
+                                    contentDescription = stringResource(R.string.s_79d2519429d4),
                                     modifier = Modifier.size(18.dp),
                                 )
                             }
@@ -474,7 +479,7 @@ private fun TokenAdvancedCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "高级信息",
+                text = stringResource(R.string.s_57109d2d3250),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
@@ -650,7 +655,7 @@ private fun TotpCard(
             }
             if (isHotp) {
                 FilledTonalButton(onClick = onAdvanceHotp) {
-                    Text("下一个")
+                    Text(stringResource(R.string.s_159a87b9e07f))
                 }
             } else {
                 Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
@@ -676,7 +681,7 @@ private fun CopyButton(onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(
             Icons.Outlined.ContentCopy,
-            contentDescription = "复制",
+            contentDescription = stringResource(R.string.s_4edd1d00875d),
             modifier = Modifier.size(18.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -762,13 +767,13 @@ fun PasswordEditorScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "保存到本地加密保险库",
+                        text = stringResource(R.string.s_a5f109f69f1d),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 IconButton(onClick = ::requestClose) {
-                    Icon(Icons.Outlined.Close, contentDescription = "关闭")
+                    Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.s_6c14bd7f6f9e))
                 }
             }
             Spacer(Modifier.height(2.dp))
@@ -780,7 +785,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("名称") },
+                label = { Text(stringResource(R.string.s_1be7ae4fc257)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -788,7 +793,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("账号 / 用户名") },
+                label = { Text(stringResource(R.string.s_583ee886ee29)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -796,7 +801,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("登录密码") },
+                label = { Text(stringResource(R.string.s_1a317b137803)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -816,16 +821,16 @@ fun PasswordEditorScreen(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilledTonalButton(onClick = { password = generatePassword() }) {
-                    Text("生成密码")
+                    Text(stringResource(R.string.s_3125c0fea207))
                 }
                 FilledTonalButton(onClick = { copyText(context, password) }) {
-                    Text("复制")
+                    Text(stringResource(R.string.s_4edd1d00875d))
                 }
             }
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("网址（可选）") },
+                label = { Text(stringResource(R.string.s_75cca954d66b)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -838,7 +843,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("备注（可选）") },
+                label = { Text(stringResource(R.string.s_dde95eb32fff)) },
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -848,10 +853,10 @@ fun PasswordEditorScreen(
                 onClick = ::save,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .heightIn(min = 50.dp),
                 shape = RoundedCornerShape(14.dp),
             ) {
-                Text("保存密码", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.s_014b4d162f47), fontWeight = FontWeight.SemiBold)
             }
         }
     }

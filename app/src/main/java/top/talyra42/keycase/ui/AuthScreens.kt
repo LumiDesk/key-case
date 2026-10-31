@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -81,7 +86,7 @@ fun CreateVaultScreen(
         )
         Spacer(Modifier.height(10.dp))
         Text(
-            text = "至少 8 位。忘记主密码将无法恢复数据，请务必记住。",
+            text = stringResource(R.string.s_25e01fc59271),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -109,12 +114,12 @@ fun CreateVaultScreen(
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {
-                Text("创建保险库", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.s_a257552ef3c7), fontWeight = FontWeight.SemiBold)
             }
         }
         Spacer(Modifier.height(18.dp))
         Text(
-            text = "没有账号，没有云同步；仅手动检查更新时联网。",
+            text = stringResource(R.string.s_a9c318183306),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -175,7 +180,7 @@ fun UnlockScreen(
                     color = MaterialTheme.colorScheme.onPrimary,
                 )
             } else {
-                Text("解锁", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.s_eb7cf7b71a5f), fontWeight = FontWeight.SemiBold)
             }
         }
         Spacer(Modifier.height(16.dp))
@@ -184,7 +189,7 @@ fun UnlockScreen(
                 onClick = onBiometric,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp),
+                    .heightIn(min = 48.dp),
                 shape = RoundedCornerShape(14.dp),
             ) {
                 Icon(
@@ -193,12 +198,12 @@ fun UnlockScreen(
                     modifier = Modifier.size(18.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text("使用生物识别解锁")
+                Text(stringResource(R.string.s_149ec7f70f7a))
             }
             Spacer(Modifier.height(12.dp))
         }
         Text(
-            text = "数据只保存在这台设备上",
+            text = stringResource(R.string.s_facd9320f0fc),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

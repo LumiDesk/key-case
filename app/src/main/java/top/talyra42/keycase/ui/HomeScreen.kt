@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -85,7 +89,7 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "搜索密码、账号、令牌",
+                        text = stringResource(R.string.s_dcade4ec98a9),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -144,7 +148,7 @@ fun HomeScreen(
                         title = "保险库还是空的",
                         subtitle = "在“密码”或“令牌”里添加第一条。",
                         action = {
-                            FilledTonalButton(onClick = onOpenAllPasswords) { Text("去添加密码") }
+                            FilledTonalButton(onClick = onOpenAllPasswords) { Text(stringResource(R.string.s_87653c04a484)) }
                         },
                     )
                 } else {

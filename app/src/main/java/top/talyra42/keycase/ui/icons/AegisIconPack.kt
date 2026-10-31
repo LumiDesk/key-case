@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.caverock.androidsvg.SVG
@@ -312,17 +313,25 @@ fun BrandAvatar(
         return
     }
     val context = LocalContext.current
-    val initial = remember(title, iconRef) {
+    val density = LocalDensity.current
+    val targetPx = with(density) { size.toPx() }.toInt()
+    val bitmapBucket = when {
+        targetPx <= 64 -> 64
+        targetPx <= 128 -> 128
+        targetPx <= 256 -> 256
+        else -> 320
+    }
+    val initial = remember(title, iconRef, bitmapBucket) {
         val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
             iconRef.value
         } else {
             AegisIconPack.findFilename(context, title)
         }
-        filename?.let { IconBitmapCache.get("svg:$it:112") }
+        filename?.let { IconBitmapCache.get("svg:$it:$bitmapBucket") }
     }
-    var bitmap by remember(title, iconRef) { mutableStateOf(initial) }
-    var loading by remember(title, iconRef) { mutableStateOf(initial == null) }
-    LaunchedEffect(title, iconRef) {
+    var bitmap by remember(title, iconRef, bitmapBucket) { mutableStateOf(initial) }
+    var loading by remember(title, iconRef, bitmapBucket) { mutableStateOf(initial == null) }
+    LaunchedEffect(title, iconRef, bitmapBucket) {
         if (bitmap == null) {
             bitmap = withContext(Dispatchers.IO) {
                 val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
@@ -330,7 +339,7 @@ fun BrandAvatar(
                 } else {
                     AegisIconPack.findFilename(context, title)
                 }
-                filename?.let { AegisIconPack.bitmapFor(context, it, maxSize = 112) }
+                filename?.let { AegisIconPack.bitmapFor(context, it, maxSize = bitmapBucket) }
             }
         }
         loading = false
@@ -365,15 +374,28 @@ private fun CustomIconAvatar(
     size: Dp,
     modifier: Modifier,
 ) {
-    val cached = remember(encoded) { IconBitmapCache.get("b64:${encoded.hashCode()}:96") }
-    var image by remember(encoded) { mutableStateOf(cached) }
-    var loading by remember(encoded) { mutableStateOf(cached == null) }
-    LaunchedEffect(encoded) {
+    val density = LocalDensity.current
+    val targetPx = with(density) { size.toPx() }.toInt()
+    val bucket = when {
+        targetPx <= 64 -> 64
+        targetPx <= 128 -> 128
+        targetPx <= 256 -> 256
+        else -> 320
+    }
+    val cacheKey = "b64:${encoded.hashCode()}:$bucket"
+    val cached = remember(encoded, bucket) { IconBitmapCache.get(cacheKey) }
+    var image by remember(encoded, bucket) { mutableStateOf(cached) }
+    var loading by remember(encoded, bucket) { mutableStateOf(cached == null) }
+    LaunchedEffect(encoded, bucket) {
         if (image == null) {
             image = withContext(Dispatchers.IO) {
                 runCatching {
                     val bytes = Base64.decode(encoded, Base64.DEFAULT)
-                    IconBitmapCache.decodeBase64(encoded.hashCode().toString(), bytes)
+                    IconBitmapCache.decodeBase64(
+                        encoded.hashCode().toString(),
+                        bytes,
+                        maxSize = bucket,
+                    )
                 }.getOrNull()
             }
         }

@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -64,11 +68,11 @@ fun ChangeMasterPasswordDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("修改主密码") },
+        title = { Text(stringResource(R.string.s_eedebcf226bb)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "修改后旧主密码立即失效；请牢记新密码。",
+                    stringResource(R.string.s_6f8a44914e4e),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -96,10 +100,10 @@ fun ChangeMasterPasswordDialog(
                         onDismiss()
                     }
                 },
-            ) { Text("更新") }
+            ) { Text(stringResource(R.string.s_d9db02d07adb)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }
@@ -133,11 +137,11 @@ fun ImportAegisDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("从 Aegis 导入") },
+        title = { Text(stringResource(R.string.s_12e25858d323)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "支持 Aegis 的明文或加密 JSON 导出。加密备份需要输入 Aegis 的主密码；明文备份可留空。",
+                    stringResource(R.string.s_9233d04f12a4),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -157,10 +161,10 @@ fun ImportAegisDialog(
                     onSubmit(password)
                     onDismiss()
                 },
-            ) { Text("导入") }
+            ) { Text(stringResource(R.string.s_60e2bcad85ac)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }
@@ -177,11 +181,11 @@ fun GoogleMigrationImportDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("Google Authenticator 导入") },
+        title = { Text(stringResource(R.string.s_5937a1f6388d)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "在 Google Authenticator 中选择“转移账号”并复制导出的 otpauth-migration 链接。链接只在本机解析。",
+                    stringResource(R.string.s_58fdb0fae9d3),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -212,10 +216,10 @@ fun GoogleMigrationImportDialog(
                         onImport(trimmed)
                     }
                 },
-            ) { Text("导入") }
+            ) { Text(stringResource(R.string.s_60e2bcad85ac)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }
@@ -232,11 +236,11 @@ fun ImportBackupDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("导入加密备份") },
+        title = { Text(stringResource(R.string.s_887228e85437)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "导入会替换当前保险库；当前数据不会自动合并。请输入备份文件的主密码。",
+                    stringResource(R.string.s_716805cb7f94),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -260,10 +264,10 @@ fun ImportBackupDialog(
                         onDismiss()
                     }
                 },
-            ) { Text("导入并替换") }
+            ) { Text(stringResource(R.string.s_fe6c375858c1)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }
@@ -300,11 +304,11 @@ fun CustomAccentDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("自定义强调色") },
+        title = { Text(stringResource(R.string.s_a3415054030e)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
-                    "在画板上拖动选色；强调色只用于按钮、选中态和小面积图标。",
+                    stringResource(R.string.s_2323942d0605),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -341,15 +345,15 @@ fun CustomAccentDialog(
                             saturation = 0.85f
                             value = 0.93f
                         },
-                    ) { Text("恢复默认") }
+                    ) { Text(stringResource(R.string.s_a191935bc678)) }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = { onSubmit(preview.toArgb()) }) { Text("应用") }
+            TextButton(onClick = { onSubmit(preview.toArgb()) }) { Text(stringResource(R.string.s_4562024ddec7)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
     )
 }

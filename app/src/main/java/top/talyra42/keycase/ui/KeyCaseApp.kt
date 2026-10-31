@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -480,7 +484,7 @@ private fun MainScaffold(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         shape = RoundedCornerShape(16.dp),
                     ) {
-                        Icon(Icons.Outlined.Add, contentDescription = "新建密码")
+                        Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.s_d18784c92002))
                     }
                     2 -> ExpandableTokenFab(
                         onManualAdd = onAddToken,
@@ -601,7 +605,7 @@ private fun ExpandableTokenFab(
                         onScan()
                     },
                     icon = { Icon(Icons.Outlined.QrCodeScanner, contentDescription = null) },
-                    text = { Text("扫码") },
+                    text = { Text(stringResource(R.string.s_b8a8fe0d6a8f)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
@@ -611,7 +615,7 @@ private fun ExpandableTokenFab(
                         onManualAdd()
                     },
                     icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
-                    text = { Text("手动添加") },
+                    text = { Text(stringResource(R.string.s_0307a7752d6c)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
