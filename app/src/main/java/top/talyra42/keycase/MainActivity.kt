@@ -1,28 +1,32 @@
 package top.talyra42.keycase
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import top.talyra42.keycase.data.AutoLockManager
 import top.talyra42.keycase.data.BiometricVault
 import top.talyra42.keycase.ui.KeyCaseApp
 import top.talyra42.keycase.ui.MainViewModel
 
 class MainActivity : FragmentActivity() {
     private lateinit var viewModel: MainViewModel
+    private lateinit var autoLockManager: AutoLockManager
     private val biometricVault by lazy { BiometricVault(this) }
-    private val autoLockHandler = Handler(Looper.getMainLooper())
-    private val autoLockRunnable = Runnable { viewModel.onHostStopped() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        autoLockManager = AutoLockManager(
+            autoLockSeconds = { viewModel.settings.value.autoLockSeconds },
+            shouldSkip = viewModel::consumeExternalProtection,
+            onLock = viewModel::lock,
+        ).also { ProcessLifecycleOwner.get().lifecycle.addObserver(it) }
         setContent {
             KeyCaseApp(viewModel)
         }
@@ -63,27 +67,9 @@ class MainActivity : FragmentActivity() {
         )
     }
 
-    override fun onStart() {
-        super.onStart()
-        autoLockHandler.removeCallbacks(autoLockRunnable)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (!isChangingConfigurations) {
-            if (viewModel.shouldKeepUnlockedForExternal()) return
-            val delay = viewModel.settings.value.autoLockSeconds
-            if (delay <= 0) {
-                viewModel.onHostStopped()
-            } else {
-                autoLockHandler.removeCallbacks(autoLockRunnable)
-                autoLockHandler.postDelayed(autoLockRunnable, delay * 1000L)
-            }
-        }
-    }
-
     override fun onDestroy() {
-        autoLockHandler.removeCallbacks(autoLockRunnable)
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(autoLockManager)
+        autoLockManager.close()
         super.onDestroy()
     }
 }

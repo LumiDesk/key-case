@@ -197,20 +197,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Consumes the one-shot "an external picker/activity is open" flag.
-     * MainActivity checks this before applying immediate or delayed auto-lock.
+     * [top.talyra42.keycase.data.AutoLockManager] checks this on process stop.
      */
-    fun shouldKeepUnlockedForExternal(): Boolean {
+    fun consumeExternalProtection(): Boolean {
         if (!keepUnlockedForExternal) return false
         keepUnlockedForExternal = false
         return true
-    }
-
-    fun onHostStopped() {
-        if (keepUnlockedForExternal) {
-            keepUnlockedForExternal = false
-        } else {
-            lock()
-        }
     }
 
     fun upsertItem(item: VaultItem, groupName: String) {
