@@ -32,6 +32,8 @@ data class AppSettings(
     val accentIndex: Int = 0,
     val customAccent: Int? = null,
     val darkMode: DarkMode = DarkMode.SYSTEM,
+    val showTokenCodes: Boolean = true,
+    val showNextToken: Boolean = false,
 )
 
 data class UiState(
@@ -108,6 +110,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val bytes = store.read()
                 session = VaultContainer.unlock(chars, bytes)
+                session?.let { unlocked ->
+                    top.talyra42.keycase.ui.icons.AegisIconPack.prefetch(
+                        getApplication<Application>(),
+                        unlocked.data.items.map { it.title },
+                    )
+                }
                 _state.update {
                     it.copy(
                         vaultExists = true,
@@ -146,6 +154,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val bytes = store.read()
                 session = VaultContainer.unlockWithVaultKey(bytes, vaultKey)
+                session?.let { unlocked ->
+                    top.talyra42.keycase.ui.icons.AegisIconPack.prefetch(
+                        getApplication<Application>(),
+                        unlocked.data.items.map { it.title },
+                    )
+                }
                 _state.update {
                     it.copy(
                         vaultExists = true,
@@ -428,6 +442,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putString(KEY_DARK, mode.name).apply()
     }
 
+    fun setShowTokenCodes(show: Boolean) {
+        _settings.update { it.copy(showTokenCodes = show) }
+        prefs.edit().putBoolean(KEY_SHOW_CODES, show).apply()
+    }
+
+    fun setShowNextToken(show: Boolean) {
+        _settings.update { it.copy(showNextToken = show) }
+        prefs.edit().putBoolean(KEY_NEXT_TOKEN, show).apply()
+    }
+
     fun exportBackup(uri: Uri) {
         val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -543,7 +567,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val dark = runCatching {
             DarkMode.valueOf(prefs.getString(KEY_DARK, DarkMode.SYSTEM.name)!!)
         }.getOrDefault(DarkMode.SYSTEM)
-        return AppSettings(accent, custom, dark)
+        return AppSettings(
+            accentIndex = accent,
+            customAccent = custom,
+            darkMode = dark,
+            showTokenCodes = prefs.getBoolean(KEY_SHOW_CODES, true),
+            showNextToken = prefs.getBoolean(KEY_NEXT_TOKEN, false),
+        )
     }
 
     private fun persist(data: VaultData) {
@@ -585,5 +615,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_ACCENT = "accent"
         private const val KEY_CUSTOM = "customAccent"
         private const val KEY_DARK = "dark"
+        private const val KEY_SHOW_CODES = "showTokenCodes"
+        private const val KEY_NEXT_TOKEN = "showNextToken"
     }
 }

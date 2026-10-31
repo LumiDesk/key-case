@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +77,8 @@ fun SettingsScreen(
     onImportGoogle: (String) -> Unit,
     onPrepareExternal: () -> Unit,
     onCustomAccent: (Int) -> Unit,
+    onShowTokenCodes: (Boolean) -> Unit,
+    onShowNextToken: (Boolean) -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
     biometricAvailable: Boolean,
@@ -240,6 +243,25 @@ fun SettingsScreen(
                     title = "回收站",
                     subtitle = "${data.items.count { it.deletedAt != null }} 个已删除条目",
                     onClick = onOpenTrash,
+                )
+            }
+        }
+
+        item {
+            SettingsLabel("令牌")
+            AppCard {
+                SwitchRow(
+                    title = "显示验证码",
+                    subtitle = "关闭后列表只显示倒计时圆圈",
+                    checked = settings.showTokenCodes,
+                    onCheckedChange = onShowTokenCodes,
+                )
+                SettingsDivider()
+                SwitchRow(
+                    title = "提前显示下一组",
+                    subtitle = "在当前验证码下方显示下一组",
+                    checked = settings.showNextToken,
+                    onCheckedChange = onShowNextToken,
                 )
             }
         }
@@ -554,6 +576,32 @@ private fun ActionRow(
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(18.dp),
         )
+    }
+}
+
+@Composable
+private fun SwitchRow(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCheckedChange(!checked) }
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

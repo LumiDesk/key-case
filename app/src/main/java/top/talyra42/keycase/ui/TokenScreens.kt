@@ -93,11 +93,12 @@ fun TokenListScreen(
     onAdd: () -> Unit,
     onScan: () -> Unit,
     active: Boolean = true,
+    showCodes: Boolean = true,
+    showNext: Boolean = false,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
-    var hidden by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val items = data.items
@@ -149,13 +150,6 @@ fun TokenListScreen(
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
                         contentDescription = if (searchOpen) "关闭搜索" else "搜索",
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
-                IconButton(onClick = { hidden = !hidden }) {
-                    Icon(
-                        if (hidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                        contentDescription = if (hidden) "显示令牌" else "隐藏令牌",
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -231,6 +225,11 @@ fun TokenListScreen(
                         items(section.items, key = { it.id }) { item ->
                             val secret = item.totp
                             val code = secret?.let { runCatching { it.codeAt(now) }.getOrNull() } ?: "—"
+                            val nextCode = if (showNext && secret != null) {
+                                runCatching { secret.codeAt(now + secret.period * 1000L) }.getOrNull()
+                            } else {
+                                null
+                            }
                             val period = (secret?.period ?: 30).coerceAtLeast(1)
                             val remaining = period - ((now / 1000L) % period)
                             VaultItemRow(
@@ -238,27 +237,37 @@ fun TokenListScreen(
                                 onClick = { onOpenItem(item) },
                                 trailing = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Surface(
-                                            shape = RoundedCornerShape(8.dp),
-                                            color = MaterialTheme.colorScheme.primaryContainer,
-                                            modifier = Modifier.clickable {
-                                                if (code != "—") copyText(context, code)
-                                            },
-                                        ) {
-                                            Text(
-                                                text = if (hidden) {
-                                                    "••• •••"
-                                                } else {
-                                                    code.chunked(3).joinToString(" ")
+                                        if (showCodes) {
+                                            Surface(
+                                                shape = RoundedCornerShape(8.dp),
+                                                color = MaterialTheme.colorScheme.primaryContainer,
+                                                modifier = Modifier.clickable {
+                                                    if (code != "—") copyText(context, code)
                                                 },
-                                                fontFamily = FontFamily.Monospace,
-                                                fontWeight = FontWeight.SemiBold,
-                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                style = MaterialTheme.typography.labelLarge,
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                            )
+                                            ) {
+                                                Column(
+                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                                    horizontalAlignment = Alignment.End,
+                                                ) {
+                                                    Text(
+                                                        text = code.chunked(3).joinToString(" "),
+                                                        fontFamily = FontFamily.Monospace,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                        style = MaterialTheme.typography.labelLarge,
+                                                    )
+                                                    nextCode?.let {
+                                                        Text(
+                                                            text = it.chunked(3).joinToString(" "),
+                                                            fontFamily = FontFamily.Monospace,
+                                                            fontSize = 10.sp,
+                                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.55f),
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                            Spacer(Modifier.width(6.dp))
                                         }
-                                        Spacer(Modifier.width(6.dp))
                                         Box(modifier = Modifier.size(21.dp), contentAlignment = Alignment.Center) {
                                             CircularProgressIndicator(
                                                 progress = { remaining / period.toFloat() },

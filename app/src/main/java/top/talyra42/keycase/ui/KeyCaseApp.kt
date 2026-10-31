@@ -305,11 +305,7 @@ private fun MainScaffold(
 
     fun goToPage(page: Int) {
         scope.launch {
-            if (kotlin.math.abs(page - pagerState.currentPage) > 1) {
-                pagerState.scrollToPage(page)
-            } else {
-                pagerState.animateScrollToPage(page, animationSpec = tween(220))
-            }
+            pagerState.animateScrollToPage(page, animationSpec = tween(220))
         }
     }
 
@@ -419,6 +415,8 @@ private fun MainScaffold(
                         onAdd = onAddToken,
                         onScan = onScanToken,
                         active = pagerState.currentPage == 2,
+                        showCodes = settings.showTokenCodes,
+                        showNext = settings.showNextToken,
                     )
                     else -> SettingsScreen(
                         data = data,
@@ -432,6 +430,8 @@ private fun MainScaffold(
                         onImportGoogle = viewModel::importGoogleMigration,
                         onPrepareExternal = viewModel::prepareExternalActivity,
                         onCustomAccent = viewModel::setCustomAccent,
+                        onShowTokenCodes = viewModel::setShowTokenCodes,
+                        onShowNextToken = viewModel::setShowNextToken,
                         onOpenSecurity = onOpenSecurity,
                         onOpenTrash = onOpenTrash,
                         biometricAvailable = biometricAvailable,

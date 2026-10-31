@@ -13,6 +13,10 @@ object IconBitmapCache {
 
     fun get(key: String): ImageBitmap? = synchronized(cache) { cache.get(key) }
 
+    fun put(key: String, image: ImageBitmap) {
+        synchronized(cache) { cache.put(key, image) }
+    }
+
     fun decodeFile(file: File, maxSize: Int = 96): ImageBitmap? {
         val key = "file:${file.absolutePath}:$maxSize"
         synchronized(cache) { cache.get(key) }?.let { return it }

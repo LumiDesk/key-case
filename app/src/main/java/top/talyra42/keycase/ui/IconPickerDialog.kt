@@ -342,11 +342,15 @@ fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
 @Composable
 fun PackIconPreview(filename: String, name: String, size: Int = 32) {
     val context = LocalContext.current
-    var icon by remember(filename) { mutableStateOf<ImageVector?>(null) }
-    var loading by remember(filename) { mutableStateOf(true) }
-    LaunchedEffect(filename, name) {
-        icon = withContext(Dispatchers.IO) {
-            AegisIconPack.vectorFor(context, filename, name)
+    var image by remember(filename) {
+        mutableStateOf(top.talyra42.keycase.ui.icons.IconBitmapCache.get("svg:$filename:96"))
+    }
+    var loading by remember(filename) { mutableStateOf(image == null) }
+    LaunchedEffect(filename) {
+        if (image == null) {
+            image = withContext(Dispatchers.IO) {
+                AegisIconPack.bitmapFor(context, filename, maxSize = 96)
+            }
         }
         loading = false
     }
@@ -359,20 +363,15 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
                     RoundedCornerShape((size * 0.3f).dp),
                 ),
         )
-    } else if (icon == null) {
+    } else if (image == null) {
         LetterAvatar(title = name, size = size.dp)
     } else {
-        androidx.compose.foundation.layout.Box(
+        Image(
+            bitmap = image!!,
+            contentDescription = null,
+            contentScale = androidx.compose.ui.layout.ContentScale.Fit,
             modifier = Modifier.size(size.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon!!,
-                contentDescription = null,
-                tint = androidx.compose.ui.graphics.Color.Unspecified,
-                modifier = Modifier.size((size * 0.9f).dp),
-            )
-        }
+        )
     }
 }
 

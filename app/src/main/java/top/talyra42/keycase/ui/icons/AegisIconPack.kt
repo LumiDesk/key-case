@@ -2,6 +2,8 @@ package top.talyra42.keycase.ui.icons
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.util.Base64
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,6 +31,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.caverock.androidsvg.SVG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -96,6 +99,51 @@ object AegisIconPack {
         val vector = parseSimpleIcon(entry.name, svg)
         synchronized(lock) { vectorCache[entry.filename] = vector }
         return vector
+    }
+
+    fun findFilename(context: Context, label: String): String? {
+        val key = normalize(label)
+        if (key.isBlank()) return null
+        val entries = ensureIndex(context) ?: return null
+        val entry = entries[key]
+            ?: entries.entries.firstOrNull { (candidate, _) ->
+                candidate.length >= 3 && (key.contains(candidate) || candidate.contains(key))
+            }?.value
+        return entry?.filename
+    }
+
+    /** Warm the index and a handful of avatars before the first list frame. */
+    fun prefetch(context: Context, labels: Collection<String>) {
+        labels.asSequence()
+            .filter { it.isNotBlank() }
+            .distinct()
+            .take(64)
+            .forEach { label ->
+                val filename = findFilename(context, label) ?: return@forEach
+                bitmapFor(context, filename, maxSize = 112)
+            }
+    }
+
+    /** Renders the original SVG colors/shapes with AndroidSVG, then caches it. */
+    fun bitmapFor(context: Context, filename: String, maxSize: Int = 128): ImageBitmap? {
+        if (filename.isBlank()) return null
+        val cacheKey = "svg:$filename:$maxSize"
+        IconBitmapCache.get(cacheKey)?.let { return it }
+        val svgText = readEntry(context, filename) ?: return null
+        val rendered = runCatching {
+            val svg = SVG.getFromString(svgText)
+            val width = svg.documentWidth.takeIf { it > 0f } ?: 24f
+            val height = svg.documentHeight.takeIf { it > 0f } ?: 24f
+            val scale = minOf(maxSize / width, maxSize / height)
+            val outWidth = (width * scale).toInt().coerceAtLeast(1)
+            val outHeight = (height * scale).toInt().coerceAtLeast(1)
+            val picture = svg.renderToPicture(outWidth, outHeight)
+            val bitmap = Bitmap.createBitmap(outWidth, outHeight, Bitmap.Config.ARGB_8888)
+            Canvas(bitmap).drawPicture(picture)
+            bitmap.asImageBitmap()
+        }.getOrNull() ?: return null
+        IconBitmapCache.put(cacheKey, rendered)
+        return rendered
     }
 
     private fun ensureIndex(context: Context): Map<String, Entry>? = synchronized(lock) {
@@ -264,15 +312,25 @@ fun BrandAvatar(
         return
     }
     val context = LocalContext.current
-    var icon by remember(title, iconRef) { mutableStateOf<ImageVector?>(null) }
-    var loading by remember(title, iconRef) { mutableStateOf(true) }
+    val initial = remember(title, iconRef) {
+        val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
+            iconRef.value
+        } else {
+            AegisIconPack.findFilename(context, title)
+        }
+        filename?.let { IconBitmapCache.get("svg:$it:112") }
+    }
+    var bitmap by remember(title, iconRef) { mutableStateOf(initial) }
+    var loading by remember(title, iconRef) { mutableStateOf(initial == null) }
     LaunchedEffect(title, iconRef) {
-        icon = withContext(Dispatchers.IO) {
-            if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
-                AegisIconPack.vectorFor(context, iconRef.value, title)
-                    ?: AegisIconPack.find(context, title)
-            } else {
-                AegisIconPack.find(context, title)
+        if (bitmap == null) {
+            bitmap = withContext(Dispatchers.IO) {
+                val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
+                    iconRef.value
+                } else {
+                    AegisIconPack.findFilename(context, title)
+                }
+                filename?.let { AegisIconPack.bitmapFor(context, it, maxSize = 112) }
             }
         }
         loading = false
@@ -288,20 +346,15 @@ fun BrandAvatar(
         )
         return
     }
-    if (icon == null) {
+    if (bitmap == null) {
         LetterAvatar(title = title, size = size, modifier = modifier)
     } else {
-        Box(
+        Image(
+            bitmap = bitmap!!,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
             modifier = modifier.size(size),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = icon!!,
-                contentDescription = null,
-                tint = Color.Unspecified,
-                modifier = Modifier.size(size),
-            )
-        }
+        )
     }
 }
 
