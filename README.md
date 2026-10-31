@@ -4,6 +4,8 @@
 No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
 
 > Status: **v0.1.2** signed R8 release (~7.6 MB), built by GitHub Actions and installed on a physical Android device. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
+>
+> The current development branch additionally adds HOTP and Steam token support, favorites, opening URLs, pre-import vault copies, lifecycle-driven auto-lock, resource-based localization, an accessibility pass, and a PR CI workflow. It has not been released yet.
 
 ## What it is
 
@@ -25,6 +27,7 @@ The app is built for Android and is local-first. There is no sync server, no acc
 
 - [Agent guide](AGENTS.md)
 - [Design system](DESIGN.md)
+- [Security policy](SECURITY.md)
 - [App icon: B3 obsidian](docs/icon-options/b3-obsidian.svg)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
