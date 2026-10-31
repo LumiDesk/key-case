@@ -20,9 +20,8 @@ class PasswordEditorSheetTest {
             KeyCaseTheme(AppSettings()) {
                 PasswordEditorScreen(
                     item = null,
-                    groups = emptyList(),
                     onBack = {},
-                    onSave = { _, _ -> },
+                    onSave = { _ -> },
                 )
             }
         }

@@ -1,5 +1,6 @@
 package top.talyra42.keycase.ui
 
+import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.outlined.FileDownload
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
@@ -65,6 +67,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.talyra42.keycase.core.model.VaultData
+import top.talyra42.keycase.data.AutoBackupManager
 import top.talyra42.keycase.ui.icons.ImportedIconPack
 import top.talyra42.keycase.ui.theme.AccentNames
 import top.talyra42.keycase.ui.theme.AccentPalette
@@ -87,15 +90,15 @@ fun SettingsScreen(
     onCodeGrouping: (CodeGrouping) -> Unit,
     onSecureScreen: (Boolean) -> Unit,
     onAutoLock: (Int) -> Unit,
+    onAutoBackup: (Boolean) -> Unit,
+    onBackupFolder: (String, String) -> Unit,
+    onBackupNow: () -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
     biometricAvailable: Boolean,
     biometricEnrolled: Boolean,
     onEnableBiometric: () -> Unit,
     onDisableBiometric: () -> Unit,
-    onAddGroup: (String) -> Unit,
-    onRenameGroup: (String, String) -> Unit,
-    onDeleteGroup: (String) -> Unit,
     onChangePassword: (String, String, String) -> Unit,
 ) {
     val exportLauncher = rememberLauncherForActivityResult(
@@ -110,6 +113,20 @@ fun SettingsScreen(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri -> if (uri != null) pendingAegis = uri }
     val context = LocalContext.current
+    val backupFolderLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree(),
+    ) { uri ->
+        if (uri != null) {
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+            }
+            val name = AutoBackupManager.displayName(context, uri.toString()) ?: "已选择"
+            onBackupFolder(uri.toString(), name)
+        }
+    }
     val scope = rememberCoroutineScope()
     var iconPackStatus by remember { mutableStateOf<String?>(null) }
     val iconPackLauncher = rememberLauncherForActivityResult(
@@ -127,18 +144,12 @@ fun SettingsScreen(
             }
         }
     }
-    var showGroups by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
     var showCustomAccent by remember { mutableStateOf(false) }
     var showGoogleImport by remember { mutableStateOf(false) }
     var showIconPreview by remember { mutableStateOf(false) }
     var showAutoLock by remember { mutableStateOf(false) }
     var showCodeGrouping by remember { mutableStateOf(false) }
-    val itemCounts = remember(data.items) {
-        data.groups.associate { group ->
-            group.id to data.items.count { group.id in it.groupIds }
-        }
-    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -239,15 +250,56 @@ fun SettingsScreen(
         }
 
         item {
-            SettingsLabel("整理")
+            SettingsLabel("备份")
             AppCard {
-                ActionRow(
-                    icon = Icons.Outlined.Folder,
-                    title = "分组",
-                    subtitle = "${data.groups.size} 个分组",
-                    onClick = { showGroups = true },
+                SwitchRow(
+                    title = "自动备份",
+                    subtitle = if (settings.backupTreeUri.isBlank()) {
+                        "选择目录后，每次保存自动生成加密快照"
+                    } else {
+                        "每次保存后备份到 ${settings.backupFolderName.ifBlank { "所选目录" }}"
+                    },
+                    checked = settings.autoBackup,
+                    onCheckedChange = { enabled ->
+                        if (enabled && settings.backupTreeUri.isBlank()) {
+                            backupFolderLauncher.launch(null)
+                        } else {
+                            onAutoBackup(enabled)
+                        }
+                    },
                 )
                 SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Folder,
+                    title = "备份目录",
+                    subtitle = settings.backupFolderName.ifBlank { "未选择，点击选择 Documents 等目录" },
+                    onClick = { backupFolderLauncher.launch(null) },
+                )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Schedule,
+                    title = "上次备份",
+                    subtitle = if (settings.lastBackupAt == 0L) {
+                        "尚未备份"
+                    } else {
+                        java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault())
+                            .format(java.util.Date(settings.lastBackupAt))
+                    },
+                    onClick = {},
+                )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Save,
+                    title = "立即备份",
+                    subtitle = "生成一份加密快照，保留最近 10 份",
+                    onClick = onBackupNow,
+                )
+            }
+        }
+
+        item {
+            SettingsLabel("整理")
+            AppCard {
                 ActionRow(
                     icon = Icons.Outlined.Delete,
                     title = "回收站",
@@ -389,16 +441,6 @@ fun SettingsScreen(
         }
     }
 
-    if (showGroups) {
-        GroupManagerDialog(
-            groups = data.groups,
-            itemCounts = itemCounts,
-            onAdd = onAddGroup,
-            onRename = onRenameGroup,
-            onDelete = onDeleteGroup,
-            onDismiss = { showGroups = false },
-        )
-    }
     if (showPassword) {
         ChangeMasterPasswordDialog(
             onDismiss = { showPassword = false },

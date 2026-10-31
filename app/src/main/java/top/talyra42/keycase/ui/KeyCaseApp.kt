@@ -76,6 +76,7 @@ sealed interface Route {
     data object Main : Route
     data object Security : Route
     data object Trash : Route
+    data object Search : Route
     data class Detail(val itemId: String) : Route
 }
 
@@ -152,6 +153,7 @@ private fun VaultRoot(
 ) {
     val data = state.data ?: return
     var route by remember { mutableStateOf<Route>(Route.Main) }
+    var detailReturn by remember { mutableStateOf<Route>(Route.Main) }
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
     var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
@@ -167,21 +169,23 @@ private fun VaultRoot(
     }
 
     BackHandler(enabled = route != Route.Main && passwordEditor == null && tokenEditor == null) {
-        route = Route.Main
+        route = if (route is Route.Detail) detailReturn else Route.Main
     }
 
     val openItem: (VaultItem) -> Unit = { item ->
-        route = if (item.kind == ItemKind.TOTP) {
-            Route.Detail(item.id)
-        } else {
-            Route.Detail(item.id)
-        }
+        detailReturn = route
+        route = Route.Detail(item.id)
     }
 
     AnimatedContent(
         targetState = route,
         transitionSpec = {
-            val forward = targetState != Route.Main
+            fun depth(route: Route): Int = when (route) {
+                Route.Main -> 0
+                is Route.Detail -> 2
+                else -> 1
+            }
+            val forward = depth(targetState) >= depth(initialState)
             if (forward) {
                 (slideInHorizontally(tween(200)) { it / 7 } + fadeIn(tween(180))) togetherWith
                     (slideOutHorizontally(tween(160)) { -it / 12 } + fadeOut(tween(120)))
@@ -216,6 +220,7 @@ private fun VaultRoot(
             },
             onOpenSecurity = { route = Route.Security },
             onOpenTrash = { route = Route.Trash },
+            onOpenSearch = { route = Route.Search },
             onLock = viewModel::lock,
             onAccent = viewModel::setAccent,
             onDarkMode = viewModel::setDarkMode,
@@ -234,7 +239,7 @@ private fun VaultRoot(
         Route.Security -> SecurityScreen(
             items = data.items,
             onBack = { route = Route.Main },
-            onOpenItem = { item -> route = Route.Detail(item.id) },
+            onOpenItem = openItem,
         )
 
         Route.Trash -> TrashScreen(
@@ -245,18 +250,23 @@ private fun VaultRoot(
             onEmpty = viewModel::emptyTrash,
         )
 
+        Route.Search -> SearchScreen(
+            data = data,
+            onBack = { route = Route.Main },
+            onOpenItem = openItem,
+        )
+
         is Route.Detail -> {
             val item = data.items.firstOrNull { it.id == current.itemId }
             if (item == null) {
-                LaunchedEffect(Unit) { route = Route.Main }
+                LaunchedEffect(Unit) { route = detailReturn }
             } else {
                 ItemDetailScreen(
                     item = item,
-                    groups = data.groups,
                     showCodes = settings.showTokenCodes,
                     showNext = settings.showNextToken,
                     codeGrouping = settings.codeGrouping,
-                    onBack = { route = Route.Main },
+                    onBack = { route = detailReturn },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
                             tokenEditor = TokenEditorTarget(item.id)
@@ -266,7 +276,7 @@ private fun VaultRoot(
                     },
                     onDelete = {
                         viewModel.deleteItem(item.id)
-                        route = Route.Main
+                        route = detailReturn
                     },
                 )
             }
@@ -278,10 +288,9 @@ private fun VaultRoot(
         val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
         PasswordEditorScreen(
             item = item,
-            groups = data.groups,
             onBack = { passwordEditor = null },
-            onSave = { updated, group ->
-                viewModel.upsertItem(updated, group)
+            onSave = { updated ->
+                viewModel.upsertItem(updated, "")
                 passwordEditor = null
             },
         )
@@ -313,6 +322,7 @@ private fun MainScaffold(
     onAddPassword: () -> Unit,
     onAddToken: () -> Unit,
     onScanToken: () -> Unit,
+    onOpenSearch: () -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
     onLock: () -> Unit,
@@ -440,7 +450,8 @@ private fun MainScaffold(
                         onOpenItem = onOpenItem,
                         onOpenAllPasswords = { goToPage(1) },
                         onOpenTokens = { goToPage(2) },
-                        onOpenGroups = { goToPage(3) },
+                        onOpenSearch = onOpenSearch,
+                        onOpenTrash = onOpenTrash,
                         onOpenSecurity = onOpenSecurity,
                     )
                     1 -> PasswordListScreen(
@@ -475,15 +486,15 @@ private fun MainScaffold(
                         onCodeGrouping = viewModel::setCodeGrouping,
                         onSecureScreen = viewModel::setSecureScreen,
                         onAutoLock = viewModel::setAutoLockSeconds,
+                        onAutoBackup = viewModel::setAutoBackup,
+                        onBackupFolder = viewModel::setBackupFolder,
+                        onBackupNow = viewModel::backupNow,
                         onOpenSecurity = onOpenSecurity,
                         onOpenTrash = onOpenTrash,
                         biometricAvailable = biometricAvailable,
                         biometricEnrolled = biometricEnrolled,
                         onEnableBiometric = onEnableBiometric,
                         onDisableBiometric = onDisableBiometric,
-                        onAddGroup = viewModel::addGroup,
-                        onRenameGroup = viewModel::renameGroup,
-                        onDeleteGroup = viewModel::deleteGroup,
                         onChangePassword = viewModel::changeMasterPassword,
                     )
                 }

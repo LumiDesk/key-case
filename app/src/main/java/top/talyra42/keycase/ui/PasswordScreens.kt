@@ -43,6 +43,8 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.SortByAlpha
@@ -55,11 +57,7 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -101,7 +99,6 @@ import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.IconRef
 import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
-import top.talyra42.keycase.core.model.VaultGroup
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.Base32
 import top.talyra42.keycase.core.otp.codeAt
@@ -267,7 +264,6 @@ fun PasswordListScreen(
 @Composable
 fun ItemDetailScreen(
     item: VaultItem,
-    groups: List<VaultGroup>,
     showCodes: Boolean = true,
     showNext: Boolean = false,
     codeGrouping: CodeGrouping = CodeGrouping.AUTO,
@@ -278,7 +274,8 @@ fun ItemDetailScreen(
     val context = LocalContext.current
     var revealed by remember(item.id) { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
-    val groupName = groups.firstOrNull { it.id in item.groupIds }?.name
+    var advancedOpen by remember(item.id) { mutableStateOf(false) }
+    var secretRevealed by remember(item.id) { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -325,16 +322,6 @@ fun ItemDetailScreen(
                     text = item.username,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (!groupName.isNullOrBlank()) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = groupName,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
                 )
             }
             Spacer(Modifier.height(18.dp))
@@ -388,6 +375,14 @@ fun ItemDetailScreen(
                     codeGrouping = codeGrouping,
                     onCopy = { code -> copyText(context, code) },
                 )
+                Spacer(Modifier.height(10.dp))
+                TokenAdvancedCard(
+                    secret = secret,
+                    expanded = advancedOpen,
+                    secretRevealed = secretRevealed,
+                    onToggle = { advancedOpen = !advancedOpen },
+                    onRevealSecret = { secretRevealed = !secretRevealed },
+                )
             }
 
             Spacer(Modifier.height(24.dp))
@@ -404,6 +399,76 @@ fun ItemDetailScreen(
             },
             onDismiss = { showDelete = false },
         )
+    }
+}
+
+@Composable
+private fun TokenAdvancedCard(
+    secret: TotpSecret,
+    expanded: Boolean,
+    secretRevealed: Boolean,
+    onToggle: () -> Unit,
+    onRevealSecret: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onToggle)
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "高级信息",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                imageVector = if (expanded) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(20.dp),
+            )
+        }
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            Column {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                InfoRow(label = "算法", value = secret.algorithm.name, muted = true)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                InfoRow(label = "位数", value = "${secret.digits} 位", muted = true)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                InfoRow(label = "周期", value = "${secret.period} 秒", muted = true)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                InfoRow(
+                    label = "密钥",
+                    value = if (secretRevealed) secret.secret else "••••••••••••",
+                    muted = true,
+                ) {
+                    IconButton(onClick = onRevealSecret) {
+                        Icon(
+                            imageVector = if (secretRevealed) {
+                                Icons.Outlined.VisibilityOff
+                            } else {
+                                Icons.Outlined.Visibility
+                            },
+                            contentDescription = if (secretRevealed) "隐藏密钥" else "显示密钥",
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -542,24 +607,17 @@ private fun CopyButton(onClick: () -> Unit) {
 @Composable
 fun PasswordEditorScreen(
     item: VaultItem?,
-    groups: List<VaultGroup>,
     onBack: () -> Unit,
-    onSave: (VaultItem, String) -> Unit,
+    onSave: (VaultItem) -> Unit,
 ) {
     var title by rememberSaveable(item?.id) { mutableStateOf(item?.title.orEmpty()) }
     var username by rememberSaveable(item?.id) { mutableStateOf(item?.username.orEmpty()) }
     var password by rememberSaveable(item?.id) { mutableStateOf(item?.password.orEmpty()) }
     var url by rememberSaveable(item?.id) { mutableStateOf(item?.urls?.firstOrNull().orEmpty()) }
     var notes by rememberSaveable(item?.id) { mutableStateOf(item?.notes.orEmpty()) }
-    var group by rememberSaveable(item?.id) {
-        mutableStateOf(
-            groups.firstOrNull { it.id in (item?.groupIds ?: emptyList()) }?.name.orEmpty(),
-        )
-    }
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
-    var groupMenu by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -579,7 +637,7 @@ fun PasswordEditorScreen(
             icon = icon,
             updatedAt = now,
         )
-        onSave(updated, group.trim())
+        onSave(updated)
     }
 
     ModalBottomSheet(
@@ -679,53 +737,6 @@ fun PasswordEditorScreen(
                 shape = MaterialTheme.shapes.small,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             )
-            ExposedDropdownMenuBox(
-                expanded = groupMenu,
-                onExpandedChange = { groupMenu = !groupMenu },
-            ) {
-                OutlinedTextField(
-                    value = group.ifBlank { "未分组" },
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("分组（可选）") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                    shape = MaterialTheme.shapes.small,
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = groupMenu)
-                    },
-                )
-                ExposedDropdownMenu(
-                    expanded = groupMenu,
-                    onDismissRequest = { groupMenu = false },
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("未分组") },
-                        onClick = {
-                            group = ""
-                            groupMenu = false
-                        },
-                    )
-                    groups.forEach { option ->
-                        DropdownMenuItem(
-                            text = { Text(option.name) },
-                            onClick = {
-                                group = option.name
-                                groupMenu = false
-                            },
-                        )
-                    }
-                }
-            }
-            if (groups.isEmpty()) {
-                Text(
-                    "还没有分组，可在设置 → 分组中创建。",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },

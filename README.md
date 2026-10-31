@@ -3,13 +3,13 @@
 **Local-first, offline Android password manager and TOTP authenticator.**
 No account, no cloud, **no `INTERNET` permission**.
 
-> Status: working debug build. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, groups, trash, security center, accent/dark theme with animated transitions, visual color picker, encrypted backup export/import, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, and custom image icons are implemented and verified on an Android 37 emulator. UI copy follows the device language (Chinese/English).
+> Status: working release build. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme with animated transitions, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, and the B3 launcher icon are implemented and verified on an Android 37 emulator. UI copy follows the device language (Chinese/English).
 
 ## What it is
 
 KeyCase keeps two kinds of items in one local, encrypted vault:
 
-- **Passwords** — accounts, passwords, URLs, notes, groups.
+- **Passwords** — accounts, passwords, URLs, notes.
 - **Dynamic tokens (TOTP)** — scanned QR codes or manually entered secrets, with codes generated on-device.
 
 The app is built for Android and is intentionally offline. There is no sync server, no account system, and no telemetry.
@@ -18,14 +18,14 @@ The app is built for Android and is intentionally offline. There is no sync serv
 
 - The vault is encrypted on the device; the master password never leaves it.
 - The app declares **no `INTERNET` permission**, so it cannot upload data.
-- Backups are explicit, encrypted files written to a folder the user chooses, and can be imported back.
+- Backups are encrypted snapshots written to a folder the user chooses, manually or automatically after each save, and can be imported back.
 - Data is portable: import/export the encrypted container, merge Aegis TOTP exports, and import Google Authenticator migration links.
 
 ## Documentation
 
 - [Agent guide](AGENTS.md)
 - [Design system](DESIGN.md)
-- [App icon options](docs/icon-options/preview-b-dark.html)
+- [App icon: B3 obsidian](docs/icon-options/b3-obsidian.svg)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
 - [Vault container format v1](docs/design/vault-format-v1.md)
@@ -49,8 +49,8 @@ The app is built for Android and is intentionally offline. There is no sync serv
 | Scan / manual add FAB | Visual accent color picker |
 | ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
 | Settings, compact rows | Settings, dark mode |
-| ![Groups](docs/screenshots/groups.png) | ![Icon picker](docs/screenshots/icon-picker.png) |
-| Group management | Icon picker |
+| ![Icon picker](docs/screenshots/icon-picker.png) | |
+| Icon picker | |
 
 ## Build
 

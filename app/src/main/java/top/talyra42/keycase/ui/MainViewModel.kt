@@ -23,6 +23,7 @@ import top.talyra42.keycase.core.otp.GoogleMigrationParser
 import top.talyra42.keycase.core.vault.UnlockedVault
 import top.talyra42.keycase.core.vault.VaultContainer
 import top.talyra42.keycase.data.AndroidVaultStore
+import top.talyra42.keycase.data.AutoBackupManager
 import java.time.Instant
 import java.util.UUID
 
@@ -39,6 +40,10 @@ data class AppSettings(
     val secureScreen: Boolean = false,
     val autoLockSeconds: Int = 0,
     val codeGrouping: CodeGrouping = CodeGrouping.AUTO,
+    val autoBackup: Boolean = false,
+    val backupTreeUri: String = "",
+    val backupFolderName: String = "",
+    val lastBackupAt: Long = 0L,
 )
 
 data class UiState(
@@ -263,61 +268,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         persist(data.copy(items = data.items.filter { it.deletedAt == null }))
     }
 
-    fun addGroup(name: String) {
-        val data = _state.value.data ?: return
-        val clean = name.trim()
-        if (clean.isBlank()) {
-            _state.update { it.copy(error = "分组名不能为空") }
-            return
-        }
-        if (data.groups.any { it.name.equals(clean, ignoreCase = true) }) {
-            _state.update { it.copy(error = "分组已存在") }
-            return
-        }
-        val group = VaultGroup(
-            id = UUID.randomUUID().toString(),
-            name = clean,
-            order = data.groups.size,
-        )
-        persist(data.copy(groups = data.groups + group))
-    }
-
-    fun renameGroup(groupId: String, name: String) {
-        val data = _state.value.data ?: return
-        val clean = name.trim()
-        if (clean.isBlank()) {
-            _state.update { it.copy(error = "分组名不能为空") }
-            return
-        }
-        if (data.groups.any { it.id != groupId && it.name.equals(clean, ignoreCase = true) }) {
-            _state.update { it.copy(error = "分组已存在") }
-            return
-        }
-        persist(
-            data.copy(
-                groups = data.groups.map {
-                    if (it.id == groupId) it.copy(name = clean) else it
-                },
-            ),
-        )
-    }
-
-    fun deleteGroup(groupId: String) {
-        val data = _state.value.data ?: return
-        persist(
-            data.copy(
-                groups = data.groups.filterNot { it.id == groupId },
-                items = data.items.map {
-                    if (groupId in it.groupIds) {
-                        it.copy(groupIds = it.groupIds - groupId)
-                    } else {
-                        it
-                    }
-                },
-            ),
-        )
-    }
-
     fun changeMasterPassword(current: String, newPassword: String, confirm: String) {
         when {
             newPassword.length < 8 -> {
@@ -473,6 +423,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putString(KEY_CODE_GROUPING, grouping.name).apply()
     }
 
+    fun setAutoBackup(enabled: Boolean) {
+        _settings.update { it.copy(autoBackup = enabled) }
+        prefs.edit().putBoolean(KEY_AUTO_BACKUP, enabled).apply()
+    }
+
+    fun setBackupFolder(uri: String, displayName: String) {
+        _settings.update {
+            it.copy(
+                backupTreeUri = uri,
+                backupFolderName = displayName,
+                autoBackup = true,
+            )
+        }
+        prefs.edit()
+            .putString(KEY_BACKUP_TREE, uri)
+            .putString(KEY_BACKUP_NAME, displayName)
+            .putBoolean(KEY_AUTO_BACKUP, true)
+            .apply()
+    }
+
+    fun backupNow() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(busy = true, error = null) }
+            try {
+                val bytes = store.read()
+                writeBackup(bytes)
+                _state.update { it.copy(busy = false, message = "备份已保存") }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(busy = false, error = e.message ?: "备份失败")
+                }
+            }
+        }
+    }
+
     fun exportBackup(uri: Uri) {
         val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -601,7 +586,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     prefs.getString(KEY_CODE_GROUPING, CodeGrouping.AUTO.name)!!,
                 )
             }.getOrDefault(CodeGrouping.AUTO),
+            autoBackup = prefs.getBoolean(KEY_AUTO_BACKUP, false),
+            backupTreeUri = prefs.getString(KEY_BACKUP_TREE, "").orEmpty(),
+            backupFolderName = prefs.getString(KEY_BACKUP_NAME, "").orEmpty(),
+            lastBackupAt = prefs.getLong(KEY_LAST_BACKUP, 0L),
         )
+    }
+
+    private fun autoBackupIfConfigured(bytes: ByteArray) {
+        val settings = _settings.value
+        if (!settings.autoBackup || settings.backupTreeUri.isBlank()) return
+        runCatching { writeBackup(bytes) }
+    }
+
+    private fun writeBackup(bytes: ByteArray) {
+        val current = _settings.value
+        if (current.backupTreeUri.isBlank()) error("请先选择备份目录")
+        AutoBackupManager.write(
+            context = getApplication(),
+            treeUri = current.backupTreeUri,
+            bytes = bytes,
+        )
+        val now = System.currentTimeMillis()
+        _settings.update { it.copy(lastBackupAt = now) }
+        prefs.edit().putLong(KEY_LAST_BACKUP, now).apply()
     }
 
     private fun persist(data: VaultData) {
@@ -617,6 +625,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     _state.update {
                         it.copy(data = next.data, busy = false, error = null)
                     }
+                    autoBackupIfConfigured(bytes)
                 }
             } catch (e: Exception) {
                 _state.update {
@@ -648,5 +657,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_SECURE_SCREEN = "secureScreen"
         private const val KEY_AUTO_LOCK = "autoLockSeconds"
         private const val KEY_CODE_GROUPING = "codeGrouping"
+        private const val KEY_AUTO_BACKUP = "autoBackup"
+        private const val KEY_BACKUP_TREE = "backupTreeUri"
+        private const val KEY_BACKUP_NAME = "backupFolderName"
+        private const val KEY_LAST_BACKUP = "lastBackupAt"
     }
 }

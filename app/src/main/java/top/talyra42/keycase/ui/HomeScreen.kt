@@ -1,5 +1,7 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,15 +10,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +39,8 @@ fun HomeScreen(
     onOpenItem: (VaultItem) -> Unit,
     onOpenAllPasswords: () -> Unit,
     onOpenTokens: () -> Unit,
-    onOpenGroups: () -> Unit,
+    onOpenSearch: () -> Unit,
+    onOpenTrash: () -> Unit,
     onOpenSecurity: () -> Unit,
 ) {
     val activeItems = data.items.filter { it.deletedAt == null }
@@ -51,15 +59,35 @@ fun HomeScreen(
         ),
     ) {
         item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
+            Text(
+                text = "KeyCase",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(Modifier.height(12.dp))
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenSearch),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "KeyCase",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
+                        text = "搜索密码、账号、令牌",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -86,10 +114,10 @@ fun HomeScreen(
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 StatCard(
-                    title = "分组",
-                    count = data.groups.size,
-                    icon = Icons.Outlined.Folder,
-                    onClick = onOpenGroups,
+                    title = "回收站",
+                    count = data.items.count { it.deletedAt != null },
+                    icon = Icons.Outlined.Delete,
+                    onClick = onOpenTrash,
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
