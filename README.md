@@ -3,7 +3,7 @@
 **Local-first, offline Android password manager and TOTP authenticator.**
 No account, no cloud, **no `INTERNET` permission**.
 
-> Status: early development. The product design is frozen at v0.5; the `:core` module and the encrypted vault format are being implemented.
+> Status: early development. The product design is frozen at v0.5. The pure-JVM `:core` module now has the encrypted vault container, Argon2id/AES-GCM, and TOTP/HOTP/Steam with JVM tests; the Android UI and file storage are next.
 
 ## What it is
 
@@ -24,6 +24,7 @@ The app is built for Android and is intentionally offline. There is no sync serv
 ## Documentation
 
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
+- [Vault container format v1](docs/design/vault-format-v1.md)
 - [Research notes](docs/design/research.md)
 - [Clickable prototype](docs/prototype/index.html)
 - [Archived early plans](docs/archive/)
@@ -51,11 +52,12 @@ Current baseline:
 
 ```
 app/                 Android app shell
+core/                pure-JVM vault, crypto, TOTP, importers
 docs/                design notes and the HTML prototype
 gradle/              version catalog and wrapper
 ```
 
-A pure-JVM `:core` module will hold the vault model, cryptography, container format, TOTP implementation, and importers so they can be tested without an emulator.
+The `:core` module is deliberately free of Android APIs so its security-critical logic can be tested on the JVM. The Android layer (`app/`) owns files, Keystore, biometrics, and UI.
 
 ## Icon packs
 
