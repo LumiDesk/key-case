@@ -24,3 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "KeyCase"
 include(":app")
+include(":core")
