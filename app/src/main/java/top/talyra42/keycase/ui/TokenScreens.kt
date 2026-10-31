@@ -87,6 +87,10 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -213,14 +217,14 @@ fun TokenListScreen(
                 }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
-                        contentDescription = if (searchOpen) "关闭搜索" else "搜索",
+                        contentDescription = localized(if (searchOpen) "关闭搜索" else "搜索"),
                         modifier = Modifier.size(20.dp),
                     )
                 }
                 IconButton(onClick = { ascending = !ascending; revealedId = null }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
-                        contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
+                        contentDescription = localized(if (ascending) "排序 Z-A" else "排序 A-Z"),
                         modifier = Modifier
                             .size(20.dp)
                             .rotate(if (ascending) 0f else 180f),
@@ -342,6 +346,11 @@ fun TokenListScreen(
                             } else {
                                 null
                             }
+                            val codeDescription = if (visible) {
+                                localized("验证码") + " " + codeText
+                            } else {
+                                localized("验证码已隐藏，点击显示并复制")
+                            }
                             VaultItemRow(
                                 item = item,
                                 onClick = {
@@ -362,6 +371,10 @@ fun TokenListScreen(
                                                     } else if (code != "—") {
                                                         copyText(context, code)
                                                     }
+                                                }
+                                                .semantics {
+                                                    contentDescription = codeDescription
+                                                    role = Role.Button
                                                 },
                                         ) {
                                             Text(

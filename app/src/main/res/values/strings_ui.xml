@@ -117,7 +117,7 @@
     <string name="s_716805cb7f94">This replaces the current vault; data is not merged. Enter the backup password.</string>
     <string name="s_887228e85437">Import encrypted backup</string>
     <string name="s_7e57bb4609da">Import icon pack</string>
-    <string name="s_2c4d3f41834c">Import icon pack…</string>
+    <string name="s_2c4d3f41834c">Import pack…</string>
     <string name="s_a8aea3361e6a">Import image…</string>
     <string name="s_fe6c375858c1">Import and replace</string>
     <string name="s_f3de4c99143c">Export encrypted backup</string>

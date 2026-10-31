@@ -163,7 +163,7 @@ fun HomeScreen(
                                     } else {
                                         Icons.Outlined.VpnKey
                                     },
-                                    contentDescription = if (item.kind == ItemKind.TOTP) "动态令牌" else "密码",
+                                    contentDescription = localized(if (item.kind == ItemKind.TOTP) "动态令牌" else "密码"),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
                                     modifier = Modifier.size(14.dp),
                                 )

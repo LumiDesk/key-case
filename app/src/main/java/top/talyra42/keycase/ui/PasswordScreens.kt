@@ -181,14 +181,14 @@ fun PasswordListScreen(
                 }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
-                        contentDescription = if (searchOpen) "关闭搜索" else "搜索",
+                        contentDescription = localized(if (searchOpen) "关闭搜索" else "搜索"),
                         modifier = Modifier.size(20.dp),
                     )
                 }
                 IconButton(onClick = { ascending = !ascending }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
-                        contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
+                        contentDescription = localized(if (ascending) "排序 Z-A" else "排序 A-Z"),
                         modifier = Modifier
                             .size(20.dp)
                             .rotate(if (ascending) 0f else 180f),
@@ -319,7 +319,7 @@ fun ItemDetailScreen(
                     IconButton(onClick = onToggleFavorite) {
                         Icon(
                             imageVector = if (item.favorite) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = if (item.favorite) "取消收藏" else "收藏",
+                            contentDescription = localized(if (item.favorite) "取消收藏" else "收藏"),
                             tint = if (item.favorite) {
                                 MaterialTheme.colorScheme.primary
                             } else {
@@ -385,7 +385,7 @@ fun ItemDetailScreen(
                         IconButton(onClick = { revealed = !revealed }) {
                             Icon(
                                 imageVector = if (revealed) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                                contentDescription = if (revealed) "隐藏密码" else "显示密码",
+                                contentDescription = localized(if (revealed) "隐藏密码" else "显示密码"),
                             )
                         }
                         CopyButton { copyText(context, item.password) }
@@ -526,7 +526,7 @@ private fun TokenAdvancedCard(
                             } else {
                                 Icons.Outlined.Visibility
                             },
-                            contentDescription = if (secretRevealed) "隐藏密钥" else "显示密钥",
+                            contentDescription = localized(if (secretRevealed) "隐藏密钥" else "显示密钥"),
                             modifier = Modifier.size(18.dp),
                         )
                     }

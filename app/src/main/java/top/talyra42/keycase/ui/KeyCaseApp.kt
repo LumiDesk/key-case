@@ -20,6 +20,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Arrangement
@@ -71,6 +72,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.launch
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -117,6 +119,20 @@ fun KeyCaseApp(viewModel: MainViewModel) {
         mutableStateOf(activity?.isBiometricEnrolled(state.data?.vaultId) == true)
     }
     val biometricAvailable = activity?.isBiometricAvailable() == true
+    val darkTheme = when (settings.darkMode) {
+        DarkMode.SYSTEM -> isSystemInDarkTheme()
+        DarkMode.LIGHT -> false
+        DarkMode.DARK -> true
+    }
+
+    SideEffect {
+        activity?.let {
+            WindowCompat.getInsetsController(it.window, it.window.decorView).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
+    }
 
     LaunchedEffect(state.data?.vaultId) {
         // Re-check after unlock/import. A wrapped key from a different vault is
@@ -629,7 +645,7 @@ private fun ExpandableTokenFab(
         ) {
             Icon(
                 Icons.Outlined.Add,
-                contentDescription = if (expanded) "收起添加入口" else "添加动态令牌",
+                contentDescription = localized(if (expanded) "收起添加入口" else "添加动态令牌"),
                 modifier = Modifier.rotate(rotation),
             )
         }

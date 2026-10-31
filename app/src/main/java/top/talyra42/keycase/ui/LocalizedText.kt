@@ -154,6 +154,8 @@ private val EN = mapOf(
     "还没有分组，可在设置 → 分组中创建。" to "No groups yet. Create one in Settings → Groups.",
     "分组（可选）" to "Group (optional)",
     "未分组" to "No group",
+    "验证码" to "Code",
+    "验证码已隐藏，点击显示并复制" to "Code hidden; tap to reveal and copy",
     "验证码分组" to "Code grouping",
     "搜索密码、账号、令牌" to "Search passwords, accounts, tokens",
     "搜索保险库" to "Search the vault",

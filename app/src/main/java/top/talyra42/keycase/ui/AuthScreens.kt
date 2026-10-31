@@ -296,7 +296,7 @@ private fun PasswordField(
             IconButton(onClick = { visible = !visible }) {
                 Icon(
                     imageVector = if (visible) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                    contentDescription = if (visible) "隐藏密码" else "显示密码",
+                    contentDescription = localized(if (visible) "隐藏密码" else "显示密码"),
                 )
             }
         },

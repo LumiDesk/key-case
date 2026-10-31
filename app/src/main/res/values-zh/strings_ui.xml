@@ -117,7 +117,7 @@
     <string name="s_716805cb7f94">导入会替换当前保险库；当前数据不会自动合并。请输入备份文件的主密码。</string>
     <string name="s_887228e85437">导入加密备份</string>
     <string name="s_7e57bb4609da">导入图标包</string>
-    <string name="s_2c4d3f41834c">导入图标包…</string>
+    <string name="s_2c4d3f41834c">导入包…</string>
     <string name="s_a8aea3361e6a">导入图片…</string>
     <string name="s_fe6c375858c1">导入并替换</string>
     <string name="s_f3de4c99143c">导出加密备份</string>
