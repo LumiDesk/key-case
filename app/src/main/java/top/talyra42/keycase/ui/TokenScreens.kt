@@ -1,6 +1,13 @@
 package top.talyra42.keycase.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -131,6 +138,16 @@ fun TokenListScreen(
 
     var barNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var codeNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    val blinkTransition = rememberInfiniteTransition(label = "tokenBlink")
+    val blinkAlpha by blinkTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(450),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "tokenBlinkAlpha",
+    )
     LaunchedEffect(active) {
         if (!active) return@LaunchedEffect
         while (true) {
@@ -185,14 +202,24 @@ fun TokenListScreen(
             if (items.isNotEmpty()) {
                 val barPeriod = (items.first().totp?.period ?: 30).coerceAtLeast(1)
                 val barRemaining = barPeriod - ((barNow / 1000L) % barPeriod)
+                val animatedProgress by animateFloatAsState(
+                    targetValue = barRemaining / barPeriod.toFloat(),
+                    animationSpec = tween(durationMillis = 950, easing = LinearEasing),
+                    label = "tokenProgress",
+                )
                 LinearProgressIndicator(
-                    progress = { barRemaining / barPeriod.toFloat() },
+                    progress = { animatedProgress },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .height(2.dp),
-                    color = MaterialTheme.colorScheme.primary,
+                    color = if (barRemaining <= 5) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = blinkAlpha)
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
                     trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    drawStopIndicator = {},
                 )
             }
 
@@ -277,10 +304,11 @@ fun TokenListScreen(
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .clickable {
-                                                    if (visible) {
-                                                        if (code != "—") copyText(context, code)
-                                                    } else {
+                                                    if (!visible) {
                                                         revealedId = item.id
+                                                        if (code != "—") copyText(context, code)
+                                                    } else if (code != "—") {
+                                                        copyText(context, code)
                                                     }
                                                 },
                                         ) {
@@ -297,16 +325,18 @@ fun TokenListScreen(
                                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                             )
                                         }
-                                        if (visible) {
-                                            nextCode?.let {
-                                                Text(
-                                                    text = it.chunked(3).joinToString(" "),
-                                                    fontFamily = FontFamily.Monospace,
-                                                    fontSize = 10.sp,
-                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                    modifier = Modifier.padding(top = 2.dp),
-                                                )
-                                            }
+                                        nextCode?.let {
+                                            Text(
+                                                text = if (visible) {
+                                                    it.chunked(3).joinToString(" ")
+                                                } else {
+                                                    "••• •••"
+                                                },
+                                                fontFamily = FontFamily.Monospace,
+                                                fontSize = 10.sp,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                modifier = Modifier.padding(top = 2.dp),
+                                            )
                                         }
                                     }
                                 },
@@ -409,6 +439,7 @@ fun TokenEditorScreen(
     ModalBottomSheet(
         onDismissRequest = onBack,
         sheetState = sheetState,
+        sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         dragHandle = { BottomSheetDefaults.DragHandle() },

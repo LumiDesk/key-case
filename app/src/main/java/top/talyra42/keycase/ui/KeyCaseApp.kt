@@ -402,11 +402,11 @@ private fun MainScaffold(
         },
         floatingActionButton = {
             AnimatedVisibility(
-                visible = pagerState.currentPage == 1 || pagerState.currentPage == 2,
+                visible = pagerState.targetPage == 1 || pagerState.targetPage == 2,
                 enter = fadeIn(tween(220)) + scaleIn(tween(240), initialScale = 0.78f),
                 exit = fadeOut(tween(200)) + scaleOut(tween(220), targetScale = 0.78f),
             ) {
-                when (pagerState.currentPage) {
+                when (pagerState.targetPage) {
                     1 -> FloatingActionButton(
                         onClick = onAddPassword,
                         containerColor = MaterialTheme.colorScheme.primary,

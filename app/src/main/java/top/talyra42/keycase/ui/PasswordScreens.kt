@@ -5,6 +5,13 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -416,6 +423,21 @@ private fun TotpCard(
     } else {
         null
     }
+    val progress by animateFloatAsState(
+        targetValue = remaining / period.toFloat(),
+        animationSpec = tween(durationMillis = 950, easing = LinearEasing),
+        label = "detailTokenProgress",
+    )
+    val blinkTransition = rememberInfiniteTransition(label = "detailTokenBlink")
+    val blinkAlpha by blinkTransition.animateFloat(
+        initialValue = 0.35f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(450),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "detailTokenBlinkAlpha",
+    )
 
     Card(
         modifier = Modifier
@@ -423,6 +445,7 @@ private fun TotpCard(
             .clickable {
                 if (!visible) {
                     revealed = true
+                    if (code != "—") onCopy(code)
                 } else if (code != "—") {
                     onCopy(code)
                 }
@@ -447,9 +470,13 @@ private fun TotpCard(
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-                if (visible && nextCode != null) {
+                if (nextCode != null) {
                     Text(
-                        text = nextCode.chunked(3).joinToString(" "),
+                        text = if (visible) {
+                            nextCode.chunked(3).joinToString(" ")
+                        } else {
+                            "••• •••"
+                        },
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
@@ -458,10 +485,14 @@ private fun TotpCard(
             }
             Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
-                    progress = { remaining / period.toFloat() },
+                    progress = { progress },
                     modifier = Modifier.fillMaxSize(),
                     strokeWidth = 3.dp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    color = if (remaining <= 5) {
+                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = blinkAlpha)
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    },
                     trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
                 )
             }
@@ -527,6 +558,7 @@ fun PasswordEditorScreen(
     ModalBottomSheet(
         onDismissRequest = onBack,
         sheetState = sheetState,
+        sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         dragHandle = { BottomSheetDefaults.DragHandle() },
