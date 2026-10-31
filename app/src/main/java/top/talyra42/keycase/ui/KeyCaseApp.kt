@@ -162,6 +162,9 @@ private fun VaultRoot(
                         viewModel.deleteItem(item.id)
                         route = Route.Main
                     },
+                    onIconChange = { icon ->
+                        viewModel.upsertItem(item.copy(icon = icon), "")
+                    },
                 )
             }
         }

@@ -45,6 +45,30 @@ object AegisIconPack {
         val issuers: List<String>,
     )
 
+    data class PackIcon(
+        val name: String,
+        val filename: String,
+    )
+
+    fun entries(context: Context): List<PackIcon> {
+        val byFile = LinkedHashMap<String, PackIcon>()
+        ensureIndex(context)?.values?.forEach { entry ->
+            byFile.putIfAbsent(entry.filename, PackIcon(entry.name, entry.filename))
+        }
+        return byFile.values.sortedBy { it.name.lowercase() }
+    }
+
+    fun vectorFor(context: Context, filename: String, name: String): ImageVector? {
+        if (filename.isBlank()) return null
+        synchronized(lock) {
+            if (vectorCache.containsKey(filename)) return vectorCache[filename]
+        }
+        val svg = readEntry(context, filename).orEmpty()
+        val vector = parseSimpleIcon(name, svg)
+        synchronized(lock) { vectorCache[filename] = vector }
+        return vector
+    }
+
     fun find(context: Context, label: String): ImageVector? {
         val key = normalize(label)
         if (key.isBlank()) return null
@@ -159,11 +183,17 @@ fun BrandAvatar(
     title: String,
     size: Dp = 40.dp,
     modifier: Modifier = Modifier,
+    iconRef: top.talyra42.keycase.core.model.IconRef? = null,
 ) {
     val context = LocalContext.current
-    val vector by produceState<ImageVector?>(initialValue = null, title) {
+    val vector by produceState<ImageVector?>(initialValue = null, title, iconRef) {
         value = withContext(Dispatchers.IO) {
-            AegisIconPack.find(context, title)
+            if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
+                AegisIconPack.vectorFor(context, iconRef.value, title)
+                    ?: AegisIconPack.find(context, title)
+            } else {
+                AegisIconPack.find(context, title)
+            }
         }
     }
     val icon = vector

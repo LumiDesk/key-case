@@ -235,7 +235,11 @@ fun VaultItemRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        BrandAvatar(item.title.ifBlank { item.issuer.ifBlank { "?" } }, size = 38.dp)
+        BrandAvatar(
+            title = item.title.ifBlank { item.issuer.ifBlank { "?" } },
+            size = 38.dp,
+            iconRef = item.icon,
+        )
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title.ifBlank { "未命名" },

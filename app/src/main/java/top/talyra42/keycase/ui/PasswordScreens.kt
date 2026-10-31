@@ -4,7 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -38,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -62,6 +66,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import top.talyra42.keycase.core.model.ItemKind
+import top.talyra42.keycase.core.model.IconRef
 import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultGroup
@@ -147,10 +152,12 @@ fun ItemDetailScreen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onIconChange: (IconRef?) -> Unit,
 ) {
     val context = LocalContext.current
     var revealed by remember(item.id) { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
+    var showIconPicker by remember { mutableStateOf(false) }
     val groupName = groups.firstOrNull { it.id in item.groupIds }?.name
 
     Scaffold(
@@ -181,10 +188,32 @@ fun ItemDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            BrandAvatar(
-                title = item.title.ifBlank { item.issuer },
-                size = 82.dp,
-            )
+            Box {
+                BrandAvatar(
+                    title = item.title.ifBlank { item.issuer },
+                    size = 82.dp,
+                    iconRef = item.icon,
+                )
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(28.dp)
+                        .clickable { showIconPicker = true },
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.surface,
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outlineVariant,
+                    ),
+                ) {
+                    Icon(
+                        Icons.Outlined.Edit,
+                        contentDescription = "更换图标",
+                        modifier = Modifier.padding(6.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             Spacer(Modifier.height(14.dp))
             Text(
                 text = item.title.ifBlank { "未命名" },
@@ -269,6 +298,17 @@ fun ItemDetailScreen(
                 onDelete()
             },
             onDismiss = { showDelete = false },
+        )
+    }
+
+    if (showIconPicker) {
+        IconPickerDialog(
+            current = item.icon,
+            onDismiss = { showIconPicker = false },
+            onPick = { icon ->
+                onIconChange(icon)
+                showIconPicker = false
+            },
         )
     }
 }
