@@ -22,6 +22,7 @@ class PasswordEditorSheetTest {
                     item = null,
                     onBack = {},
                     onSave = { _ -> },
+                    onPrepareExternal = {},
                 )
             }
         }

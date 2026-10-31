@@ -30,5 +30,6 @@ jobs:
 
       - name: Unit tests and lint
         run: >-
-          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug
+          :app:assembleDebug :app:assembleDebugAndroidTest
           --no-configuration-cache
