@@ -36,16 +36,18 @@ The app is built for Android and is intentionally offline. There is no sync serv
 |---|---|
 | ![Create](docs/screenshots/create.png) | ![Unlock](docs/screenshots/unlock.png) |
 | Create a local vault | Unlock with the master password |
-| ![Home](docs/screenshots/home.png) | ![Passwords](docs/screenshots/passwords.png) |
-| Home stats and recent items | Passwords with Aegis icon matching |
-| ![Password detail](docs/screenshots/password-detail.png) | ![Tokens](docs/screenshots/tokens.png) |
-| Password detail | TOTP list with live codes and QR scan |
-| ![Token detail](docs/screenshots/token-detail.png) | ![Settings light](docs/screenshots/settings-light.png) |
-| TOTP detail | Settings, grouped rows |
-| ![Settings dark](docs/screenshots/settings-dark.png) | ![Groups](docs/screenshots/groups.png) |
-| Dark mode | Group management |
-| ![Icon picker](docs/screenshots/icon-picker.png) | ![Aegis import](docs/screenshots/aegis-import.png) |
-| Icon picker | Aegis TOTP import |
+| ![Home light](docs/screenshots/home.png) | ![Home dark](docs/screenshots/home-dark.png) |
+| Home, compact cards | Home, dark mode |
+| ![Passwords](docs/screenshots/passwords.png) | ![Password detail](docs/screenshots/password-detail.png) |
+| Passwords with A–Z index | Password detail |
+| ![Tokens](docs/screenshots/tokens.png) | ![Token detail](docs/screenshots/token-detail.png) |
+| TOTP list with A–Z index | TOTP detail |
+| ![Token FAB](docs/screenshots/fab-expanded.png) | ![Color canvas](docs/screenshots/color-canvas.png) |
+| Scan / manual add FAB | Visual accent color picker |
+| ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
+| Settings, compact rows | Settings, dark mode |
+| ![Groups](docs/screenshots/groups.png) | ![Icon picker](docs/screenshots/icon-picker.png) |
+| Group management | Icon picker |
 
 ## Build
 
