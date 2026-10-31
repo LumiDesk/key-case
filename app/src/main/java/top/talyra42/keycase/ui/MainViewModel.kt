@@ -28,6 +28,7 @@ enum class DarkMode { SYSTEM, LIGHT, DARK }
 
 data class AppSettings(
     val accentIndex: Int = 0,
+    val customAccent: Int? = null,
     val darkMode: DarkMode = DarkMode.SYSTEM,
 )
 
@@ -41,7 +42,7 @@ data class UiState(
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val store = AndroidVaultStore(application)
-    private val prefs = application.getSharedPreferences("keycase.settings", Context.MODE_PRIVATE)
+    private val prefs = application.getSharedPreferences("keycase.settings.v2", Context.MODE_PRIVATE)
     private val saveMutex = Mutex()
 
     private val _state = MutableStateFlow(
@@ -53,6 +54,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val settings = _settings.asStateFlow()
 
     private var session: UnlockedVault? = null
+    private var keepUnlockedForExternal = false
 
     fun createVault(password: String, confirm: String) {
         val trimmed = password.trim()
@@ -126,6 +128,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Call before starting a document picker or scanner. That external
+     * activity stops MainActivity; without this flag the vault would lock and
+     * the returned result would be lost.
+     */
+    fun prepareExternalActivity() {
+        keepUnlockedForExternal = true
+    }
+
+    fun onHostStopped() {
+        if (keepUnlockedForExternal) {
+            keepUnlockedForExternal = false
+        } else {
+            lock()
+        }
+    }
+
     fun upsertItem(item: VaultItem, groupName: String) {
         val data = _state.value.data ?: return
         val now = Instant.now().toString()
@@ -163,6 +182,100 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         persist(data.copy(items = data.items.filterNot { it.id == itemId }))
     }
 
+    fun addGroup(name: String) {
+        val data = _state.value.data ?: return
+        val clean = name.trim()
+        if (clean.isBlank()) {
+            _state.update { it.copy(error = "分组名不能为空") }
+            return
+        }
+        if (data.groups.any { it.name.equals(clean, ignoreCase = true) }) {
+            _state.update { it.copy(error = "分组已存在") }
+            return
+        }
+        val group = VaultGroup(
+            id = UUID.randomUUID().toString(),
+            name = clean,
+            order = data.groups.size,
+        )
+        persist(data.copy(groups = data.groups + group))
+    }
+
+    fun renameGroup(groupId: String, name: String) {
+        val data = _state.value.data ?: return
+        val clean = name.trim()
+        if (clean.isBlank()) {
+            _state.update { it.copy(error = "分组名不能为空") }
+            return
+        }
+        if (data.groups.any { it.id != groupId && it.name.equals(clean, ignoreCase = true) }) {
+            _state.update { it.copy(error = "分组已存在") }
+            return
+        }
+        persist(
+            data.copy(
+                groups = data.groups.map {
+                    if (it.id == groupId) it.copy(name = clean) else it
+                },
+            ),
+        )
+    }
+
+    fun deleteGroup(groupId: String) {
+        val data = _state.value.data ?: return
+        persist(
+            data.copy(
+                groups = data.groups.filterNot { it.id == groupId },
+                items = data.items.map {
+                    if (groupId in it.groupIds) {
+                        it.copy(groupIds = it.groupIds - groupId)
+                    } else {
+                        it
+                    }
+                },
+            ),
+        )
+    }
+
+    fun changeMasterPassword(current: String, newPassword: String, confirm: String) {
+        when {
+            newPassword.length < 8 -> {
+                _state.update { it.copy(error = "新主密码至少 8 位") }
+                return
+            }
+            newPassword != confirm -> {
+                _state.update { it.copy(error = "两次输入的新主密码不一致") }
+                return
+            }
+        }
+
+        runVaultOperation {
+            val currentChars = current.toCharArray()
+            val newChars = newPassword.toCharArray()
+            try {
+                val unlocked = session ?: error("Vault is locked")
+                val onDisk = store.read()
+                // Verify the current password against the on-disk slot before
+                // rotating it; the in-memory session alone cannot prove it.
+                VaultContainer.unlock(currentChars, onDisk).close()
+                val rotated = VaultContainer.changePasswordSession(unlocked, newChars, KdfParams())
+                store.write(rotated.bytes)
+                session?.close()
+                session = rotated.session
+                _state.update {
+                    it.copy(
+                        data = rotated.session.data,
+                        busy = false,
+                        error = null,
+                    )
+                }
+            } finally {
+                currentChars.fill('\u0000')
+                newChars.fill('\u0000')
+            }
+        }
+    }
+
     fun addTotp(issuer: String, account: String, secret: String, digits: Int, period: Int) {
         val now = Instant.now().toString()
         val item = VaultItem(
@@ -188,8 +301,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setAccent(index: Int) {
         val safe = index.coerceIn(0, 4)
-        _settings.update { it.copy(accentIndex = safe) }
-        prefs.edit().putInt(KEY_ACCENT, safe).apply()
+        _settings.update { it.copy(accentIndex = safe, customAccent = null) }
+        prefs.edit().putInt(KEY_ACCENT, safe).remove(KEY_CUSTOM).apply()
+    }
+
+    fun setCustomAccent(argb: Int) {
+        _settings.update { it.copy(customAccent = argb) }
+        prefs.edit().putInt(KEY_CUSTOM, argb).apply()
     }
 
     fun setDarkMode(mode: DarkMode) {
@@ -214,6 +332,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun importBackup(uri: Uri, password: String) {
+        if (password.length < 1) {
+            _state.update { it.copy(error = "请输入备份的主密码") }
+            return
+        }
+        val app = getApplication<Application>()
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(busy = true, error = null) }
+            val chars = password.toCharArray()
+            try {
+                val bytes = app.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                    ?: error("无法读取备份文件")
+                val imported = VaultContainer.unlock(chars, bytes)
+                store.write(bytes)
+                session?.close()
+                session = imported
+                _state.update {
+                    it.copy(
+                        vaultExists = true,
+                        locked = false,
+                        data = imported.data,
+                        busy = false,
+                        error = null,
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update {
+                    it.copy(busy = false, error = e.message ?: "无法导入备份")
+                }
+            } finally {
+                chars.fill('\u0000')
+            }
+        }
+    }
+
     override fun onCleared() {
         session?.close()
         session = null
@@ -222,10 +375,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun loadSettings(): AppSettings {
         val accent = prefs.getInt(KEY_ACCENT, 0).coerceIn(0, 4)
+        val custom = if (prefs.contains(KEY_CUSTOM)) prefs.getInt(KEY_CUSTOM, 0) else null
         val dark = runCatching {
             DarkMode.valueOf(prefs.getString(KEY_DARK, DarkMode.SYSTEM.name)!!)
         }.getOrDefault(DarkMode.SYSTEM)
-        return AppSettings(accent, dark)
+        return AppSettings(accent, custom, dark)
     }
 
     private fun persist(data: VaultData) {
@@ -265,6 +419,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
         private const val KEY_ACCENT = "accent"
+        private const val KEY_CUSTOM = "customAccent"
         private const val KEY_DARK = "dark"
     }
 }

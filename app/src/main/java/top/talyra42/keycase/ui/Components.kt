@@ -1,13 +1,16 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -20,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -66,7 +70,7 @@ fun LetterAvatar(
     Box(
         modifier = modifier
             .size(size)
-            .background(avatarColor(title), RoundedCornerShape(size * 0.32f)),
+            .background(avatarColor(title), RoundedCornerShape(size * 0.3f)),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -79,48 +83,81 @@ fun LetterAvatar(
 }
 
 @Composable
+fun AppCard(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Column(content = content)
+    }
+}
+
+@Composable
 fun StatCard(
     title: String,
     count: Int,
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    container: Color = MaterialTheme.colorScheme.surface,
-    content: Color = MaterialTheme.colorScheme.onSurface,
+    highlighted: Boolean = false,
 ) {
+    val container = if (highlighted) {
+        MaterialTheme.colorScheme.primaryContainer
+    } else {
+        MaterialTheme.colorScheme.surface
+    }
     Card(
         onClick = onClick,
-        modifier = modifier.height(92.dp),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = container, contentColor = content),
+        modifier = modifier.height(88.dp),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(
+            containerColor = container,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
+                .fillMaxSize()
+                .padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(9.dp),
+            horizontalArrangement = Arrangement.spacedBy(11.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .background(content.copy(alpha = 0.14f), RoundedCornerShape(10.dp)),
+                    .size(36.dp)
+                    .background(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                        RoundedCornerShape(10.dp),
+                    ),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
-            }
-            Column {
-                Text(
-                    text = title,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = content.copy(alpha = 0.74f),
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(19.dp),
+                    tint = MaterialTheme.colorScheme.primary,
                 )
+            }
+            Column(verticalArrangement = Arrangement.Center) {
                 Text(
                     text = count.toString(),
-                    fontSize = 26.sp,
+                    fontSize = 25.sp,
+                    lineHeight = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = (-0.5).sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }
@@ -136,7 +173,7 @@ fun SectionHeader(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 20.dp, bottom = 4.dp),
+            .padding(top = 22.dp, bottom = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -161,19 +198,19 @@ fun InfoRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 13.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = label,
-            fontSize = 11.sp,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(52.dp),
+            modifier = Modifier.width(56.dp),
         )
         Text(
             text = value,
             modifier = Modifier.weight(1f),
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium,
             color = if (muted) {
                 MaterialTheme.colorScheme.onSurfaceVariant
             } else {
@@ -194,11 +231,11 @@ fun VaultItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 4.dp, vertical = 9.dp),
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        BrandAvatar(item.title.ifBlank { item.issuer.ifBlank { "?" } })
+        BrandAvatar(item.title.ifBlank { item.issuer.ifBlank { "?" } }, size = 38.dp)
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title.ifBlank { "未命名" },
@@ -230,22 +267,23 @@ fun EmptyState(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(40.dp),
+            .padding(horizontal = 28.dp, vertical = 36.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
             modifier = Modifier
-                .size(56.dp)
+                .size(52.dp)
                 .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp),
             )
         }
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
@@ -254,12 +292,12 @@ fun EmptyState(
         Spacer(Modifier.height(4.dp))
         Text(
             text = subtitle,
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
         if (action != null) {
-            Spacer(Modifier.height(14.dp))
+            Spacer(Modifier.height(12.dp))
             action()
         }
     }
@@ -285,6 +323,8 @@ fun ConfirmDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) { Text("取消") }
         },
+        shape = MaterialTheme.shapes.large,
+        containerColor = MaterialTheme.colorScheme.surface,
     )
 }
 

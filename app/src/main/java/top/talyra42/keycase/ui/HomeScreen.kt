@@ -8,16 +8,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -31,35 +36,52 @@ fun HomeScreen(
     onOpenItem: (VaultItem) -> Unit,
     onOpenAllPasswords: () -> Unit,
     onOpenTokens: () -> Unit,
+    onOpenGroups: () -> Unit,
     onOpenSecurity: () -> Unit,
 ) {
     val passwords = data.items.filter { it.kind == ItemKind.LOGIN }
     val tokens = data.items.filter { it.kind == ItemKind.TOTP || it.totp != null }
     val issues = passwordIssueCount(passwords)
-    val recent = data.items
-        .sortedByDescending { it.updatedAt }
-        .take(5)
+    val recent = data.items.sortedByDescending { it.updatedAt }.take(5)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = 18.dp,
+            start = 16.dp,
+            end = 16.dp,
+            top = 20.dp,
             bottom = 96.dp,
         ),
     ) {
         item {
-            Text(
-                text = "KeyCase",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = "密码与动态令牌",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "KeyCase",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "密码与动态令牌 · 仅本机",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Surface(
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                ) {
+                    Icon(
+                        Icons.Outlined.Shield,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(10.dp).size(20.dp),
+                    )
+                }
+            }
             Spacer(Modifier.height(18.dp))
         }
 
@@ -71,8 +93,7 @@ fun HomeScreen(
                     icon = Icons.Outlined.VpnKey,
                     onClick = onOpenAllPasswords,
                     modifier = Modifier.weight(1f),
-                    container = MaterialTheme.colorScheme.primary,
-                    content = MaterialTheme.colorScheme.onPrimary,
+                    highlighted = true,
                 )
                 StatCard(
                     title = "动态令牌",
@@ -80,24 +101,22 @@ fun HomeScreen(
                     icon = Icons.Outlined.Schedule,
                     onClick = onOpenTokens,
                     modifier = Modifier.weight(1f),
-                    container = MaterialTheme.colorScheme.primaryContainer,
-                    content = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 StatCard(
+                    title = "分组",
+                    count = data.groups.size,
+                    icon = Icons.Outlined.Folder,
+                    onClick = onOpenGroups,
+                    modifier = Modifier.weight(1f),
+                )
+                StatCard(
                     title = "待处理",
                     count = issues,
                     icon = Icons.Outlined.Shield,
                     onClick = onOpenSecurity,
-                    modifier = Modifier.weight(1f),
-                )
-                StatCard(
-                    title = "回收站",
-                    count = 0,
-                    icon = Icons.Outlined.Delete,
-                    onClick = {},
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -111,17 +130,25 @@ fun HomeScreen(
             )
         }
 
-        if (recent.isEmpty()) {
-            item {
-                EmptyState(
-                    icon = Icons.Outlined.VpnKey,
-                    title = "保险库还是空的",
-                    subtitle = "去“密码”或“令牌”里添加第一条。",
-                )
-            }
-        } else {
-            items(recent, key = { it.id }) { item ->
-                VaultItemRow(item = item, onClick = { onOpenItem(item) })
+        item {
+            AppCard {
+                if (recent.isEmpty()) {
+                    EmptyState(
+                        icon = Icons.Outlined.VpnKey,
+                        title = "保险库还是空的",
+                        subtitle = "在“密码”或“令牌”里添加第一条。",
+                    )
+                } else {
+                    recent.forEachIndexed { index, item ->
+                        VaultItemRow(item = item, onClick = { onOpenItem(item) })
+                        if (index != recent.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(start = 64.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
