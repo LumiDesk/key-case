@@ -672,8 +672,19 @@ fun PasswordEditorScreen(
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var showDiscard by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val dirty = title != item?.title.orEmpty() ||
+        username != item?.username.orEmpty() ||
+        password != item?.password.orEmpty() ||
+        url != item?.urls?.firstOrNull().orEmpty() ||
+        notes != item?.notes.orEmpty() ||
+        icon != item?.icon
+
+    fun requestClose() {
+        if (dirty) showDiscard = true else onBack()
+    }
 
     fun save() {
         val now = Instant.now().toString()
@@ -695,7 +706,7 @@ fun PasswordEditorScreen(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onBack,
+        onDismissRequest = ::requestClose,
         sheetState = sheetState,
         sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -727,7 +738,7 @@ fun PasswordEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = onBack) {
+                IconButton(onClick = ::requestClose) {
                     Icon(Icons.Outlined.Close, contentDescription = "关闭")
                 }
             }
@@ -825,6 +836,19 @@ fun PasswordEditorScreen(
                 showIconPicker = false
             },
             onPrepareExternal = onPrepareExternal,
+        )
+    }
+
+    if (showDiscard) {
+        ConfirmDialog(
+            title = "放弃修改？",
+            text = "未保存的修改会丢失。",
+            confirmLabel = "放弃",
+            onConfirm = {
+                showDiscard = false
+                onBack()
+            },
+            onDismiss = { showDiscard = false },
         )
     }
 }

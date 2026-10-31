@@ -58,6 +58,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -81,8 +82,27 @@ sealed interface Route {
     data class Detail(val itemId: String) : Route
 }
 
-private data class PasswordEditorTarget(val itemId: String?)
-private data class TokenEditorTarget(val itemId: String?, val initialUri: String? = null)
+private val RouteSaver = Saver<Route, String>(
+    save = { route ->
+        when (route) {
+            Route.Main -> "main"
+            Route.Security -> "security"
+            Route.Trash -> "trash"
+            Route.Search -> "search"
+            is Route.Detail -> "detail:${route.itemId}"
+        }
+    },
+    restore = { encoded ->
+        when {
+            encoded == "main" -> Route.Main
+            encoded == "security" -> Route.Security
+            encoded == "trash" -> Route.Trash
+            encoded == "search" -> Route.Search
+            encoded.startsWith("detail:") -> Route.Detail(encoded.removePrefix("detail:"))
+            else -> Route.Main
+        }
+    },
+)
 
 @Composable
 fun KeyCaseApp(viewModel: MainViewModel) {
@@ -166,23 +186,28 @@ private fun VaultRoot(
     onDisableBiometric: () -> Unit,
 ) {
     val data = state.data ?: return
-    var route by remember { mutableStateOf<Route>(Route.Main) }
-    var detailReturn by remember { mutableStateOf<Route>(Route.Main) }
+    var route by rememberSaveable(stateSaver = RouteSaver) { mutableStateOf<Route>(Route.Main) }
+    var detailReturn by rememberSaveable(stateSaver = RouteSaver) {
+        mutableStateOf<Route>(Route.Main)
+    }
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
-    var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
+    // "" means "new item", null means "editor closed", any other value is an item id.
+    var passwordEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    var tokenEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    var tokenInitialUri by remember { mutableStateOf<String?>(null) }
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
         if (!contents.isNullOrBlank()) {
             if (contents.startsWith("otpauth-migration://")) {
                 viewModel.importGoogleMigration(contents)
             } else {
-                tokenEditor = TokenEditorTarget(itemId = null, initialUri = contents)
+                tokenInitialUri = contents
+                tokenEditorId = ""
             }
         }
     }
 
-    BackHandler(enabled = route != Route.Main && passwordEditor == null && tokenEditor == null) {
+    BackHandler(enabled = route != Route.Main && passwordEditorId == null && tokenEditorId == null) {
         route = if (route is Route.Detail) detailReturn else Route.Main
     }
 
@@ -219,8 +244,14 @@ private fun VaultRoot(
             initialTab = tab,
             onTabChanged = { tab = it },
             onOpenItem = openItem,
-            onAddPassword = { passwordEditor = PasswordEditorTarget(null) },
-            onAddToken = { tokenEditor = TokenEditorTarget(null) },
+            onAddPassword = {
+                tokenInitialUri = null
+                passwordEditorId = ""
+            },
+            onAddToken = {
+                tokenInitialUri = null
+                tokenEditorId = ""
+            },
             onScanToken = {
                 viewModel.prepareExternalActivity()
                 scanLauncher.launch(
@@ -243,7 +274,7 @@ private fun VaultRoot(
             onClearError = viewModel::clearError,
             message = state.message,
             onClearMessage = viewModel::clearMessage,
-            backEnabled = passwordEditor == null && tokenEditor == null,
+            backEnabled = passwordEditorId == null && tokenEditorId == null,
             biometricAvailable = biometricAvailable,
             biometricEnrolled = biometricEnrolled,
             onEnableBiometric = onEnableBiometric,
@@ -283,9 +314,10 @@ private fun VaultRoot(
                     onBack = { route = detailReturn },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
-                            tokenEditor = TokenEditorTarget(item.id)
+                            tokenInitialUri = null
+                            tokenEditorId = item.id
                         } else {
-                            passwordEditor = PasswordEditorTarget(item.id)
+                            passwordEditorId = item.id
                         }
                     },
                     onDelete = {
@@ -299,28 +331,34 @@ private fun VaultRoot(
     }
     }
 
-    passwordEditor?.let { target ->
-        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+    passwordEditorId?.let { editorId ->
+        val item = editorId.takeIf { it.isNotBlank() }
+            ?.let { id -> data.items.firstOrNull { it.id == id } }
         PasswordEditorScreen(
             item = item,
-            onBack = { passwordEditor = null },
+            onBack = { passwordEditorId = null },
             onSave = { updated ->
                 viewModel.upsertItem(updated, "")
-                passwordEditor = null
+                passwordEditorId = null
             },
             onPrepareExternal = viewModel::prepareExternalActivity,
         )
     }
 
-    tokenEditor?.let { target ->
-        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+    tokenEditorId?.let { editorId ->
+        val item = editorId.takeIf { it.isNotBlank() }
+            ?.let { id -> data.items.firstOrNull { it.id == id } }
         TokenEditorScreen(
             item = item,
-            initialUri = target.initialUri,
-            onBack = { tokenEditor = null },
+            initialUri = if (editorId.isBlank()) tokenInitialUri else null,
+            onBack = {
+                tokenEditorId = null
+                tokenInitialUri = null
+            },
             onSave = { updated ->
                 viewModel.upsertItem(updated, "")
-                tokenEditor = null
+                tokenEditorId = null
+                tokenInitialUri = null
             },
             onPrepareExternal = viewModel::prepareExternalActivity,
         )

@@ -452,7 +452,22 @@ fun TokenEditorScreen(
             (existingSecret?.type ?: scanned?.type)?.let { it != OtpType.TOTP } == true,
         )
     }
+    var showDiscard by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val initialTitle = item?.let { it.issuer.ifBlank { it.title } }.orEmpty()
+    val dirty = issuer != initialTitle ||
+        account != item?.username.orEmpty() ||
+        secret != existingSecret?.secret.orEmpty() ||
+        type != (existingSecret?.type ?: OtpType.TOTP) ||
+        digits != (existingSecret?.digits ?: 6) ||
+        period != (existingSecret?.period ?: 30) ||
+        algorithm != (existingSecret?.algorithm ?: HashAlgorithm.SHA1) ||
+        counter != (existingSecret?.counter ?: 0L) ||
+        icon != item?.icon
+
+    fun requestClose() {
+        if (dirty) showDiscard = true else onBack()
+    }
 
     fun save() {
         val normalized = secret.trim().uppercase().replace(" ", "")
@@ -492,7 +507,7 @@ fun TokenEditorScreen(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onBack,
+        onDismissRequest = ::requestClose,
         sheetState = sheetState,
         sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -524,7 +539,7 @@ fun TokenEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = onBack) {
+                IconButton(onClick = ::requestClose) {
                     Icon(Icons.Outlined.Close, contentDescription = "关闭")
                 }
             }
@@ -709,6 +724,19 @@ fun TokenEditorScreen(
                 showIconPicker = false
             },
             onPrepareExternal = onPrepareExternal,
+        )
+    }
+
+    if (showDiscard) {
+        ConfirmDialog(
+            title = "放弃修改？",
+            text = "未保存的修改会丢失。",
+            confirmLabel = "放弃",
+            onConfirm = {
+                showDiscard = false
+                onBack()
+            },
+            onDismiss = { showDiscard = false },
         )
     }
 }
