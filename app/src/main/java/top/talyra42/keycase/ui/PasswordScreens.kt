@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -42,6 +43,8 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material3.Button
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,12 +53,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -94,6 +99,7 @@ import java.util.UUID
 fun PasswordListScreen(
     data: VaultData,
     onOpenItem: (VaultItem) -> Unit,
+    onAdd: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -183,6 +189,11 @@ fun PasswordListScreen(
                     icon = Icons.Outlined.VpnKey,
                     title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
                     subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
+                    action = if (query.isBlank()) {
+                        { FilledTonalButton(onClick = onAdd) { Text("添加密码") } }
+                    } else {
+                        null
+                    },
                 )
             } else {
                 LazyColumn(
@@ -501,55 +512,70 @@ fun PasswordEditorScreen(
     }
     var revealed by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(if (item == null) "新建密码" else "编辑密码") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "取消")
-                    }
-                },
-                actions = {
-                    TextButton(
-                        onClick = {
-                            val now = Instant.now().toString()
-                            val updated = (item ?: VaultItem(
-                                id = UUID.randomUUID().toString(),
-                                kind = ItemKind.LOGIN,
-                                createdAt = now,
-                            )).copy(
-                                kind = ItemKind.LOGIN,
-                                title = title.trim().ifBlank { "未命名" },
-                                username = username.trim(),
-                                password = password,
-                                urls = if (url.isBlank()) emptyList() else listOf(url.trim()),
-                                notes = notes.trim(),
-                                updatedAt = now,
-                            )
-                            onSave(updated, group.trim())
-                        },
-                    ) { Text("保存") }
-                },
-            )
-        },
-    ) { padding ->
+    fun save() {
+        val now = Instant.now().toString()
+        val updated = (item ?: VaultItem(
+            id = UUID.randomUUID().toString(),
+            kind = ItemKind.LOGIN,
+            createdAt = now,
+        )).copy(
+            kind = ItemKind.LOGIN,
+            title = title.trim().ifBlank { "未命名" },
+            username = username.trim(),
+            password = password,
+            urls = if (url.isBlank()) emptyList() else listOf(url.trim()),
+            notes = notes.trim(),
+            updatedAt = now,
+        )
+        onSave(updated, group.trim())
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onBack,
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+    ) {
         Column(
             modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
+                .fillMaxWidth()
+                .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(11.dp),
         ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = if (item == null) "新建密码" else "编辑密码",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = "保存到本地加密保险库",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                IconButton(onClick = onBack) {
+                    Icon(Icons.Outlined.Close, contentDescription = "关闭")
+                }
+            }
+            Spacer(Modifier.height(2.dp))
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text("名称") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
             )
             OutlinedTextField(
                 value = username,
@@ -557,7 +583,7 @@ fun PasswordEditorScreen(
                 label = { Text("账号 / 用户名") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
             )
             OutlinedTextField(
                 value = password,
@@ -565,7 +591,7 @@ fun PasswordEditorScreen(
                 label = { Text("密码") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
                 visualTransformation = if (revealed) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -581,9 +607,9 @@ fun PasswordEditorScreen(
                 },
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilledTonalButton(
-                    onClick = { password = generatePassword() },
-                ) { Text("生成密码") }
+                FilledTonalButton(onClick = { password = generatePassword() }) {
+                    Text("生成密码")
+                }
                 FilledTonalButton(onClick = { copyText(context, password) }) {
                     Text("复制")
                 }
@@ -591,10 +617,10 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("网址") },
+                label = { Text("网址（可选）") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             )
             OutlinedTextField(
@@ -603,16 +629,26 @@ fun PasswordEditorScreen(
                 label = { Text("分组（可选）") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
             )
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("备注") },
-                minLines = 3,
+                label = { Text("备注（可选）") },
+                minLines = 2,
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.small,
             )
+            Spacer(Modifier.height(4.dp))
+            Button(
+                onClick = ::save,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Text("保存密码", fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

@@ -32,6 +32,7 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.UploadFile
+import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -224,26 +225,39 @@ fun SettingsScreen(
         item {
             SettingsLabel("关于")
             AppCard {
-                InfoLine("版本", "0.1.0")
-                SettingsDivider()
-                InfoLine("许可证", "GPL-3.0-or-later")
-                SettingsDivider()
                 Row(
                     modifier = Modifier.padding(14.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.Outlined.Shield,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(17.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = "KeyCase · 本地优先的密码与动态令牌管理器",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                RoundedCornerShape(12.dp),
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Outlined.VpnKey,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(21.dp),
+                        )
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column {
+                        Text(
+                            text = "KeyCase",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            text = "版本 0.1.0 · GPL-3.0-or-later",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -425,9 +439,6 @@ private fun ThemeSetting(mode: DarkMode, onDarkMode: (DarkMode) -> Unit) {
                     selected = mode == value,
                     onClick = { onDarkMode(value) },
                     shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
-                    icon = {
-                        SegmentedButtonDefaults.Icon(active = mode == value, inactiveContent = {})
-                    },
                     label = { Text(label, style = MaterialTheme.typography.labelMedium) },
                 )
             }
@@ -504,7 +515,6 @@ private fun InfoLine(label: String, value: String) {
 @Composable
 private fun SettingsDivider() {
     HorizontalDivider(
-        modifier = Modifier.padding(start = 54.dp),
         color = MaterialTheme.colorScheme.outlineVariant,
     )
 }

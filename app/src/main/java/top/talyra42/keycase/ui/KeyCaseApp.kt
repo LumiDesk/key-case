@@ -325,10 +325,13 @@ private fun MainScaffold(
                     1 -> PasswordListScreen(
                         data = data,
                         onOpenItem = onOpenItem,
+                        onAdd = onAddPassword,
                     )
                     2 -> TokenListScreen(
                         data = data,
                         onOpenItem = onOpenItem,
+                        onAdd = onAddToken,
+                        onScan = onScanToken,
                     )
                     else -> SettingsScreen(
                         data = data,
@@ -386,8 +389,8 @@ private fun ExpandableTokenFab(
                     },
                     icon = { Icon(Icons.Outlined.QrCodeScanner, contentDescription = null) },
                     text = { Text("扫码") },
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
                 ExtendedFloatingActionButton(
                     onClick = {

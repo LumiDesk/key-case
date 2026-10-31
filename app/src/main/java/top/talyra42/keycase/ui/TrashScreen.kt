@@ -88,11 +88,16 @@ fun SecurityScreen(
                 .fillMaxSize(),
         ) {
             if (issues.isEmpty()) {
-                EmptyState(
-                    icon = Icons.Outlined.Shield,
-                    title = "没有发现明显问题",
-                    subtitle = "弱密码、重复密码和空密码会显示在这里。",
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    EmptyState(
+                        icon = Icons.Outlined.Shield,
+                        title = "没有发现明显问题",
+                        subtitle = "弱密码、重复密码和空密码会显示在这里。",
+                    )
+                }
             } else {
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Text(
@@ -169,12 +174,18 @@ fun TrashScreen(
         },
     ) { padding ->
         if (deleted.isEmpty()) {
-            EmptyState(
-                icon = Icons.Outlined.Delete,
-                title = "回收站是空的",
-                subtitle = "删除的密码和令牌会先放在这里。",
-                modifier = Modifier.padding(padding),
-            )
+            Box(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                EmptyState(
+                    icon = Icons.Outlined.Delete,
+                    title = "回收站是空的",
+                    subtitle = "删除的密码和令牌会先放在这里。",
+                )
+            }
         } else {
             LazyColumn(
                 modifier = Modifier

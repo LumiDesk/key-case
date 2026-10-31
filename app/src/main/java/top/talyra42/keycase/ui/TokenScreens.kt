@@ -35,6 +35,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -82,6 +83,8 @@ import java.util.UUID
 fun TokenListScreen(
     data: VaultData,
     onOpenItem: (VaultItem) -> Unit,
+    onAdd: () -> Unit,
+    onScan: () -> Unit,
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -178,7 +181,17 @@ fun TokenListScreen(
                 EmptyState(
                     icon = Icons.Outlined.Schedule,
                     title = if (query.isBlank()) "还没有动态令牌" else "没有匹配的令牌",
-                    subtitle = if (query.isBlank()) "点右下角 + 扫码或手动添加。" else "换个关键词试试。",
+                    subtitle = if (query.isBlank()) "扫码或手动添加第一个令牌。" else "换个关键词试试。",
+                    action = if (query.isBlank()) {
+                        {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                FilledTonalButton(onClick = onScan) { Text("扫码添加") }
+                                FilledTonalButton(onClick = onAdd) { Text("手动添加") }
+                            }
+                        }
+                    } else {
+                        null
+                    },
                 )
             } else {
                 LazyColumn(

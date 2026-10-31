@@ -16,6 +16,7 @@ import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -137,6 +138,9 @@ fun HomeScreen(
                         icon = Icons.Outlined.VpnKey,
                         title = "保险库还是空的",
                         subtitle = "在“密码”或“令牌”里添加第一条。",
+                        action = {
+                            FilledTonalButton(onClick = onOpenAllPasswords) { Text("去添加密码") }
+                        },
                     )
                 } else {
                     recent.forEachIndexed { index, item ->
