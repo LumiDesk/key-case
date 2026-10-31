@@ -91,12 +91,17 @@ The accepted KDF range is deliberately capped so a malicious header cannot reque
 
 The caller must treat all of these as "cannot open" rather than leaking which check failed to the UI.
 
+## Implemented operations
+
+- create from a master password;
+- unlock into an in-memory `UnlockedVault`;
+- re-seal edits with a fresh payload nonce;
+- rotate the password slot without re-keying the payload.
+
 ## Not in v1 yet
 
 - biometric slot (Android Keystore–wrapped vault key);
 - recovery-code slot;
-- password change / slot rotation;
-- atomic file write and backup rotation (Android layer);
 - attachments;
 - streaming/mmap for very large vaults.
 
