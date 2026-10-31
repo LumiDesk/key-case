@@ -57,6 +57,13 @@ ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
 
 Windows 使用 `gradlew.bat`，并设置 `JAVA_HOME` 为 Android Studio JBR。
 
+## Testing Environment
+
+- All development verification uses the Android emulator (`emulator-5554`).
+- Never install, uninstall, or run instrumentation on the physical phone (`838918a6` / 25102RKBEC).
+- The user updates the physical phone manually from GitHub Releases, outside this agent workflow.
+- Connected tests must always set `ANDROID_SERIAL=emulator-5554`.
+
 ## Release Commands
 
 ```powershell
