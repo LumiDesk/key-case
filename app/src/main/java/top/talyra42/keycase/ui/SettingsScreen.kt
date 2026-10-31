@@ -46,14 +46,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import top.talyra42.keycase.core.model.VaultData
+import top.talyra42.keycase.ui.icons.ImportedIconPack
 import top.talyra42.keycase.ui.theme.AccentNames
 import top.talyra42.keycase.ui.theme.AccentPalette
 
@@ -92,6 +98,24 @@ fun SettingsScreen(
     val aegisLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
     ) { uri -> if (uri != null) pendingAegis = uri }
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var iconPackStatus by remember { mutableStateOf<String?>(null) }
+    val iconPackLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                withContext(Dispatchers.IO) {
+                    runCatching { ImportedIconPack.import(context, uri) }
+                }.onSuccess { result ->
+                    iconPackStatus = "已导入 ${result.imported} 个图标"
+                }.onFailure {
+                    iconPackStatus = it.message ?: "无法读取图标包"
+                }
+            }
+        }
+    }
     var showGroups by remember { mutableStateOf(false) }
     var showPassword by remember { mutableStateOf(false) }
     var showCustomAccent by remember { mutableStateOf(false) }
@@ -136,6 +160,18 @@ fun SettingsScreen(
                 )
                 SettingsDivider()
                 ThemeSetting(settings.darkMode, onDarkMode)
+            }
+        }
+
+        item {
+            SettingsLabel("图标")
+            AppCard {
+                ActionRow(
+                    icon = Icons.Outlined.UploadFile,
+                    title = "导入图标包",
+                    subtitle = iconPackStatus ?: "从 Aegis ZIP 导入 PNG 图标",
+                    onClick = { iconPackLauncher.launch("*/*") },
+                )
             }
         }
 
