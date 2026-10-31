@@ -1,5 +1,12 @@
 package top.talyra42.keycase.ui
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Base64
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AddPhotoAlternate
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,9 +45,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import top.talyra42.keycase.core.model.IconRef
 import top.talyra42.keycase.ui.icons.AegisIconPack
+import java.io.ByteArrayOutputStream
+import androidx.compose.runtime.rememberCoroutineScope
 
 @Composable
 fun IconPickerDialog(
@@ -48,10 +59,25 @@ fun IconPickerDialog(
     onPick: (IconRef?) -> Unit,
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
     val icons by produceState<List<AegisIconPack.PackIcon>>(emptyList()) {
         value = withContext(Dispatchers.IO) { AegisIconPack.entries(context) }
     }
     var query by rememberSaveable { mutableStateOf("") }
+    var imageError by remember { mutableStateOf<String?>(null) }
+    val imagePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val encoded = withContext(Dispatchers.IO) { loadScaledIcon(context, uri) }
+                if (encoded == null) {
+                    imageError = "无法读取这张图片"
+                } else {
+                    onPick(IconRef(kind = "custom", value = encoded, mime = "image/png"))
+                    onDismiss()
+                }
+            }
+        }
+    }
     val filtered = remember(icons, query) {
         icons.asSequence()
             .filter { query.isBlank() || it.name.contains(query, ignoreCase = true) }
@@ -75,6 +101,25 @@ fun IconPickerDialog(
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
                 )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TextButton(onClick = { imagePicker.launch("image/*") }) {
+                        Icon(
+                            Icons.Outlined.AddPhotoAlternate,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text("导入图片…")
+                    }
+                    imageError?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(start = 4.dp),
+                        )
+                    }
+                }
                 Spacer(Modifier.height(8.dp))
                 when {
                     icons.isEmpty() -> Row(
@@ -173,4 +218,24 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
             )
         }
     }
+}
+
+private fun loadScaledIcon(context: Context, uri: Uri): String? {
+    val input = context.contentResolver.openInputStream(uri) ?: return null
+    val bitmap = input.use { BitmapFactory.decodeStream(it) } ?: return null
+    val maxSide = maxOf(bitmap.width, bitmap.height)
+    val scale = if (maxSide > 160) 160f / maxSide else 1f
+    val scaled = if (scale < 1f) {
+        Bitmap.createScaledBitmap(
+            bitmap,
+            (bitmap.width * scale).toInt().coerceAtLeast(1),
+            (bitmap.height * scale).toInt().coerceAtLeast(1),
+            true,
+        )
+    } else {
+        bitmap
+    }
+    val output = ByteArrayOutputStream()
+    scaled.compress(Bitmap.CompressFormat.PNG, 100, output)
+    return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
 }

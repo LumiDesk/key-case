@@ -56,6 +56,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -197,21 +198,29 @@ fun ItemDetailScreen(
                 Surface(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .size(28.dp)
+                        .size(48.dp)
                         .clickable { showIconPicker = true },
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant,
-                    ),
+                    color = Color.Transparent,
                 ) {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = "更换图标",
-                        modifier = Modifier.padding(6.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Box(contentAlignment = Alignment.BottomEnd) {
+                        Surface(
+                            modifier = Modifier.size(28.dp),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface,
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                MaterialTheme.colorScheme.outlineVariant,
+                            ),
+                        ) {
+                            Icon(
+                                Icons.Outlined.Edit,
+                                contentDescription = "更换图标",
+                                modifier = Modifier.padding(6.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
             Spacer(Modifier.height(14.dp))

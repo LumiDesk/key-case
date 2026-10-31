@@ -45,7 +45,7 @@ Amber uses dark foreground text (`luminance > 0.30` selects ink instead of white
 - [x] No emoji structural icons.
 - [x] Accent used sparingly; neutral background remains stable when accent changes.
 - [ ] Largest Dynamic Type and landscape still need a dedicated pass.
-- [ ] Imported icon packs and a full icon picker are not implemented yet.
+- [ ] Imported Aegis icon packs are not implemented yet; the built-in picker and custom image import are.
 
 ## Screens to review
 

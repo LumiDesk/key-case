@@ -1,6 +1,9 @@
 package top.talyra42.keycase.ui.icons
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.util.Base64
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
@@ -11,10 +14,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -185,6 +192,10 @@ fun BrandAvatar(
     modifier: Modifier = Modifier,
     iconRef: top.talyra42.keycase.core.model.IconRef? = null,
 ) {
+    if (iconRef?.kind == "custom" && iconRef.value.isNotBlank()) {
+        CustomIconAvatar(title, iconRef.value, size, modifier)
+        return
+    }
     val context = LocalContext.current
     val vector by produceState<ImageVector?>(initialValue = null, title, iconRef) {
         value = withContext(Dispatchers.IO) {
@@ -213,5 +224,35 @@ fun BrandAvatar(
                 modifier = Modifier.size(size * 0.62f),
             )
         }
+    }
+}
+
+@Composable
+private fun CustomIconAvatar(
+    title: String,
+    encoded: String,
+    size: Dp,
+    modifier: Modifier,
+) {
+    val bitmap by produceState<ImageBitmap?>(initialValue = null, encoded) {
+        value = withContext(Dispatchers.IO) {
+            runCatching {
+                val bytes = Base64.decode(encoded, Base64.DEFAULT)
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+            }.getOrNull()
+        }
+    }
+    val image = bitmap
+    if (image == null) {
+        LetterAvatar(title = title, size = size, modifier = modifier)
+    } else {
+        Image(
+            bitmap = image,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = modifier
+                .size(size)
+                .clip(RoundedCornerShape(size * 0.32f)),
+        )
     }
 }
