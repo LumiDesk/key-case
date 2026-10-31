@@ -355,6 +355,7 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^已导入 (\d+) 个令牌$""") to { "Imported ${it.groupValues[1]} tokens" },
     Regex("""^内置图标包 · (\d+)$""") to { "Built-in · ${it.groupValues[1]}" },
     Regex("""^已导入图标包 · (\d+)$""") to { "Imported · ${it.groupValues[1]}" },
+    Regex("""^下一组 (.+)$""") to { "Next ${it.groupValues[1]}" },
     Regex("""^删除分组“(.+)”？$""") to { "Delete group “${it.groupValues[1]}”?" },
 )
 

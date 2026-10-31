@@ -125,8 +125,6 @@ fun HomeScreen(
         item {
             SectionHeader(
                 title = "最近使用",
-                action = if (activeItems.isNotEmpty()) "全部" else null,
-                onAction = onOpenAllPasswords,
             )
         }
 

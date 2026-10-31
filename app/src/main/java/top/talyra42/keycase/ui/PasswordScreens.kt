@@ -253,6 +253,7 @@ fun PasswordListScreen(
 fun ItemDetailScreen(
     item: VaultItem,
     groups: List<VaultGroup>,
+    showNextToken: Boolean = false,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -394,7 +395,11 @@ fun ItemDetailScreen(
 
             item.totp?.let { secret ->
                 Spacer(Modifier.height(14.dp))
-                TotpCard(secret = secret, onCopy = { code -> copyText(context, code) })
+                TotpCard(
+                    secret = secret,
+                    showNext = showNextToken,
+                    onCopy = { code -> copyText(context, code) },
+                )
             }
 
             Spacer(Modifier.height(24.dp))
@@ -426,17 +431,26 @@ fun ItemDetailScreen(
 }
 
 @Composable
-private fun TotpCard(secret: TotpSecret, onCopy: (String) -> Unit) {
+private fun TotpCard(
+    secret: TotpSecret,
+    showNext: Boolean,
+    onCopy: (String) -> Unit,
+) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     LaunchedEffect(secret.secret) {
         while (true) {
             now = System.currentTimeMillis()
-            delay(500)
+            delay(1000)
         }
     }
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
+    val nextCode = if (showNext) {
+        runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
+    } else {
+        null
+    }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -464,6 +478,14 @@ private fun TotpCard(secret: TotpSecret, onCopy: (String) -> Unit) {
                 letterSpacing = 2.sp,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
+            if (nextCode != null) {
+                Text(
+                    text = "下一组 " + nextCode.chunked(3).joinToString(" "),
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f),
+                )
+            }
             Text(
                 text = "${remaining} 秒后更新",
                 style = MaterialTheme.typography.labelSmall,

@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import top.talyra42.keycase.R
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
@@ -50,8 +51,8 @@ class BiometricVault(private val context: Context) {
             }
             prompt(
                 activity = activity,
-                title = "Enable biometric unlock",
-                subtitle = "Confirm your fingerprint to protect the vault key",
+                title = context.getString(R.string.biometric_enable_title),
+                subtitle = context.getString(R.string.biometric_enable_subtitle),
                 cipher = cipher,
                 onSuccess = { authenticated ->
                     runCatching {
@@ -97,8 +98,8 @@ class BiometricVault(private val context: Context) {
             }
             prompt(
                 activity = activity,
-                title = "Unlock KeyCase",
-                subtitle = "Use your fingerprint to unlock the vault",
+                title = context.getString(R.string.biometric_unlock_title),
+                subtitle = context.getString(R.string.biometric_unlock_subtitle),
                 cipher = cipher,
                 onSuccess = { authenticated ->
                     runCatching { authenticated.doFinal(encrypted) }
@@ -153,7 +154,7 @@ class BiometricVault(private val context: Context) {
                 .setTitle(title)
                 .setSubtitle(subtitle)
                 .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .setNegativeButtonText("Use master password")
+                .setNegativeButtonText(context.getString(R.string.biometric_negative))
                 .setConfirmationRequired(false)
                 .build(),
             BiometricPrompt.CryptoObject(cipher),

@@ -238,16 +238,13 @@ fun TokenListScreen(
                                 trailing = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         if (showCodes) {
-                                            Surface(
-                                                shape = RoundedCornerShape(8.dp),
-                                                color = MaterialTheme.colorScheme.primaryContainer,
-                                                modifier = Modifier.clickable {
-                                                    if (code != "—") copyText(context, code)
-                                                },
-                                            ) {
-                                                Column(
-                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                                    horizontalAlignment = Alignment.End,
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Surface(
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                                    modifier = Modifier.clickable {
+                                                        if (code != "—") copyText(context, code)
+                                                    },
                                                 ) {
                                                     Text(
                                                         text = code.chunked(3).joinToString(" "),
@@ -255,15 +252,17 @@ fun TokenListScreen(
                                                         fontWeight = FontWeight.SemiBold,
                                                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                                                         style = MaterialTheme.typography.labelLarge,
+                                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                                     )
-                                                    nextCode?.let {
-                                                        Text(
-                                                            text = it.chunked(3).joinToString(" "),
-                                                            fontFamily = FontFamily.Monospace,
-                                                            fontSize = 10.sp,
-                                                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.55f),
-                                                        )
-                                                    }
+                                                }
+                                                nextCode?.let {
+                                                    Text(
+                                                        text = it.chunked(3).joinToString(" "),
+                                                        fontFamily = FontFamily.Monospace,
+                                                        fontSize = 10.sp,
+                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                        modifier = Modifier.padding(top = 2.dp),
+                                                    )
                                                 }
                                             }
                                             Spacer(Modifier.width(6.dp))

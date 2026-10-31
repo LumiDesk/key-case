@@ -3,6 +3,7 @@ package top.talyra42.keycase.ui
 import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -12,6 +13,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Arrangement
@@ -47,10 +51,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -137,6 +143,7 @@ private fun VaultRoot(
 ) {
     val data = state.data ?: return
     var route by remember { mutableStateOf<Route>(Route.Main) }
+    var tab by rememberSaveable { mutableIntStateOf(0) }
     var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
     var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
@@ -150,7 +157,7 @@ private fun VaultRoot(
         }
     }
 
-    BackHandler(enabled = route != Route.Main) {
+    BackHandler(enabled = route != Route.Main && passwordEditor == null && tokenEditor == null) {
         route = Route.Main
     }
 
@@ -162,12 +169,28 @@ private fun VaultRoot(
         }
     }
 
-    when (val current = route) {
+    AnimatedContent(
+        targetState = route,
+        transitionSpec = {
+            val forward = targetState != Route.Main
+            if (forward) {
+                (slideInHorizontally(tween(200)) { it / 7 } + fadeIn(tween(180))) togetherWith
+                    (slideOutHorizontally(tween(160)) { -it / 12 } + fadeOut(tween(120)))
+            } else {
+                (slideInHorizontally(tween(200)) { -it / 7 } + fadeIn(tween(180))) togetherWith
+                    (slideOutHorizontally(tween(160)) { it / 12 } + fadeOut(tween(120)))
+            }
+        },
+        label = "route",
+    ) { current ->
+    when (current) {
         Route.Main -> MainScaffold(
             viewModel = viewModel,
             data = data,
             settings = settings,
             busy = state.busy,
+            initialTab = tab,
+            onTabChanged = { tab = it },
             onOpenItem = openItem,
             onAddPassword = { passwordEditor = PasswordEditorTarget(null) },
             onAddToken = { tokenEditor = TokenEditorTarget(null) },
@@ -221,6 +244,7 @@ private fun VaultRoot(
                 ItemDetailScreen(
                     item = item,
                     groups = data.groups,
+                    showNextToken = settings.showNextToken,
                     onBack = { route = Route.Main },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
@@ -239,6 +263,7 @@ private fun VaultRoot(
                 )
             }
         }
+    }
     }
 
     passwordEditor?.let { target ->
@@ -274,6 +299,8 @@ private fun MainScaffold(
     data: top.talyra42.keycase.core.model.VaultData,
     settings: AppSettings,
     busy: Boolean,
+    initialTab: Int,
+    onTabChanged: (Int) -> Unit,
     onOpenItem: (VaultItem) -> Unit,
     onAddPassword: () -> Unit,
     onAddToken: () -> Unit,
@@ -300,8 +327,12 @@ private fun MainScaffold(
     val exitMessage = localized("再按一次退出")
     val localizedError = localized(error.orEmpty())
     val localizedMessage = localized(message.orEmpty())
-    val pagerState = rememberPagerState(initialPage = 0, pageCount = { 4 })
+    val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 4 })
     var lastBackAt by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(pagerState.currentPage) {
+        onTabChanged(pagerState.currentPage)
+    }
 
     fun goToPage(page: Int) {
         scope.launch {

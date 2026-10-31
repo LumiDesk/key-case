@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">KeyCase</string>
+    <string name="biometric_enable_title">启用生物识别解锁</string>
+    <string name="biometric_enable_subtitle">验证指纹以保护保险库密钥</string>
+    <string name="biometric_unlock_title">解锁 KeyCase</string>
+    <string name="biometric_unlock_subtitle">使用指纹解锁本地保险库</string>
+    <string name="biometric_negative">使用主密码</string>
+</resources>

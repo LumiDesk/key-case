@@ -33,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -129,6 +130,13 @@ fun UnlockScreen(
     onBiometric: () -> Unit = {},
 ) {
     var password by rememberSaveable { mutableStateOf("") }
+    var autoPrompted by remember { mutableStateOf(false) }
+    LaunchedEffect(biometricEnabled) {
+        if (biometricEnabled && !autoPrompted) {
+            autoPrompted = true
+            onBiometric()
+        }
+    }
 
     AuthFrame(
         title = "KeyCase",
