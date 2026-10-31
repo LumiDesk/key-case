@@ -392,7 +392,7 @@ private fun MainScaffold(
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-                beyondViewportPageCount = 1,
+                beyondViewportPageCount = 2,
                 key = { it },
             ) { page ->
                 when (page) {
