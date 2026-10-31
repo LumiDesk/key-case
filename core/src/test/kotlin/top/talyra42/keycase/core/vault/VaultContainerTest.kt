@@ -86,8 +86,19 @@ class VaultContainerTest {
     }
 
     @Test
-    fun sealPersistsEditsWithoutReenteringPassword() {
-        val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
+    fun unlockWithVaultKeyOpensSameData() {
+        val created = VaultContainer.createSession(password, sampleVault(), fastKdf)
+        val reopened = VaultContainer.unlockWithVaultKey(created.bytes, created.session.vaultKey)
+        try {
+            assertEquals("GitHub", reopened.data.items.first().title)
+        } finally {
+            reopened.close()
+            created.session.close()
+        }
+    }
+
+    @Test
+    fun sealPersistsEditsWithoutReenteringPassword() {        val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
         val session = VaultContainer.unlock(password, bytes)
         val edited = session.data.copy(
             items = session.data.items + VaultItem(

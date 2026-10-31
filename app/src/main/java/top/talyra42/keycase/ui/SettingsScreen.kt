@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Palette
@@ -71,6 +72,10 @@ fun SettingsScreen(
     onCustomAccent: (Int) -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
+    biometricAvailable: Boolean,
+    biometricEnrolled: Boolean,
+    onEnableBiometric: () -> Unit,
+    onDisableBiometric: () -> Unit,
     onAddGroup: (String) -> Unit,
     onRenameGroup: (String, String) -> Unit,
     onDeleteGroup: (String) -> Unit,
@@ -198,6 +203,21 @@ fun SettingsScreen(
         item {
             SettingsLabel("安全")
             AppCard {
+                ActionRow(
+                    icon = Icons.Outlined.Fingerprint,
+                    title = "生物识别解锁",
+                    subtitle = when {
+                        !biometricAvailable -> "设备不支持"
+                        biometricEnrolled -> "已启用，点击关闭"
+                        else -> "使用指纹解锁保险库"
+                    },
+                    onClick = {
+                        if (biometricAvailable) {
+                            if (biometricEnrolled) onDisableBiometric() else onEnableBiometric()
+                        }
+                    },
+                )
+                SettingsDivider()
                 ActionRow(
                     icon = Icons.Outlined.Shield,
                     title = "安全中心",

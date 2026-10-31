@@ -130,6 +130,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun copyVaultKeyForBiometric(): ByteArray? = session?.vaultKey?.copyOf()
+
+    fun vaultBytesForBiometric(): ByteArray? =
+        if (store.exists()) runCatching { store.read() }.getOrNull() else null
+
+    fun unlockWithVaultKey(vaultKey: ByteArray) {
+        if (!store.exists()) {
+            vaultKey.fill(0)
+            _state.update { it.copy(vaultExists = false, locked = true) }
+            return
+        }
+        runVaultOperation {
+            try {
+                val bytes = store.read()
+                session = VaultContainer.unlockWithVaultKey(bytes, vaultKey)
+                _state.update {
+                    it.copy(
+                        vaultExists = true,
+                        locked = false,
+                        data = session?.data,
+                        busy = false,
+                        error = null,
+                    )
+                }
+            } finally {
+                vaultKey.fill(0)
+            }
+        }
+    }
+
     /**
      * Call before starting a document picker or scanner. That external
      * activity stops MainActivity; without this flag the vault would lock and

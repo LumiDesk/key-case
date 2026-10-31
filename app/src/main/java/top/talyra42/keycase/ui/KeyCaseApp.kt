@@ -54,6 +54,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -75,6 +76,9 @@ private data class TokenEditorTarget(val itemId: String?, val initialUri: String
 fun KeyCaseApp(viewModel: MainViewModel) {
     val state by viewModel.state.collectAsState()
     val settings by viewModel.settings.collectAsState()
+    val activity = LocalContext.current as? top.talyra42.keycase.MainActivity
+    var biometricEnrolled by remember { mutableStateOf(activity?.isBiometricEnrolled() == true) }
+    val biometricAvailable = activity?.isBiometricAvailable() == true
 
     KeyCaseTheme(settings) {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -91,13 +95,28 @@ fun KeyCaseApp(viewModel: MainViewModel) {
                 state.locked -> UnlockScreen(
                     busy = state.busy,
                     error = state.error,
+                    biometricEnabled = biometricEnrolled,
+                    onBiometric = { activity?.unlockWithBiometric { } },
                     onUnlock = {
                         viewModel.clearError()
                         viewModel.unlock(it)
                     },
                 )
 
-                else -> VaultRoot(viewModel, state, settings)
+                else -> VaultRoot(
+                    viewModel = viewModel,
+                    state = state,
+                    settings = settings,
+                    biometricAvailable = biometricAvailable,
+                    biometricEnrolled = biometricEnrolled,
+                    onEnableBiometric = {
+                        activity?.enableBiometric { ok -> biometricEnrolled = ok }
+                    },
+                    onDisableBiometric = {
+                        activity?.disableBiometric()
+                        biometricEnrolled = false
+                    },
+                )
             }
         }
     }
@@ -108,6 +127,10 @@ private fun VaultRoot(
     viewModel: MainViewModel,
     state: UiState,
     settings: AppSettings,
+    biometricAvailable: Boolean,
+    biometricEnrolled: Boolean,
+    onEnableBiometric: () -> Unit,
+    onDisableBiometric: () -> Unit,
 ) {
     val data = state.data ?: return
     var tab by rememberSaveable { mutableIntStateOf(0) }
@@ -167,6 +190,10 @@ private fun VaultRoot(
             onExport = viewModel::exportBackup,
             error = state.error,
             onClearError = viewModel::clearError,
+            biometricAvailable = biometricAvailable,
+            biometricEnrolled = biometricEnrolled,
+            onEnableBiometric = onEnableBiometric,
+            onDisableBiometric = onDisableBiometric,
         )
 
         Route.Security -> SecurityScreen(
@@ -258,6 +285,10 @@ private fun MainScaffold(
     onExport: (android.net.Uri) -> Unit,
     error: String?,
     onClearError: () -> Unit,
+    biometricAvailable: Boolean,
+    biometricEnrolled: Boolean,
+    onEnableBiometric: () -> Unit,
+    onDisableBiometric: () -> Unit,
 ) {
     val snackbar = remember { SnackbarHostState() }
     LaunchedEffect(error) {
@@ -349,6 +380,10 @@ private fun MainScaffold(
                         onCustomAccent = viewModel::setCustomAccent,
                         onOpenSecurity = onOpenSecurity,
                         onOpenTrash = onOpenTrash,
+                        biometricAvailable = biometricAvailable,
+                        biometricEnrolled = biometricEnrolled,
+                        onEnableBiometric = onEnableBiometric,
+                        onDisableBiometric = onDisableBiometric,
                         onAddGroup = viewModel::addGroup,
                         onRenameGroup = viewModel::renameGroup,
                         onDeleteGroup = viewModel::deleteGroup,

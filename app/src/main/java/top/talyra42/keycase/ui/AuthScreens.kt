@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,11 +20,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -122,6 +125,8 @@ fun UnlockScreen(
     busy: Boolean,
     error: String?,
     onUnlock: (String) -> Unit,
+    biometricEnabled: Boolean = false,
+    onBiometric: () -> Unit = {},
 ) {
     var password by rememberSaveable { mutableStateOf("") }
 
@@ -165,6 +170,24 @@ fun UnlockScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
+        if (biometricEnabled) {
+            OutlinedButton(
+                onClick = onBiometric,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(14.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.Fingerprint,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(8.dp))
+                Text("使用生物识别解锁")
+            }
+            Spacer(Modifier.height(12.dp))
+        }
         Text(
             text = "数据只保存在这台设备上",
             style = MaterialTheme.typography.labelSmall,

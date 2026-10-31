@@ -212,6 +212,38 @@ object VaultContainer {
     }
 
     /**
+     * Opens a vault with an already unwrapped vault key. This is used by the
+     * Android Keystore/biometric unlock path, where the password key slot is
+     * not involved.
+     */
+    fun unlockWithVaultKey(bytes: ByteArray, vaultKey: ByteArray): UnlockedVault {
+        val parsed = parse(bytes)
+        val header = parsed.header
+        val plaintext = try {
+            Aead.decrypt(
+                key = vaultKey,
+                box = top.talyra42.keycase.core.crypto.SealedBox(
+                    nonce = Codec.unb64(header.payloadNonce),
+                    ciphertext = parsed.ciphertext,
+                ),
+                aad = payloadAad(header.vaultId),
+            )
+        } catch (e: Exception) {
+            throw VaultFormatException("Wrong vault key or corrupted payload", e)
+        }
+        val data = try {
+            val decoded = json.decodeFromString<VaultData>(
+                gunzip(plaintext).toString(StandardCharsets.UTF_8),
+            )
+            require(decoded.vaultId == header.vaultId) { "Vault id mismatch" }
+            decoded
+        } catch (e: Exception) {
+            throw VaultFormatException("Invalid vault payload", e)
+        }
+        return UnlockedVault(header, vaultKey.copyOf(), data)
+    }
+
+    /**
      * Re-encrypts the session payload with a fresh nonce, keeping the existing
      * slots (and therefore the same master password).
      */
