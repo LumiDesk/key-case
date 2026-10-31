@@ -149,6 +149,7 @@ private val EN = mapOf(
     "从 Aegis ZIP 导入 PNG 图标" to "Import PNG icons from an Aegis ZIP",
     "无法读取图标包" to "Could not read the icon pack",
     "图标" to "Icons",
+    "高级设置" to "Advanced settings",
     "点击更换图标" to "Tap to change icon",
     "预览图标包" to "Preview icon packs",
     "查看内置与已导入图标" to "Browse built-in and imported icons",

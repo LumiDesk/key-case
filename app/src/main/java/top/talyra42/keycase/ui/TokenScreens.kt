@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ExpandLess
+import androidx.compose.material.icons.outlined.ExpandMore
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Search
@@ -64,6 +67,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
@@ -100,6 +104,7 @@ fun TokenListScreen(
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
+    var revealedId by rememberSaveable { mutableStateOf<String?>(null) }
     val context = LocalContext.current
     val listState = rememberLazyListState()
     val items = data.items
@@ -137,7 +142,15 @@ fun TokenListScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    val backgroundInteraction = remember { MutableInteractionSource() }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                interactionSource = backgroundInteraction,
+                indication = null,
+            ) { revealedId = null },
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(
                 modifier = Modifier
@@ -151,14 +164,14 @@ fun TokenListScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { searchOpen = !searchOpen }) {
+                IconButton(onClick = { searchOpen = !searchOpen; revealedId = null }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
                         contentDescription = if (searchOpen) "关闭搜索" else "搜索",
                         modifier = Modifier.size(20.dp),
                     )
                 }
-                IconButton(onClick = { ascending = !ascending }) {
+                IconButton(onClick = { ascending = !ascending; revealedId = null }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
                         contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
@@ -249,28 +262,42 @@ fun TokenListScreen(
                             } else {
                                 null
                             }
+                            val visible = showCodes || revealedId == item.id
                             VaultItemRow(
                                 item = item,
-                                onClick = { onOpenItem(item) },
+                                onClick = {
+                                    revealedId = null
+                                    onOpenItem(item)
+                                },
                                 trailing = {
-                                    if (showCodes) {
-                                        Column(horizontalAlignment = Alignment.End) {
-                                            Surface(
-                                                shape = RoundedCornerShape(8.dp),
-                                                color = MaterialTheme.colorScheme.primaryContainer,
-                                                modifier = Modifier.clickable {
-                                                    if (code != "—") copyText(context, code)
+                                    Column(horizontalAlignment = Alignment.End) {
+                                        Surface(
+                                            shape = RoundedCornerShape(8.dp),
+                                            color = MaterialTheme.colorScheme.primaryContainer,
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(8.dp))
+                                                .clickable {
+                                                    if (visible) {
+                                                        if (code != "—") copyText(context, code)
+                                                    } else {
+                                                        revealedId = item.id
+                                                    }
                                                 },
-                                            ) {
-                                                Text(
-                                                    text = code.chunked(3).joinToString(" "),
-                                                    fontFamily = FontFamily.Monospace,
-                                                    fontWeight = FontWeight.SemiBold,
-                                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                    style = MaterialTheme.typography.labelLarge,
-                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                                )
-                                            }
+                                        ) {
+                                            Text(
+                                                text = if (visible) {
+                                                    code.chunked(3).joinToString(" ")
+                                                } else {
+                                                    "••• •••"
+                                                },
+                                                fontFamily = FontFamily.Monospace,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                                style = MaterialTheme.typography.labelLarge,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                            )
+                                        }
+                                        if (visible) {
                                             nextCode?.let {
                                                 Text(
                                                     text = it.chunked(3).joinToString(" "),
@@ -343,6 +370,7 @@ fun TokenEditorScreen(
         )
     }
     var showImport by remember { mutableStateOf(false) }
+    var advanced by rememberSaveable(item?.id) { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun save() {
@@ -466,41 +494,59 @@ fun TokenEditorScreen(
                 Spacer(Modifier.width(6.dp))
                 Text("从 otpauth 链接导入")
             }
-            Text("算法", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                HashAlgorithm.entries.forEach { option ->
-                    FilterChip(
-                        selected = algorithm == option,
-                        onClick = { algorithm = option },
-                        label = { Text(option.name) },
-                    )
+            TextButton(
+                onClick = { advanced = !advanced },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Text("高级设置", modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Start)
+                Icon(
+                    if (advanced) Icons.Outlined.ExpandLess else Icons.Outlined.ExpandMore,
+                    contentDescription = null,
+                )
+            }
+            AnimatedVisibility(
+                visible = advanced,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("算法", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        HashAlgorithm.entries.forEach { option ->
+                            FilterChip(
+                                selected = algorithm == option,
+                                onClick = { algorithm = option },
+                                label = { Text(option.name) },
+                            )
+                        }
+                    }
+                    Text("位数", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = digits == 6,
+                            onClick = { digits = 6 },
+                            label = { Text("6 位") },
+                        )
+                        FilterChip(
+                            selected = digits == 8,
+                            onClick = { digits = 8 },
+                            label = { Text("8 位") },
+                        )
+                    }
+                    Text("周期", style = MaterialTheme.typography.labelLarge)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FilterChip(
+                            selected = period == 30,
+                            onClick = { period = 30 },
+                            label = { Text("30 秒") },
+                        )
+                        FilterChip(
+                            selected = period == 60,
+                            onClick = { period = 60 },
+                            label = { Text("60 秒") },
+                        )
+                    }
                 }
-            }
-            Text("位数", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = digits == 6,
-                    onClick = { digits = 6 },
-                    label = { Text("6 位") },
-                )
-                FilterChip(
-                    selected = digits == 8,
-                    onClick = { digits = 8 },
-                    label = { Text("8 位") },
-                )
-            }
-            Text("周期", style = MaterialTheme.typography.labelLarge)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                FilterChip(
-                    selected = period == 30,
-                    onClick = { period = 30 },
-                    label = { Text("30 秒") },
-                )
-                FilterChip(
-                    selected = period == 60,
-                    onClick = { period = 60 },
-                    label = { Text("60 秒") },
-                )
             }
             Spacer(Modifier.height(2.dp))
             Button(

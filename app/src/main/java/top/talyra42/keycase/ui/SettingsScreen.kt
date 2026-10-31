@@ -337,15 +337,15 @@ fun SettingsScreen(
             SettingsLabel("关于")
             AppCard {
                 Row(
-                    modifier = Modifier.padding(14.dp),
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp)
+                            .size(32.dp)
                             .background(
                                 MaterialTheme.colorScheme.primaryContainer,
-                                RoundedCornerShape(12.dp),
+                                RoundedCornerShape(9.dp),
                             ),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -353,15 +353,15 @@ fun SettingsScreen(
                             Icons.Outlined.VpnKey,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(21.dp),
+                            modifier = Modifier.size(17.dp),
                         )
                     }
-                    Spacer(Modifier.width(12.dp))
+                    Spacer(Modifier.width(10.dp))
                     Column {
                         Text(
                             text = "KeyCase",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
                         )
                         Text(
                             text = "版本 0.1.0 · GPL-3.0-or-later",

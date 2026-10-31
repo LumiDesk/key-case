@@ -400,6 +400,7 @@ private fun TotpCard(
     onCopy: (String) -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var revealed by remember(secret.secret) { mutableStateOf(false) }
     LaunchedEffect(secret.secret) {
         while (true) {
             now = System.currentTimeMillis()
@@ -409,6 +410,7 @@ private fun TotpCard(
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
+    val visible = showCodes || revealed
     val nextCode = if (showNext) {
         runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
     } else {
@@ -418,7 +420,13 @@ private fun TotpCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { if (showCodes && code != "—") onCopy(code) },
+            .clickable {
+                if (!visible) {
+                    revealed = true
+                } else if (code != "—") {
+                    onCopy(code)
+                }
+            },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -432,22 +440,16 @@ private fun TotpCard(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "动态验证码",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = if (showCodes) code.chunked(3).joinToString(" ") else "••• •••",
+                    text = if (visible) code.chunked(3).joinToString(" ") else "••• •••",
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-                if (showCodes && nextCode != null) {
+                if (visible && nextCode != null) {
                     Text(
-                        text = "下一组 " + nextCode.chunked(3).joinToString(" "),
+                        text = nextCode.chunked(3).joinToString(" "),
                         fontFamily = FontFamily.Monospace,
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
