@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -21,11 +23,21 @@ android {
 
     signingConfigs {
         create("release") {
+            val signingProperties = Properties()
+            val propertiesFile = rootProject.file("signing/keystore.properties")
+            if (propertiesFile.isFile) {
+                propertiesFile.inputStream().use { signingProperties.load(it) }
+            }
+            val configuredStore: String? = signingProperties.getProperty("storeFile")
             val storePath = System.getenv("KEYCASE_KEYSTORE_PATH")
+                ?: configuredStore?.let { rootProject.file(it).absolutePath }
                 ?: rootProject.file("signing/keycase-release.jks").absolutePath
             val storePassword = System.getenv("KEYCASE_STORE_PASSWORD")
+                ?: signingProperties.getProperty("storePassword")
             val keyAlias = System.getenv("KEYCASE_KEY_ALIAS")
+                ?: signingProperties.getProperty("keyAlias")
             val keyPassword = System.getenv("KEYCASE_KEY_PASSWORD")
+                ?: signingProperties.getProperty("keyPassword")
             if (file(storePath).isFile && !storePassword.isNullOrBlank() &&
                 !keyAlias.isNullOrBlank() && !keyPassword.isNullOrBlank()
             ) {

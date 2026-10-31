@@ -3,7 +3,7 @@
 **Local-first, offline Android password manager and TOTP authenticator.**
 No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
 
-> Status: working release build. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme with animated transitions, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, and the B3 launcher icon are implemented and verified on an Android 37 emulator. UI copy follows the device language (Chinese/English).
+> Status: **v0.1.1** signed release, built by GitHub Actions and installed on a physical Android device. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
 
 ## What it is
 
@@ -12,7 +12,7 @@ KeyCase keeps two kinds of items in one local, encrypted vault:
 - **Passwords** — accounts, passwords, URLs, notes.
 - **Dynamic tokens (TOTP)** — scanned QR codes or manually entered secrets, with codes generated on-device.
 
-The app is built for Android and is intentionally offline. There is no sync server, no account system, and no telemetry.
+The app is built for Android and is local-first. There is no sync server, no account system, and no telemetry. The only optional network request is the manual “Check for updates” action.
 
 ## Principles
 
@@ -64,9 +64,14 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 
 ## Release
 
-Signed release builds are produced by GitHub Actions. The signing keystore lives in
-repository secrets (`KEYCASE_KEYSTORE_BASE64`, `KEYCASE_STORE_PASSWORD`,
-`KEYCASE_KEY_ALIAS`, `KEYCASE_KEY_PASSWORD`), never in the repository.
+Signed release builds are produced by GitHub Actions. The release keystore and
+its properties are intentionally committed under `signing/` so the key cannot be
+lost between machines; this is a public open-source project and the owner accepts
+that anyone with repository access can sign builds.
+
+- Keystore: `signing/keycase-release.jks`
+- Properties: `signing/keystore.properties`
+- SHA-256: `ccd20e5c3165668bf0b5732e3cff2dcfb445fb622bd820742c3cf37f9aa28ba7`
 
 Cut a release from `main` with one command:
 

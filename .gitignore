@@ -11,5 +11,6 @@ captures/
 *.apk
 *.aab
 *.jks
+!signing/keycase-release.jks
 *.keystore
 .DS_Store

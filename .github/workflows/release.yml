@@ -12,11 +12,6 @@ jobs:
   release:
     if: github.ref_name != 'v0.1.0'
     runs-on: ubuntu-latest
-    env:
-      KEYCASE_KEYSTORE_PATH: ${{ github.workspace }}/.keycase-release.jks
-      KEYCASE_STORE_PASSWORD: ${{ secrets.KEYCASE_STORE_PASSWORD }}
-      KEYCASE_KEY_ALIAS: ${{ secrets.KEYCASE_KEY_ALIAS }}
-      KEYCASE_KEY_PASSWORD: ${{ secrets.KEYCASE_KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -31,16 +26,6 @@ jobs:
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
-
-      - name: Decode signing keystore
-        env:
-          KEYSTORE_BASE64: ${{ secrets.KEYCASE_KEYSTORE_BASE64 }}
-        run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "Missing KEYCASE_KEYSTORE_BASE64 secret" >&2
-            exit 1
-          fi
-          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$KEYCASE_KEYSTORE_PATH"
 
       - name: Build signed release APK
         run: ./gradlew :core:test :app:testDebugUnitTest :app:assembleRelease --no-configuration-cache

@@ -10,8 +10,12 @@
 ```text
 app/                 # Android UI、Activity、Android Keystore、文件/备份
 core/                # 纯 JVM：加密容器、TOTP、Aegis/Google 导入
+signing/             # 项目所有者要求入库的 release keystore + properties
+scripts/             # release.ps1 等发布工具
+.github/workflows/   # GitHub Actions：tag -> 签名构建 -> Release
 docs/design/         # 设计决策、格式说明、UI 规范
 docs/screenshots/    # 验收截图
+docs/icon-options/   # 图标方案
 gradle/libs.versions.toml
 ```
 
@@ -19,7 +23,7 @@ app 内主要目录：
 
 ```text
 app/src/main/java/top/talyra42/keycase/
-├── data/            # AndroidVaultStore、BiometricVault
+├── data/            # AndroidVaultStore、BiometricVault、AutoBackup、UpdateChecker
 ├── ui/              # Compose 页面与通用组件
 │   ├── theme/       # 颜色、字体、Theme
 │   └── icons/       # Aegis 图标包、图标缓存
@@ -40,7 +44,7 @@ app/src/main/java/top/talyra42/keycase/
 - 不在日志/UI 中输出主密码、保险库密钥、TOTP secret
 - 生物识别密钥必须由 Android Keystore 保护
 - 网络仅允许用户主动触发的 GitHub Release 更新检查；不得加入遥测、同步或后台上传
-- 签名 keystore 只放在 GitHub Actions Secrets，禁止提交到仓库
+- Release 签名文件按项目所有者要求放在 `signing/` 并入库；这是公开项目的明确取舍，不要把密码/密钥复制到日志或 CI 输出
 
 ## Build Commands
 
@@ -52,6 +56,16 @@ ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
 ```
 
 Windows 使用 `gradlew.bat`，并设置 `JAVA_HOME` 为 Android Studio JBR。
+
+## Release Commands
+
+```powershell
+.\scripts\release.ps1 patch   # 0.1.1 -> 0.1.2
+.\scripts\release.ps1 minor   # 0.1.x -> 0.2.0
+.\scripts\release.ps1 major   # 0.x -> 1.0.0
+```
+
+脚本会更新 `app/build.gradle.kts` 的 `versionCode`/`versionName`、提交、打 tag、推送；`.github/workflows/release.yml` 负责签名构建并发布 GitHub Release。Release notes 只写上一 tag 到当前 tag 的 compare 链接。
 
 ## Never 规则
 
