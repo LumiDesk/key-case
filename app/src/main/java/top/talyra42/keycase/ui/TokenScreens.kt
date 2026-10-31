@@ -330,6 +330,8 @@ fun TokenEditorScreen(
         mutableStateOf(existingSecret?.algorithm ?: scanned?.algorithm ?: HashAlgorithm.SHA1)
     }
     var revealed by remember { mutableStateOf(false) }
+    var icon by remember(item?.id) { mutableStateOf(item?.icon) }
+    var showIconPicker by remember { mutableStateOf(false) }
     var error by remember {
         mutableStateOf(
             if (initialUri != null && scanned == null) "二维码不是有效的 otpauth 链接" else null,
@@ -365,6 +367,7 @@ fun TokenEditorScreen(
                 digits = digits,
                 period = period,
             ),
+            icon = icon,
             updatedAt = now,
         )
         onSave(updated)
@@ -406,6 +409,11 @@ fun TokenEditorScreen(
                     Icon(Icons.Outlined.Close, contentDescription = "关闭")
                 }
             }
+            EditorIconRow(
+                title = issuer.ifBlank { item?.title.orEmpty() },
+                iconRef = icon,
+                onClick = { showIconPicker = true },
+            )
             OutlinedTextField(
                 value = issuer,
                 onValueChange = { issuer = it },
@@ -513,6 +521,17 @@ fun TokenEditorScreen(
                 period = parsed.period
                 algorithm = parsed.algorithm
                 showImport = false
+            },
+        )
+    }
+
+    if (showIconPicker) {
+        IconPickerDialog(
+            current = icon,
+            onDismiss = { showIconPicker = false },
+            onPick = { picked ->
+                icon = picked
+                showIconPicker = false
             },
         )
     }

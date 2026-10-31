@@ -49,6 +49,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -88,6 +89,14 @@ fun KeyCaseApp(viewModel: MainViewModel) {
     val activity = LocalContext.current as? top.talyra42.keycase.MainActivity
     var biometricEnrolled by remember { mutableStateOf(activity?.isBiometricEnrolled() == true) }
     val biometricAvailable = activity?.isBiometricAvailable() == true
+
+    SideEffect {
+        if (settings.secureScreen) {
+            activity?.window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
 
     KeyCaseTheme(settings) {
         Surface(modifier = Modifier.fillMaxSize()) {
@@ -201,7 +210,7 @@ private fun VaultRoot(
                         setDesiredBarcodeFormats(ScanOptions.QR_CODE)
                         setPrompt("扫描 TOTP 二维码")
                         setBeepEnabled(false)
-                        setOrientationLocked(false)
+                        setOrientationLocked(true)
                     },
                 )
             },
@@ -244,7 +253,6 @@ private fun VaultRoot(
                 ItemDetailScreen(
                     item = item,
                     groups = data.groups,
-                    showNextToken = settings.showNextToken,
                     onBack = { route = Route.Main },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
@@ -463,6 +471,7 @@ private fun MainScaffold(
                         onCustomAccent = viewModel::setCustomAccent,
                         onShowTokenCodes = viewModel::setShowTokenCodes,
                         onShowNextToken = viewModel::setShowNextToken,
+                        onSecureScreen = viewModel::setSecureScreen,
                         onOpenSecurity = onOpenSecurity,
                         onOpenTrash = onOpenTrash,
                         biometricAvailable = biometricAvailable,

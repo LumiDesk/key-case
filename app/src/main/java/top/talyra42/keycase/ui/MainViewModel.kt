@@ -34,6 +34,7 @@ data class AppSettings(
     val darkMode: DarkMode = DarkMode.SYSTEM,
     val showTokenCodes: Boolean = true,
     val showNextToken: Boolean = false,
+    val secureScreen: Boolean = false,
 )
 
 data class UiState(
@@ -452,6 +453,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         prefs.edit().putBoolean(KEY_NEXT_TOKEN, show).apply()
     }
 
+    fun setSecureScreen(enabled: Boolean) {
+        _settings.update { it.copy(secureScreen = enabled) }
+        prefs.edit().putBoolean(KEY_SECURE_SCREEN, enabled).apply()
+    }
+
     fun exportBackup(uri: Uri) {
         val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
@@ -573,6 +579,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             darkMode = dark,
             showTokenCodes = prefs.getBoolean(KEY_SHOW_CODES, true),
             showNextToken = prefs.getBoolean(KEY_NEXT_TOKEN, false),
+            secureScreen = prefs.getBoolean(KEY_SECURE_SCREEN, false),
         )
     }
 
@@ -617,5 +624,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private const val KEY_DARK = "dark"
         private const val KEY_SHOW_CODES = "showTokenCodes"
         private const val KEY_NEXT_TOKEN = "showNextToken"
+        private const val KEY_SECURE_SCREEN = "secureScreen"
     }
 }

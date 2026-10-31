@@ -47,6 +47,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
@@ -73,6 +74,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -253,7 +255,6 @@ fun PasswordListScreen(
 fun ItemDetailScreen(
     item: VaultItem,
     groups: List<VaultGroup>,
-    showNextToken: Boolean = false,
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -293,37 +294,36 @@ fun ItemDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box {
+            Box(modifier = Modifier.size(98.dp)) {
                 BrandAvatar(
                     title = item.title.ifBlank { item.issuer },
                     size = 82.dp,
+                    modifier = Modifier.align(Alignment.TopStart),
                     iconRef = item.icon,
                 )
-                Surface(
+                Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .size(48.dp)
+                        .size(44.dp)
                         .clickable { showIconPicker = true },
-                    shape = CircleShape,
-                    color = Color.Transparent,
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Box(contentAlignment = Alignment.BottomEnd) {
-                        Surface(
-                            modifier = Modifier.size(28.dp),
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surface,
-                            border = androidx.compose.foundation.BorderStroke(
-                                1.dp,
-                                MaterialTheme.colorScheme.outlineVariant,
-                            ),
-                        ) {
-                            Icon(
-                                Icons.Outlined.Edit,
-                                contentDescription = "更换图标",
-                                modifier = Modifier.padding(6.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
+                    Surface(
+                        modifier = Modifier.size(30.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surface,
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant,
+                        ),
+                        shadowElevation = 2.dp,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Edit,
+                            contentDescription = "更换图标",
+                            modifier = Modifier.padding(6.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
@@ -397,7 +397,6 @@ fun ItemDetailScreen(
                 Spacer(Modifier.height(14.dp))
                 TotpCard(
                     secret = secret,
-                    showNext = showNextToken,
                     onCopy = { code -> copyText(context, code) },
                 )
             }
@@ -433,7 +432,6 @@ fun ItemDetailScreen(
 @Composable
 private fun TotpCard(
     secret: TotpSecret,
-    showNext: Boolean,
     onCopy: (String) -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -446,56 +444,46 @@ private fun TotpCard(
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
-    val nextCode = if (showNext) {
-        runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
-    } else {
-        null
-    }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { if (code != "—") onCopy(code) },
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "动态验证码",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = code.chunked(3).joinToString(" "),
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = 2.sp,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-            )
-            if (nextCode != null) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "下一组 " + nextCode.chunked(3).joinToString(" "),
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f),
+                    text = "动态验证码",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = code.chunked(3).joinToString(" "),
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = FontFamily.Monospace,
+                    letterSpacing = 2.sp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
-            Text(
-                text = "${remaining} 秒后更新",
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-            )
-            Spacer(Modifier.height(10.dp))
-            FilledTonalButton(onClick = { onCopy(code) }) {
-                Icon(Icons.Outlined.ContentCopy, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
-                Text("复制验证码")
+            Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(
+                    progress = { remaining / period.toFloat() },
+                    modifier = Modifier.fillMaxSize(),
+                    strokeWidth = 3.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
+                )
             }
         }
     }
@@ -532,6 +520,8 @@ fun PasswordEditorScreen(
         )
     }
     var revealed by remember { mutableStateOf(false) }
+    var icon by remember(item?.id) { mutableStateOf(item?.icon) }
+    var showIconPicker by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -548,6 +538,7 @@ fun PasswordEditorScreen(
             password = password,
             urls = if (url.isBlank()) emptyList() else listOf(url.trim()),
             notes = notes.trim(),
+            icon = icon,
             updatedAt = now,
         )
         onSave(updated, group.trim())
@@ -590,6 +581,11 @@ fun PasswordEditorScreen(
                 }
             }
             Spacer(Modifier.height(2.dp))
+            EditorIconRow(
+                title = title.ifBlank { item?.title.orEmpty() },
+                iconRef = icon,
+                onClick = { showIconPicker = true },
+            )
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -671,6 +667,17 @@ fun PasswordEditorScreen(
                 Text("保存密码", fontWeight = FontWeight.SemiBold)
             }
         }
+    }
+
+    if (showIconPicker) {
+        IconPickerDialog(
+            current = icon,
+            onDismiss = { showIconPicker = false },
+            onPick = { picked ->
+                icon = picked
+                showIconPicker = false
+            },
+        )
     }
 }
 

@@ -80,6 +80,7 @@ fun SettingsScreen(
     onCustomAccent: (Int) -> Unit,
     onShowTokenCodes: (Boolean) -> Unit,
     onShowNextToken: (Boolean) -> Unit,
+    onSecureScreen: (Boolean) -> Unit,
     onOpenSecurity: () -> Unit,
     onOpenTrash: () -> Unit,
     biometricAvailable: Boolean,
@@ -270,6 +271,13 @@ fun SettingsScreen(
         item {
             SettingsLabel("安全")
             AppCard {
+                SwitchRow(
+                    title = "防止截屏",
+                    subtitle = "禁止系统截图和录屏",
+                    checked = settings.secureScreen,
+                    onCheckedChange = onSecureScreen,
+                )
+                SettingsDivider()
                 ActionRow(
                     icon = Icons.Outlined.Fingerprint,
                     title = "生物识别解锁",
