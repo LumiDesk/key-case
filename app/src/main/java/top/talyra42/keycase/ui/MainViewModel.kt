@@ -381,7 +381,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val parsed = GoogleMigrationParser.parse(link.trim())
                 val current = session ?: error("Vault is locked")
                 val now = Instant.now().toString()
-                val items = parsed.map { otp ->
+                val existingSecrets = current.data.items
+                    .mapNotNull { it.totp?.secret }
+                    .toMutableSet()
+                val unique = parsed.filter { existingSecrets.add(it.secret) }
+                val skipped = parsed.size - unique.size
+                val items = unique.map { otp ->
                     VaultItem(
                         id = UUID.randomUUID().toString(),
                         kind = ItemKind.TOTP,
@@ -412,7 +417,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         data = next.data,
                         busy = false,
                         error = null,
-                        message = "已导入 ${items.size} 个令牌",
+                        message = if (skipped > 0) {
+                            "已导入 ${items.size} 个令牌（跳过 $skipped 个重复）"
+                        } else {
+                            "已导入 ${items.size} 个令牌"
+                        },
                     )
                 }
             } catch (e: Exception) {
@@ -572,6 +581,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val result = AegisImporter.import(bytes, chars)
                 val current = session ?: error("Vault is locked")
                 val data = current.data
+                val existingSecrets = data.items
+                    .mapNotNull { it.totp?.secret }
+                    .toMutableSet()
+                val uniqueItems = result.items.filter { item ->
+                    item.totp?.secret?.let { existingSecrets.add(it) } ?: true
+                }
+                val skippedDuplicates = result.items.size - uniqueItems.size
                 val groups = data.groups.toMutableList()
                 val groupIdMap = mutableMapOf<String, String>()
                 result.groups.forEach { importedGroup ->
@@ -582,7 +598,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         .also { groups.add(it) }
                     groupIdMap[importedGroup.id] = target.id
                 }
-                val importedItems = result.items.map { item ->
+                val importedItems = uniqueItems.map { item ->
                     item.copy(
                         groupIds = item.groupIds.mapNotNull { groupIdMap[it] },
                     )
@@ -601,7 +617,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         data = next.data,
                         busy = false,
                         error = null,
-                        message = "已导入 ${importedItems.size} 个条目",
+                        message = if (skippedDuplicates > 0) {
+                            "已导入 ${importedItems.size} 个条目（跳过 $skippedDuplicates 个重复）"
+                        } else {
+                            "已导入 ${importedItems.size} 个条目"
+                        },
                     )
                 }
             } catch (e: Exception) {

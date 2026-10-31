@@ -433,6 +433,12 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^已导入 (\d+) 个图标$""") to { "Imported ${it.groupValues[1]} icons" },
     Regex("""^已导入 (\d+) 个条目$""") to { "Imported ${it.groupValues[1]} items" },
     Regex("""^已导入 (\d+) 个令牌$""") to { "Imported ${it.groupValues[1]} tokens" },
+    Regex("""^已导入 (\d+) 个令牌（跳过 (\d+) 个重复）$""") to {
+        "Imported ${it.groupValues[1]} tokens (skipped ${it.groupValues[2]} duplicates)"
+    },
+    Regex("""^已导入 (\d+) 个条目（跳过 (\d+) 个重复）$""") to {
+        "Imported ${it.groupValues[1]} items (skipped ${it.groupValues[2]} duplicates)"
+    },
     Regex("""^内置图标包 · (\d+)$""") to { "Built-in · ${it.groupValues[1]}" },
     Regex("""^已导入图标包 · (\d+)$""") to { "Imported · ${it.groupValues[1]}" },
     Regex("""^下一组 (.+)$""") to { "Next ${it.groupValues[1]}" },
