@@ -75,6 +75,17 @@ class VaultContainerTest {
     }
 
     @Test
+    fun createSessionAvoidsSecondUnlock() {
+        val created = VaultContainer.createSession(password, sampleVault(), fastKdf)
+
+        assertEquals("GitHub", created.session.data.items.first().title)
+        assertEquals(
+            created.session.data.items,
+            VaultContainer.open(password, created.bytes).items,
+        )
+    }
+
+    @Test
     fun sealPersistsEditsWithoutReenteringPassword() {
         val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
         val session = VaultContainer.unlock(password, bytes)
