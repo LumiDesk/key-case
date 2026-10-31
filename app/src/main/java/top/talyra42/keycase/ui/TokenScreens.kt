@@ -219,6 +219,7 @@ fun TokenListScreen(
                         MaterialTheme.colorScheme.primary
                     },
                     trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    gapSize = 0.dp,
                     drawStopIndicator = {},
                 )
             }
