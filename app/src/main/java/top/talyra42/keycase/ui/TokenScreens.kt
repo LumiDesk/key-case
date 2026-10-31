@@ -100,6 +100,7 @@ import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.Base32
 import top.talyra42.keycase.core.otp.OtpauthParser
 import top.talyra42.keycase.core.otp.codeAt
+import top.talyra42.keycase.core.otp.nextCode
 import java.time.Instant
 import java.util.UUID
 
@@ -148,8 +149,7 @@ fun TokenListScreen(
         .lastOrNull { it.value <= listState.firstVisibleItemIndex }
         ?.key
 
-    var barNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
-    var codeNow by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val blinkTransition = rememberInfiniteTransition(label = "tokenBlink")
     val blinkAlpha by blinkTransition.animateFloat(
         initialValue = 0.35f,
@@ -163,11 +163,16 @@ fun TokenListScreen(
     LaunchedEffect(active) {
         if (!active) return@LaunchedEffect
         while (true) {
-            barNow = System.currentTimeMillis()
-            if ((barNow / 1000L) % 30L == 0L) {
-                codeNow = barNow
-            }
-            delay(1000)
+            val current = System.currentTimeMillis()
+            now = current
+            // Tick on the next whole second so a 30s boundary is never skipped.
+            delay((1000L - current % 1000L).coerceAtLeast(100L))
+        }
+    }
+    LaunchedEffect(revealedId) {
+        if (revealedId != null) {
+            delay(10_000L)
+            revealedId = null
         }
     }
 
@@ -218,11 +223,13 @@ fun TokenListScreen(
                 }
             }
 
-            if (items.isNotEmpty()) {
-                val barPeriod = (items.first().totp?.period ?: 30).coerceAtLeast(1)
-                val barRemaining = barPeriod - ((barNow / 1000L) % barPeriod)
+            val timedSecrets = items.mapNotNull { it.totp }
+                .filter { it.type != OtpType.HOTP }
+            if (timedSecrets.isNotEmpty()) {
+                val barPeriod = timedSecrets.minOf { it.period }.coerceAtLeast(1)
+                val barRemaining = barPeriod - ((now / 1000L) % barPeriod)
                 LaunchedEffect(barRemaining, active) {
-                    if (active && barRemaining in 1L..5L) {
+                    if (active && barRemaining == 5L) {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     }
                 }
@@ -242,7 +249,7 @@ fun TokenListScreen(
                     } else {
                         MaterialTheme.colorScheme.primary
                     },
-                    trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                    trackColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f),
                     gapSize = 0.dp,
                     drawStopIndicator = {},
                 )
@@ -309,23 +316,24 @@ fun TokenListScreen(
                         }
                         items(section.items, key = { it.id }) { item ->
                             val secret = item.totp
+                            val type = secret?.type ?: OtpType.TOTP
                             val digits = secret?.digits ?: 6
-                            val code = secret?.let { runCatching { it.codeAt(codeNow) }.getOrNull() } ?: "—"
-                            val nextCode = if (showNext && secret != null) {
-                                runCatching { secret.codeAt(codeNow + secret.period * 1000L) }.getOrNull()
+                            val code = secret?.let { runCatching { it.codeAt(now) }.getOrNull() } ?: "—"
+                            val nextCode = if (showNext && secret != null && type != OtpType.HOTP) {
+                                runCatching { secret.nextCode(now) }.getOrNull()
                             } else {
                                 null
                             }
                             val visible = showCodes || revealedId == item.id
                             val codeText = if (visible) {
-                                formatTokenCode(code, digits, codeGrouping)
+                                formatTokenCode(code, digits, codeGrouping, type)
                             } else {
-                                hiddenTokenCode(digits, codeGrouping)
+                                hiddenTokenCode(digits, codeGrouping, type)
                             }
                             val nextText = if (visible && nextCode != null) {
-                                formatTokenCode(nextCode, digits, codeGrouping)
+                                formatTokenCode(nextCode, digits, codeGrouping, type)
                             } else if (nextCode != null) {
-                                hiddenTokenCode(digits, codeGrouping)
+                                hiddenTokenCode(digits, codeGrouping, type)
                             } else {
                                 null
                             }
@@ -403,7 +411,6 @@ fun TokenEditorScreen(
     val existingSecret = item?.totp
     val scanned = remember(initialUri) {
         initialUri?.let { runCatching { OtpauthParser.parse(it) }.getOrNull() }
-            ?.takeIf { it.type == OtpType.TOTP }
     }
     var issuer by rememberSaveable(item?.id, initialUri) {
         mutableStateOf(item?.let { it.issuer.ifBlank { it.title } } ?: scanned?.issuer.orEmpty())
@@ -411,10 +418,13 @@ fun TokenEditorScreen(
     var account by rememberSaveable(item?.id, initialUri) {
         mutableStateOf(item?.username ?: scanned?.account.orEmpty())
     }
-    // The TOTP secret is intentionally memory-only; it must not be written to
+    // The OTP secret is intentionally memory-only; it must not be written to
     // saved instance state.
     var secret by remember(item?.id, initialUri) {
         mutableStateOf(existingSecret?.secret ?: scanned?.secret.orEmpty())
+    }
+    var type by rememberSaveable(item?.id, initialUri) {
+        mutableStateOf(existingSecret?.type ?: scanned?.type ?: OtpType.TOTP)
     }
     var digits by rememberSaveable(item?.id, initialUri) {
         mutableIntStateOf(existingSecret?.digits ?: scanned?.digits ?: 6)
@@ -425,6 +435,9 @@ fun TokenEditorScreen(
     var algorithm by rememberSaveable(item?.id, initialUri) {
         mutableStateOf(existingSecret?.algorithm ?: scanned?.algorithm ?: HashAlgorithm.SHA1)
     }
+    var counter by rememberSaveable(item?.id, initialUri) {
+        mutableLongStateOf(existingSecret?.counter ?: scanned?.counter ?: 0L)
+    }
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
@@ -434,7 +447,11 @@ fun TokenEditorScreen(
         )
     }
     var showImport by remember { mutableStateOf(false) }
-    var advanced by rememberSaveable(item?.id) { mutableStateOf(false) }
+    var advanced by rememberSaveable(item?.id, initialUri) {
+        mutableStateOf(
+            (existingSecret?.type ?: scanned?.type)?.let { it != OtpType.TOTP } == true,
+        )
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     fun save() {
@@ -448,6 +465,9 @@ fun TokenEditorScreen(
             return
         }
         val now = Instant.now().toString()
+        val resolvedDigits = if (type == OtpType.STEAM) 5 else digits
+        val resolvedPeriod = if (type == OtpType.STEAM) 30 else period
+        val resolvedAlgorithm = if (type == OtpType.STEAM) HashAlgorithm.SHA1 else algorithm
         val updated = (item ?: VaultItem(
             id = UUID.randomUUID().toString(),
             kind = ItemKind.TOTP,
@@ -458,11 +478,12 @@ fun TokenEditorScreen(
             issuer = issuer.trim(),
             username = account.trim(),
             totp = TotpSecret(
-                type = OtpType.TOTP,
+                type = type,
                 secret = normalized,
-                algorithm = algorithm,
-                digits = digits,
-                period = period,
+                algorithm = resolvedAlgorithm,
+                digits = resolvedDigits,
+                period = resolvedPeriod,
+                counter = if (type == OtpType.HOTP) counter else 0L,
             ),
             icon = icon,
             updatedAt = now,
@@ -575,40 +596,75 @@ fun TokenEditorScreen(
                 exit = shrinkVertically() + fadeOut(),
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text("算法", style = MaterialTheme.typography.labelLarge)
+                    Text("类型", style = MaterialTheme.typography.labelLarge)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        HashAlgorithm.entries.forEach { option ->
+                        OtpType.entries.forEach { option ->
                             FilterChip(
-                                selected = algorithm == option,
-                                onClick = { algorithm = option },
+                                selected = type == option,
+                                onClick = { type = option },
                                 label = { Text(option.name) },
                             )
                         }
                     }
-                    Text("位数", style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(
-                            selected = digits == 6,
-                            onClick = { digits = 6 },
-                            label = { Text("6 位") },
+                    if (type == OtpType.STEAM) {
+                        Text(
+                            "Steam Guard 使用 SHA1、5 位字符和 30 秒周期。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        FilterChip(
-                            selected = digits == 8,
-                            onClick = { digits = 8 },
-                            label = { Text("8 位") },
-                        )
+                    } else {
+                        Text("算法", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            HashAlgorithm.entries.forEach { option ->
+                                FilterChip(
+                                    selected = algorithm == option,
+                                    onClick = { algorithm = option },
+                                    label = { Text(option.name) },
+                                )
+                            }
+                        }
+                        Text("位数", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(
+                                selected = digits == 6,
+                                onClick = { digits = 6 },
+                                label = { Text("6 位") },
+                            )
+                            FilterChip(
+                                selected = digits == 8,
+                                onClick = { digits = 8 },
+                                label = { Text("8 位") },
+                            )
+                        }
                     }
-                    Text("周期", style = MaterialTheme.typography.labelLarge)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        FilterChip(
-                            selected = period == 30,
-                            onClick = { period = 30 },
-                            label = { Text("30 秒") },
-                        )
-                        FilterChip(
-                            selected = period == 60,
-                            onClick = { period = 60 },
-                            label = { Text("60 秒") },
+                    if (type == OtpType.TOTP) {
+                        Text("周期", style = MaterialTheme.typography.labelLarge)
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            FilterChip(
+                                selected = period == 30,
+                                onClick = { period = 30 },
+                                label = { Text("30 秒") },
+                            )
+                            FilterChip(
+                                selected = period == 60,
+                                onClick = { period = 60 },
+                                label = { Text("60 秒") },
+                            )
+                        }
+                    }
+                    if (type == OtpType.HOTP) {
+                        OutlinedTextField(
+                            value = counter.toString(),
+                            onValueChange = { value ->
+                                counter = value.filter(Char::isDigit).toLongOrNull() ?: 0L
+                            },
+                            label = { Text("计数器") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = MaterialTheme.shapes.small,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                            ),
                         )
                     }
                 }
@@ -633,9 +689,12 @@ fun TokenEditorScreen(
                 issuer = parsed.issuer
                 account = parsed.account
                 secret = parsed.secret
+                type = parsed.type
                 digits = parsed.digits
                 period = parsed.period
                 algorithm = parsed.algorithm
+                counter = parsed.counter
+                advanced = true
                 showImport = false
             },
         )
@@ -670,7 +729,7 @@ private fun OtpauthImportDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    "粘贴 otpauth://totp/... 链接；密钥只在本机解析。",
+                    "粘贴 otpauth://totp/、hotp/ 或 steam/ 链接；密钥只在本机解析。",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -693,8 +752,6 @@ private fun OtpauthImportDialog(
                     val parsed = runCatching { OtpauthParser.parse(uri.trim()) }.getOrNull()
                     if (parsed == null) {
                         localError = "链接格式无效"
-                    } else if (parsed.type != OtpType.TOTP) {
-                        localError = "目前只支持 TOTP 链接"
                     } else {
                         onImport(parsed)
                     }

@@ -20,6 +20,7 @@ import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultGroup
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.GoogleMigrationParser
+import top.talyra42.keycase.core.otp.withNextCounter
 import top.talyra42.keycase.core.vault.UnlockedVault
 import top.talyra42.keycase.core.vault.VaultContainer
 import top.talyra42.keycase.data.AndroidVaultStore
@@ -235,6 +236,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         persist(data.copy(items = items, groups = groups))
+    }
+
+    /**
+     * Advances a counter-based HOTP item. The next code is derived from the
+     * stored counter, so this is the only mutation path for HOTP.
+     */
+    fun advanceHotp(itemId: String) {
+        val data = _state.value.data ?: return
+        val now = Instant.now().toString()
+        val items = data.items.map { item ->
+            val secret = item.totp
+            if (item.id == itemId && secret != null && secret.type == top.talyra42.keycase.core.model.OtpType.HOTP) {
+                item.copy(totp = secret.withNextCounter(), updatedAt = now)
+            } else {
+                item
+            }
+        }
+        persist(data.copy(items = items))
     }
 
     fun deleteItem(itemId: String) {

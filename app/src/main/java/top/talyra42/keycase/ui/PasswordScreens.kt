@@ -101,11 +101,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.IconRef
+import top.talyra42.keycase.core.model.OtpType
 import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.Base32
 import top.talyra42.keycase.core.otp.codeAt
+import top.talyra42.keycase.core.otp.nextCode
 import top.talyra42.keycase.ui.icons.BrandAvatar
 import java.security.SecureRandom
 import java.time.Instant
@@ -286,6 +288,7 @@ fun ItemDetailScreen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onAdvanceHotp: () -> Unit,
 ) {
     val context = LocalContext.current
     var revealed by remember(item.id) { mutableStateOf(false) }
@@ -390,6 +393,7 @@ fun ItemDetailScreen(
                     showNext = showNext,
                     codeGrouping = codeGrouping,
                     onCopy = { code -> copyText(context, code) },
+                    onAdvanceHotp = onAdvanceHotp,
                 )
                 Spacer(Modifier.height(10.dp))
                 TokenAdvancedCard(
@@ -460,11 +464,21 @@ private fun TokenAdvancedCard(
         ) {
             Column {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "算法", value = secret.algorithm.name, muted = true)
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "位数", value = "${secret.digits} 位", muted = true)
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "周期", value = "${secret.period} 秒", muted = true)
+                InfoRow(label = "类型", value = secret.type.name, muted = true)
+                if (secret.type != OtpType.STEAM) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "算法", value = secret.algorithm.name, muted = true)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "位数", value = "${secret.digits} 位", muted = true)
+                }
+                if (secret.type != OtpType.HOTP) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "周期", value = "${secret.period} 秒", muted = true)
+                }
+                if (secret.type == OtpType.HOTP) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "计数器", value = secret.counter.toString(), muted = true)
+                }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
                 InfoRow(
                     label = "密钥",
@@ -495,41 +509,49 @@ private fun TotpCard(
     showNext: Boolean,
     codeGrouping: CodeGrouping,
     onCopy: (String) -> Unit,
+    onAdvanceHotp: () -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var revealed by remember(secret.secret) { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
+    val isHotp = secret.type == OtpType.HOTP
     LaunchedEffect(secret.secret) {
         while (true) {
             now = System.currentTimeMillis()
             delay(1000)
         }
     }
+    LaunchedEffect(revealed) {
+        if (revealed) {
+            delay(10_000L)
+            revealed = false
+        }
+    }
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     LaunchedEffect(remaining) {
-        if (remaining in 1L..5L) {
+        if (!isHotp && remaining == 5L) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
     val visible = showCodes || revealed
     val digits = secret.digits
-    val nextCode = if (showNext) {
-        runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
+    val nextCode = if (showNext && !isHotp) {
+        runCatching { secret.nextCode(now) }.getOrNull()
     } else {
         null
     }
     val codeText = if (visible) {
-        formatTokenCode(code, digits, codeGrouping)
+        formatTokenCode(code, digits, codeGrouping, secret.type)
     } else {
-        hiddenTokenCode(digits, codeGrouping)
+        hiddenTokenCode(digits, codeGrouping, secret.type)
     }
     val nextText = if (nextCode != null) {
         if (visible) {
-            formatTokenCode(nextCode, digits, codeGrouping)
+            formatTokenCode(nextCode, digits, codeGrouping, secret.type)
         } else {
-            hiddenTokenCode(digits, codeGrouping)
+            hiddenTokenCode(digits, codeGrouping, secret.type)
         }
     } else {
         null
@@ -581,7 +603,14 @@ private fun TotpCard(
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-                if (nextText != null) {
+                if (isHotp) {
+                    Text(
+                        text = "HOTP · 计数器 ${secret.counter}",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                    )
+                } else if (nextText != null) {
                     Text(
                         text = nextText,
                         fontFamily = FontFamily.Monospace,
@@ -590,18 +619,24 @@ private fun TotpCard(
                     )
                 }
             }
-            Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 3.dp,
-                    color = if (remaining <= 5) {
-                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = blinkAlpha)
-                    } else {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    },
-                    trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
-                )
+            if (isHotp) {
+                FilledTonalButton(onClick = onAdvanceHotp) {
+                    Text("下一个")
+                }
+            } else {
+                Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        strokeWidth = 3.dp,
+                        color = if (remaining <= 5) {
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = blinkAlpha)
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        },
+                        trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
+                    )
+                }
             }
         }
     }

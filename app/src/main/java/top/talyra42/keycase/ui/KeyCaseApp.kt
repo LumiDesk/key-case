@@ -292,6 +292,7 @@ private fun VaultRoot(
                         viewModel.deleteItem(item.id)
                         route = detailReturn
                     },
+                    onAdvanceHotp = { viewModel.advanceHotp(item.id) },
                 )
             }
         }

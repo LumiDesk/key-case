@@ -202,8 +202,8 @@ object AegisImporter {
             else -> OtpType.TOTP
         }
         val defaultDigits = if (otpType == OtpType.STEAM) 5 else 6
-        val digits = info.int("digits")?.takeIf { it in 1..10 } ?: defaultDigits
-        val period = info.int("period")?.takeIf { it > 0 } ?: 30
+        val digits = info.int("digits")?.takeIf { it in 1..8 } ?: defaultDigits
+        val period = info.int("period")?.takeIf { it in 1..300 } ?: 30
         val counter = info["counter"]?.jsonPrimitive?.contentOrNull?.toLongOrNull() ?: 0L
         val algorithm = when (info.string("algo")?.uppercase()) {
             "SHA256" -> HashAlgorithm.SHA256

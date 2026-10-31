@@ -66,9 +66,42 @@ class OtpTest {
     }
 
     @Test
+    fun rejectsInvalidDigitsAndPeriod() {
+        assertThrows(IllegalArgumentException::class.java) {
+            OtpauthParser.parse("otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&digits=10")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            OtpauthParser.parse("otpauth://totp/x?secret=JBSWY3DPEHPK3PXP&period=0")
+        }
+    }
+
+    @Test
+    fun steamAlwaysUsesFiveCharacters() {
+        val parsed = OtpauthParser.parse(
+            "otpauth://steam/Steam:user?secret=JBSWY3DPEHPK3PXP&digits=8",
+        )
+        assertEquals(OtpType.STEAM, parsed.type)
+        assertEquals(5, parsed.digits)
+    }
+
+    @Test
     fun totpSecretGeneratesCode() {
         val secret = TotpSecret(secret = "JBSWY3DPEHPK3PXP")
         assertEquals(6, secret.codeAt(59_000L).length)
         assertEquals(secret.codeAt(59_000L), secret.codeAt(60_000L - 1))
+    }
+
+    @Test
+    fun hotpNextCodeUsesTheNextCounter() {
+        val secret = TotpSecret(
+            type = OtpType.HOTP,
+            secret = "JBSWY3DPEHPK3PXP",
+            counter = 0,
+        )
+        val key = Base32.decode(secret.secret)
+
+        assertEquals(Otp.hotp(key, 0), secret.codeAt(0L))
+        assertEquals(Otp.hotp(key, 1), secret.nextCode(0L))
+        assertEquals(1L, secret.withNextCounter().counter)
     }
 }
