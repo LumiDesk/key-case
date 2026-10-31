@@ -3,7 +3,7 @@
 **Local-first, offline-first Android password manager and TOTP authenticator.**
 No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
 
-> Status: **v0.1.1** signed release, built by GitHub Actions and installed on a physical Android device. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
+> Status: **v0.1.2** signed R8 release (~7.6 MB), built by GitHub Actions and installed on a physical Android device. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
 
 ## What it is
 
