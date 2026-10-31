@@ -92,9 +92,14 @@ object Otp {
         val hash = hmac(secret, counter, algorithm)
         val binary = dynamicTruncate(hash)
         val modulo = when (digits) {
+            1 -> 10L
+            2 -> 100L
+            3 -> 1_000L
+            4 -> 10_000L
+            5 -> 100_000L
             6 -> 1_000_000L
-            8 -> 100_000_000L
-            else -> generateSequence(1L) { it * 10L }.elementAt(digits).toLong()
+            7 -> 10_000_000L
+            else -> 100_000_000L
         }
         return (binary.toLong() % modulo).toString().padStart(digits, '0')
     }

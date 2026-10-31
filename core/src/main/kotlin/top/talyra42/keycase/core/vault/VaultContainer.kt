@@ -84,7 +84,7 @@ object VaultContainer {
         val wrappedKey = Aead.encrypt(
             key = passwordKey,
             plaintext = vaultKey,
-            aad = slotAad(slotId),
+            aad = slotAad(slotId, SLOT_TYPE_PASSWORD),
         )
 
         val payload = data.copy(
@@ -145,7 +145,7 @@ object VaultContainer {
                     nonce = Codec.unb64(slot.nonce),
                     ciphertext = Codec.unb64(slot.wrappedKey),
                 ),
-                aad = slotAad(slot.id),
+                aad = slotAad(slot.id, slot.type),
             )
         } catch (e: Exception) {
             throw VaultFormatException("Wrong password or corrupted key slot", e)
@@ -228,8 +228,8 @@ object VaultContainer {
     private fun payloadAad(vaultId: String): ByteArray =
         "$MAGIC|$FORMAT_VERSION|$vaultId|payload".toByteArray(StandardCharsets.UTF_8)
 
-    private fun slotAad(slotId: String): ByteArray =
-        "$MAGIC|$FORMAT_VERSION|$slotId|$SLOT_TYPE_PASSWORD".toByteArray(StandardCharsets.UTF_8)
+    private fun slotAad(slotId: String, type: String): ByteArray =
+        "$MAGIC|$FORMAT_VERSION|$slotId|$type".toByteArray(StandardCharsets.UTF_8)
 
     private fun gzip(data: ByteArray): ByteArray {
         val out = ByteArrayOutputStream()

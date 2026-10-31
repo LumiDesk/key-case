@@ -43,8 +43,10 @@ object Crypto {
     fun argon2id(password: CharArray, salt: ByteArray, params: KdfParams): ByteArray {
         require(password.isNotEmpty()) { "password must not be empty" }
         require(salt.size >= 8) { "salt is too short" }
+        require(params.memoryKib in 8..(256 * 1024)) { "Argon2 memory is out of range" }
+        require(params.iterations in 1..10) { "Argon2 iterations are out of range" }
+        require(params.parallelism in 1..8) { "Argon2 parallelism is out of range" }
         require(params.memoryKib >= 8 * params.parallelism) { "Argon2 memory is too small" }
-        require(params.iterations >= 1) { "Argon2 iterations must be >= 1" }
 
         val generator = Argon2BytesGenerator()
         val argonParams = Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
