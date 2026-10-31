@@ -124,4 +124,4 @@ KeyCase 的视觉语言：**本地、克制、可信赖**。整体是中性底�
 - 令牌列表单个 ticker；行内不画倒计时
 - 图标解码/解析必须在 IO，并使用缓存
 - 冷启动不显示“字母占位 → 真图标”的闪烁
-- Release 包关闭 R8（当前工具链下开启会崩）；正式发布前修复规则并启用
+- Release 开启 R8 压缩/优化但使用 `-dontobfuscate`（开源项目保留可读类名）；full mode 在当前 Kotlin 工具链关闭以避免 `IllegalAccessError`

@@ -83,6 +83,9 @@ It bumps `versionCode`/`versionName`, commits the version, creates and pushes
 `vX.Y.Z`, and GitHub Actions builds, signs, and publishes the APK. Release notes
 contain only the compare link between the previous and current tag.
 
+Release builds run R8 shrinking/optimization with `-dontobfuscate`, so the APK
+is smaller while class names remain readable for an open-source project.
+
 ## Tests
 
 ```powershell

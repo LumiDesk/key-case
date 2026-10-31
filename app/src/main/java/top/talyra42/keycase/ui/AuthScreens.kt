@@ -113,7 +113,7 @@ fun CreateVaultScreen(
         }
         Spacer(Modifier.height(18.dp))
         Text(
-            text = "本应用没有网络权限。没有账号，没有云同步。",
+            text = "没有账号，没有云同步；仅手动检查更新时联网。",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

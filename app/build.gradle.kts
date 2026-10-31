@@ -52,11 +52,14 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.findByName("release")
-            // R8 full mode currently breaks kotlin.collections on this toolchain.
-            // Keep the non-debuggable release usable for performance testing.
             optimization {
-                enable = false
+                enable = true
             }
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+            isShrinkResources = true
         }
     }
     compileOptions {

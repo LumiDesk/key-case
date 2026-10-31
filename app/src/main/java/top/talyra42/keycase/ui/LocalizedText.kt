@@ -116,7 +116,7 @@ fun Text(
 }
 
 private val EN = mapOf(
-    "本应用没有网络权限。没有账号，没有云同步。" to "No network permission. No account, no cloud sync.",
+    "没有账号，没有云同步；仅手动检查更新时联网。" to "No account or cloud sync; network is used only for the manual update check.",
     "创建保险库" to "Create vault",
     "创建本地保险库" to "Create local vault",
     "解锁" to "Unlock",

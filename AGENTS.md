@@ -50,7 +50,7 @@ app/src/main/java/top/talyra42/keycase/
 
 ```bash
 ./gradlew :app:assembleDebug          # 开发包
-./gradlew :app:assembleRelease        # 非调试包（当前关闭 R8）
+./gradlew :app:assembleRelease        # 签名包（R8 压缩/优化，-dontobfuscate）
 ./gradlew :core:test :app:testDebugUnitTest
 ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
 ```
