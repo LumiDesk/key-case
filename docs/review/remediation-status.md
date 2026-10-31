@@ -105,6 +105,21 @@ ab854d3 fix(app): localize accessibility labels and sync system bars
 a614655 test(app): update editor test and compile android tests in CI
 ```
 
+## Latest cleanup round
+
+- Removed the unused Aegis SVG → `ImageVector` parser (~120 lines), the dead
+  `InfoLine` composable, `parseAccentHex`, example unit/instrumented tests, and
+  legacy density launcher PNGs (the project is minSdk 26 and uses adaptive
+  icons).
+- Added explicit `dataExtractionRules`, removed the redundant Activity label and
+  the legacy fixed-orientation scanner override.
+- Added `localizedError()` for the most common vault/network exceptions;
+  unknown errors still fall back to the dictionary.
+- CI now also compiles `assembleDebugAndroidTest`, which caught a missing
+  `onPrepareExternal` argument in `PasswordEditorSheetTest`.
+- Verified again: unit tests, Lint, debug/debug-androidTest build, connected
+  tests (`test-result-exit-code.txt = 0`).
+
 ## Remaining work
 
 1. **Full localization cleanup** — static copy is in resources, but dynamic
