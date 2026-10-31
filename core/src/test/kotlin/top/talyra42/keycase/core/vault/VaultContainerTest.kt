@@ -133,4 +133,31 @@ class VaultContainerTest {
         assertEquals(session.data.items, rotated.session.data.items)
         assertEquals(1, VaultContainer.inspect(rotated.bytes).slots.count { it.type == "password" })
     }
+
+    @Test
+    fun rotatedSessionSurvivesClosingTheOldSession() {
+        val bytes = VaultContainer.create(password, sampleVault(), fastKdf)
+        val session = VaultContainer.unlock(password, bytes)
+        val newPassword = "a new master password".toCharArray()
+
+        val rotated = VaultContainer.changePasswordSession(session, newPassword, fastKdf)
+        session.close()
+
+        val edited = rotated.session.withData(
+            rotated.session.data.copy(
+                items = rotated.session.data.items + VaultItem(
+                    id = "i-after-rotation",
+                    kind = ItemKind.LOGIN,
+                    title = "After rotation",
+                ),
+            ),
+        )
+        val reopened = VaultContainer.open(newPassword, VaultContainer.seal(edited))
+
+        assertEquals(2, reopened.items.size)
+        assertEquals("i-after-rotation", reopened.items.last().id)
+        assertThrows(VaultFormatException::class.java) {
+            VaultContainer.open(password, VaultContainer.seal(edited))
+        }
+    }
 }

@@ -303,7 +303,11 @@ object VaultContainer {
         val header = session.header.copy(payloadNonce = Codec.b64(nonce), slots = slots)
         return CreatedVault(
             bytes = assemble(header, ciphertext),
-            session = UnlockedVault(header, session.vaultKey, session.data),
+            // The rotated session owns an independent key copy. The caller may
+            // close the previous session immediately after rotation; sharing the
+            // array here would zero the key that is still in use and the next
+            // seal would encrypt with an all-zero key.
+            session = UnlockedVault(header, session.vaultKey.copyOf(), session.data),
         )
     }
 
