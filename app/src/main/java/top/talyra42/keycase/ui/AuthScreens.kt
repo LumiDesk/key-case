@@ -93,7 +93,7 @@ fun CreateVaultScreen(
         if (!error.isNullOrBlank()) {
             Spacer(Modifier.height(10.dp))
             Text(
-                text = error,
+                text = localizedError(error),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
             )
@@ -159,7 +159,7 @@ fun UnlockScreen(
         if (!error.isNullOrBlank()) {
             Spacer(Modifier.height(10.dp))
             Text(
-                text = error,
+                text = localizedError(error),
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
             )

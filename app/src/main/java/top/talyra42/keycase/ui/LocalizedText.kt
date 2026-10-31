@@ -25,6 +25,33 @@ fun localized(text: String): String {
 }
 
 /**
+ * Maps technical exceptions from :core and the data layer to copy that is safe
+ * and understandable in both languages. Unknown messages fall back to the
+ * legacy dictionary so no error becomes empty.
+ */
+@Composable
+fun localizedError(text: String): String {
+    if (text.isBlank()) return text
+    val raw = text.trim()
+    val friendly = when {
+        raw.startsWith("Wrong password") ||
+            raw.contains("corrupted key slot") ||
+            raw.contains("AEADBadTag") -> "主密码错误，或保险库文件已损坏。"
+        raw.contains("Vault is locked") -> "保险库已锁定，请重新解锁。"
+        raw.startsWith("Invalid vault") ||
+            raw.startsWith("Bad vault") ||
+            raw.startsWith("Unsupported vault") ||
+            raw.startsWith("File is too small") ||
+            raw.contains("Vault payload is too large") -> "无法读取保险库文件，文件可能已损坏或版本不兼容。"
+        raw.startsWith("GitHub returned") ||
+            raw.contains("Unable to resolve host") ||
+            raw.contains("timeout", ignoreCase = true) -> "检查更新失败，请检查网络连接后重试。"
+        else -> null
+    }
+    return localized(friendly ?: raw)
+}
+
+/**
  * A Text wrapper that keeps the app usable in English without duplicating every
  * composable. The device locale is authoritative: zh* renders the original
  * Chinese copy, everything else uses the English dictionary/patterns below.
@@ -222,6 +249,10 @@ private val EN = mapOf(
     "Google Authenticator 导入失败" to "Google Authenticator import failed",
     "保存失败" to "Save failed",
     "备份失败" to "Backup failed",
+    "主密码错误，或保险库文件已损坏。" to "Wrong master password, or the vault file is corrupted.",
+    "保险库已锁定，请重新解锁。" to "The vault is locked. Unlock it again.",
+    "无法读取保险库文件，文件可能已损坏或版本不兼容。" to
+        "Cannot read the vault file. It may be corrupted or from an unsupported version.",
     "操作失败" to "Operation failed",
     "分组名不能为空" to "Group name cannot be empty",
     "分组已存在" to "Group already exists",

@@ -272,14 +272,6 @@ fun ImportBackupDialog(
     )
 }
 
-fun parseAccentHex(input: String): Int? {
-    val raw = input.trim().removePrefix("#")
-    return when (raw.length) {
-        6 -> runCatching { (0xFF000000L or raw.toLong(16)).toInt() }.getOrNull()
-        8 -> runCatching { raw.toLong(16).toInt() }.getOrNull()
-        else -> null
-    }
-}
 
 @Composable
 fun CustomAccentDialog(

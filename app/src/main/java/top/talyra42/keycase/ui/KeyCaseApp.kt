@@ -419,7 +419,7 @@ private fun MainScaffold(
     val scope = rememberCoroutineScope()
     val host = LocalContext.current as? Activity
     val exitMessage = localized("再按一次退出")
-    val localizedError = localized(error.orEmpty())
+    val friendlyError = localizedError(error.orEmpty())
     val localizedMessage = localized(message.orEmpty())
     val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 4 })
     var lastBackAt by remember { mutableLongStateOf(0L) }
@@ -450,7 +450,7 @@ private fun MainScaffold(
 
     LaunchedEffect(error) {
         if (!error.isNullOrBlank()) {
-            snackbar.showSnackbar(localizedError)
+            snackbar.showSnackbar(friendlyError)
             onClearError()
         }
     }
