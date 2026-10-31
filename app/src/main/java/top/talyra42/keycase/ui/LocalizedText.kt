@@ -18,6 +18,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
+@Composable
+fun localized(text: String): String {
+    val language = LocalConfiguration.current.locales[0].language
+    return if (language.startsWith("zh")) text else translateEnglish(text)
+}
+
 /**
  * A Text wrapper that keeps the app usable in English without duplicating every
  * composable. The device locale is authoritative: zh* renders the original
@@ -116,6 +122,7 @@ private val EN = mapOf(
     "解锁" to "Unlock",
     "输入主密码解锁本地保险库" to "Enter your master password to unlock",
     "数据只保存在这台设备上" to "Data stays on this device",
+    "再按一次退出" to "Press back again to exit",
     "显示密码" to "Show password",
     "隐藏密码" to "Hide password",
     "再次输入主密码" to "Confirm master password",
@@ -142,8 +149,12 @@ private val EN = mapOf(
     "从 Aegis ZIP 导入 PNG 图标" to "Import PNG icons from an Aegis ZIP",
     "无法读取图标包" to "Could not read the icon pack",
     "图标" to "Icons",
+    "预览图标包" to "Preview icon packs",
+    "查看内置与已导入图标" to "Browse built-in and imported icons",
+    "图标包预览" to "Icon pack preview",
+    "内置图标包" to "Built-in packs",
     "已导入图标包" to "Imported packs",
-    "已导入 %d 个图标" to "Imported %d icons",
+    "还没有导入图标包。可在“设置 → 图标”或图标选择器中导入 Aegis ZIP。" to "No imported icon packs yet. Import an Aegis ZIP from Settings → Icons or the icon picker.",
     "没有匹配的图标。" to "No matching icons.",
     "使用字母头像" to "Use letter avatar",
     "搜索图标名称" to "Search icon names",
@@ -217,6 +228,11 @@ private val EN = mapOf(
     "Google Authenticator 导入" to "Google Authenticator import",
     "保存" to "Save",
     "备份的主密码" to "Backup master password",
+    "备份导入成功" to "Backup imported",
+    "隐藏令牌" to "Hide codes",
+    "显示令牌" to "Show codes",
+    "排序 A-Z" to "Sort A–Z",
+    "排序 Z-A" to "Sort Z–A",
     "从 Aegis 导入" to "Import from Aegis",
     "从 Google Authenticator 导入" to "Import from Google Authenticator",
     "otpauth:// 链接" to "otpauth:// link",
@@ -331,6 +347,10 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^(\d+) 个条目 · 本地加密$""") to { "${it.groupValues[1]} items · encrypted locally" },
     Regex("""^(\d+) 秒后更新$""") to { "${it.groupValues[1]}s until refresh" },
     Regex("""^已导入 (\d+) 个图标$""") to { "Imported ${it.groupValues[1]} icons" },
+    Regex("""^已导入 (\d+) 个条目$""") to { "Imported ${it.groupValues[1]} items" },
+    Regex("""^已导入 (\d+) 个令牌$""") to { "Imported ${it.groupValues[1]} tokens" },
+    Regex("""^内置图标包 · (\d+)$""") to { "Built-in · ${it.groupValues[1]}" },
+    Regex("""^已导入图标包 · (\d+)$""") to { "Imported · ${it.groupValues[1]}" },
     Regex("""^删除分组“(.+)”？$""") to { "Delete group “${it.groupValues[1]}”?" },
 )
 

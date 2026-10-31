@@ -5,6 +5,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -93,6 +96,8 @@ fun TokenListScreen(
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
+    var hidden by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val items = data.items
         .filter { (it.kind == ItemKind.TOTP || it.totp != null) && it.deletedAt == null }
@@ -120,7 +125,7 @@ fun TokenListScreen(
     LaunchedEffect(Unit) {
         while (true) {
             now = System.currentTimeMillis()
-            delay(500)
+            delay(1000)
         }
     }
 
@@ -145,11 +150,20 @@ fun TokenListScreen(
                         modifier = Modifier.size(20.dp),
                     )
                 }
+                IconButton(onClick = { hidden = !hidden }) {
+                    Icon(
+                        if (hidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                        contentDescription = if (hidden) "显示令牌" else "隐藏令牌",
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
                 IconButton(onClick = { ascending = !ascending }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
-                        contentDescription = "排序",
-                        modifier = Modifier.size(20.dp),
+                        contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .rotate(if (ascending) 0f else 180f),
                     )
                 }
             }
@@ -225,9 +239,16 @@ fun TokenListScreen(
                                         Surface(
                                             shape = RoundedCornerShape(8.dp),
                                             color = MaterialTheme.colorScheme.primaryContainer,
+                                            modifier = Modifier.clickable {
+                                                if (code != "—") copyText(context, code)
+                                            },
                                         ) {
                                             Text(
-                                                text = code.chunked(3).joinToString(" "),
+                                                text = if (hidden) {
+                                                    "••• •••"
+                                                } else {
+                                                    code.chunked(3).joinToString(" ")
+                                                },
                                                 fontFamily = FontFamily.Monospace,
                                                 fontWeight = FontWeight.SemiBold,
                                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -252,10 +273,6 @@ fun TokenListScreen(
                                         }
                                     }
                                 },
-                            )
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 56.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
                             )
                         }
                     }

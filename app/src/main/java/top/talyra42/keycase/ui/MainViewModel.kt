@@ -40,6 +40,7 @@ data class UiState(
     val data: VaultData? = null,
     val busy: Boolean = false,
     val error: String? = null,
+    val message: String? = null,
 )
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -388,7 +389,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 store.write(VaultContainer.seal(next))
                 session = next
                 _state.update {
-                    it.copy(data = next.data, busy = false, error = null)
+                    it.copy(
+                        data = next.data,
+                        busy = false,
+                        error = null,
+                        message = "已导入 ${items.size} 个令牌",
+                    )
                 }
             } catch (e: Exception) {
                 _state.update {
@@ -400,6 +406,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun clearError() {
         _state.update { it.copy(error = null) }
+    }
+
+    fun clearMessage() {
+        _state.update { it.copy(message = null) }
     }
 
     fun setAccent(index: Int) {
@@ -458,6 +468,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         data = imported.data,
                         busy = false,
                         error = null,
+                        message = "备份导入成功",
                     )
                 }
             } catch (e: Exception) {
@@ -507,6 +518,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         data = next.data,
                         busy = false,
                         error = null,
+                        message = "已导入 ${importedItems.size} 个条目",
                     )
                 }
             } catch (e: Exception) {

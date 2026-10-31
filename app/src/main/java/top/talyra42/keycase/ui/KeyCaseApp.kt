@@ -1,8 +1,8 @@
 package top.talyra42.keycase.ui
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -10,9 +10,8 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
@@ -46,8 +45,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,6 +57,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import top.talyra42.keycase.core.model.ItemKind
@@ -190,6 +192,9 @@ private fun VaultRoot(
             onExport = viewModel::exportBackup,
             error = state.error,
             onClearError = viewModel::clearError,
+            message = state.message,
+            onClearMessage = viewModel::clearMessage,
+            backEnabled = passwordEditor == null && tokenEditor == null,
             biometricAvailable = biometricAvailable,
             biometricEnrolled = biometricEnrolled,
             onEnableBiometric = onEnableBiometric,
@@ -285,16 +290,53 @@ private fun MainScaffold(
     onExport: (android.net.Uri) -> Unit,
     error: String?,
     onClearError: () -> Unit,
+    message: String?,
+    onClearMessage: () -> Unit,
+    backEnabled: Boolean,
     biometricAvailable: Boolean,
     biometricEnrolled: Boolean,
     onEnableBiometric: () -> Unit,
     onDisableBiometric: () -> Unit,
 ) {
     val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val host = LocalContext.current as? Activity
+    val exitMessage = localized("再按一次退出")
+    val localizedError = localized(error.orEmpty())
+    val localizedMessage = localized(message.orEmpty())
+    val pagerState = rememberPagerState(initialPage = tab, pageCount = { 4 })
+    var lastBackAt by remember { mutableLongStateOf(0L) }
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (tab != pagerState.currentPage) onTab(pagerState.currentPage)
+    }
+    LaunchedEffect(tab) {
+        if (tab != pagerState.currentPage) pagerState.animateScrollToPage(tab)
+    }
+    BackHandler(enabled = backEnabled) {
+        if (tab != 0) {
+            onTab(0)
+        } else {
+            val now = System.currentTimeMillis()
+            if (now - lastBackAt <= 2000L) {
+                host?.finish()
+            } else {
+                lastBackAt = now
+                scope.launch { snackbar.showSnackbar(exitMessage) }
+            }
+        }
+    }
+
     LaunchedEffect(error) {
         if (!error.isNullOrBlank()) {
-            snackbar.showSnackbar(error)
+            snackbar.showSnackbar(localizedError)
             onClearError()
+        }
+    }
+    LaunchedEffect(message) {
+        if (!message.isNullOrBlank()) {
+            snackbar.showSnackbar(localizedMessage)
+            onClearMessage()
         }
     }
 
@@ -315,7 +357,7 @@ private fun MainScaffold(
             }
         },
         floatingActionButton = {
-            when (tab) {
+            when (pagerState.currentPage) {
                 1 -> FloatingActionButton(
                     onClick = onAddPassword,
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -335,18 +377,13 @@ private fun MainScaffold(
             if (busy) {
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
-            AnimatedContent(
-                targetState = tab,
-                transitionSpec = {
-                    val direction = if (targetState > initialState) 1 else -1
-                    (slideInHorizontally(tween(220)) { direction * it / 12 } +
-                        fadeIn(tween(180))) togetherWith
-                        (slideOutHorizontally(tween(160)) { -direction * it / 16 } +
-                            fadeOut(tween(120)))
-                },
-                label = "mainTab",
-            ) { currentTab ->
-                when (currentTab) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize(),
+                beyondViewportPageCount = 0,
+                key = { it },
+            ) { page ->
+                when (page) {
                     0 -> HomeScreen(
                         data = data,
                         onOpenItem = onOpenItem,

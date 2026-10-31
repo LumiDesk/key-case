@@ -71,6 +71,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -150,8 +151,10 @@ fun PasswordListScreen(
                 IconButton(onClick = { ascending = !ascending }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
-                        contentDescription = "排序",
-                        modifier = Modifier.size(20.dp),
+                        contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .rotate(if (ascending) 0f else 180f),
                     )
                 }
             }
@@ -225,10 +228,6 @@ fun PasswordListScreen(
                                 } else {
                                     null
                                 },
-                            )
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 56.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
                             )
                         }
                     }
@@ -657,7 +656,11 @@ fun copyText(context: Context, value: String) {
     if (value.isBlank()) return
     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     clipboard.setPrimaryClip(ClipData.newPlainText("KeyCase", value))
-    Toast.makeText(context, "已复制", Toast.LENGTH_SHORT).show()
+    Toast.makeText(
+        context,
+        if (java.util.Locale.getDefault().language.startsWith("zh")) "已复制" else "Copied",
+        Toast.LENGTH_SHORT,
+    ).show()
 }
 
 private fun generatePassword(): String {

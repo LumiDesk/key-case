@@ -120,6 +120,7 @@ fun SettingsScreen(
     var showPassword by remember { mutableStateOf(false) }
     var showCustomAccent by remember { mutableStateOf(false) }
     var showGoogleImport by remember { mutableStateOf(false) }
+    var showIconPreview by remember { mutableStateOf(false) }
     val itemCounts = remember(data.items) {
         data.groups.associate { group ->
             group.id to data.items.count { group.id in it.groupIds }
@@ -171,6 +172,13 @@ fun SettingsScreen(
                     title = "导入图标包",
                     subtitle = iconPackStatus ?: "从 Aegis ZIP 导入 PNG 图标",
                     onClick = { iconPackLauncher.launch("*/*") },
+                )
+                SettingsDivider()
+                ActionRow(
+                    icon = Icons.Outlined.Palette,
+                    title = "预览图标包",
+                    subtitle = "查看内置与已导入图标",
+                    onClick = { showIconPreview = true },
                 )
             }
         }
@@ -362,8 +370,10 @@ fun SettingsScreen(
             },
         )
     }
-    if (showGoogleImport) {
-        GoogleMigrationImportDialog(
+    if (showIconPreview) {
+        IconPackPreviewDialog(onDismiss = { showIconPreview = false })
+    }
+    if (showGoogleImport) {        GoogleMigrationImportDialog(
             onDismiss = { showGoogleImport = false },
             onImport = {
                 onImportGoogle(it)
@@ -379,7 +389,7 @@ private fun SettingsLabel(text: String) {
         text = text,
         style = MaterialTheme.typography.labelLarge,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 4.dp, bottom = 2.dp),
+        modifier = Modifier.padding(start = 4.dp, bottom = 10.dp),
     )
 }
 

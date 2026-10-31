@@ -304,7 +304,7 @@ fun IconPickerDialog(
 }
 
 @Composable
-private fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
+fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
     val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, file.absolutePath) {
         value = withContext(Dispatchers.IO) {
             runCatching {
