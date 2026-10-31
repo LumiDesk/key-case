@@ -68,6 +68,7 @@ import top.talyra42.keycase.core.model.VaultGroup
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.Base32
 import top.talyra42.keycase.core.otp.codeAt
+import top.talyra42.keycase.ui.icons.BrandAvatar
 import java.security.SecureRandom
 import java.time.Instant
 import java.util.UUID
@@ -180,7 +181,7 @@ fun ItemDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            LetterAvatar(
+            BrandAvatar(
                 title = item.title.ifBlank { item.issuer },
                 size = 82.dp,
             )

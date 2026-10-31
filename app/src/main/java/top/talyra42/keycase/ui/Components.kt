@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import top.talyra42.keycase.core.model.VaultItem
+import top.talyra42.keycase.ui.icons.BrandAvatar
 
 private val avatarColors = listOf(
     Color(0xFF2E7D5B),
@@ -197,7 +198,7 @@ fun VaultItemRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        LetterAvatar(item.title.ifBlank { item.issuer.ifBlank { "?" } })
+        BrandAvatar(item.title.ifBlank { item.issuer.ifBlank { "?" } })
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = item.title.ifBlank { "未命名" },
