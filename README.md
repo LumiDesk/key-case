@@ -34,16 +34,18 @@ The app is built for Android and is intentionally offline. There is no sync serv
 
 | | |
 |---|---|
-| ![Unlock](docs/screenshots/unlock.png) | ![Home](docs/screenshots/home.png) |
-| Unlock with the master password | Home stats and recent items |
-| ![Passwords](docs/screenshots/passwords.png) | ![Password detail](docs/screenshots/password-detail.png) |
-| Passwords with Aegis icon matching | Password detail |
-| ![Tokens](docs/screenshots/tokens.png) | ![Token detail](docs/screenshots/token-detail.png) |
-| TOTP list with live codes and QR scan | TOTP detail |
-| ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
-| Settings, grouped rows | Dark mode |
-| ![Groups](docs/screenshots/groups.png) | ![Icon picker](docs/screenshots/icon-picker.png) |
-| Group management | Icon picker |
+| ![Create](docs/screenshots/create.png) | ![Unlock](docs/screenshots/unlock.png) |
+| Create a local vault | Unlock with the master password |
+| ![Home](docs/screenshots/home.png) | ![Passwords](docs/screenshots/passwords.png) |
+| Home stats and recent items | Passwords with Aegis icon matching |
+| ![Password detail](docs/screenshots/password-detail.png) | ![Tokens](docs/screenshots/tokens.png) |
+| Password detail | TOTP list with live codes and QR scan |
+| ![Token detail](docs/screenshots/token-detail.png) | ![Settings light](docs/screenshots/settings-light.png) |
+| TOTP detail | Settings, grouped rows |
+| ![Settings dark](docs/screenshots/settings-dark.png) | ![Groups](docs/screenshots/groups.png) |
+| Dark mode | Group management |
+| ![Icon picker](docs/screenshots/icon-picker.png) | |
+| Icon picker | |
 
 ## Build
 
