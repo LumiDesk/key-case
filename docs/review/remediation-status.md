@@ -72,7 +72,7 @@
 ./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug \
           :app:assembleRelease :app:lintDebug --rerun-tasks
 BUILD SUCCESSFUL
-release APK: app/build/outputs/apk/release/app-release.apk (7.69 MB)
+release APK: app/build/outputs/apk/release/app-release.apk (7.63 MB)
 ```
 
 Connected tests were run on the final code (`connectedDebugAndroidTest`);
