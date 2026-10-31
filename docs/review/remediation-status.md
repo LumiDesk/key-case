@@ -75,10 +75,35 @@ BUILD SUCCESSFUL
 release APK: app/build/outputs/apk/release/app-release.apk (7.69 MB)
 ```
 
-Connected tests were run earlier in the pass (`connectedDebugAndroidTest`,
-exit code 0). Manual emulator checks covered: create/unlock, password CRUD,
-favorite, URL opening, search, password rotation + save + reopen, auto-lock on
-background, icon-picker external activity, HOTP create/Next, delete vault.
+Connected tests were run on the final code (`connectedDebugAndroidTest`);
+`test-result-exit-code.txt` is `0`. Manual emulator checks covered: create/unlock,
+password CRUD, favorite, URL opening, search, password rotation + save + reopen,
+auto-lock on background, icon-picker external activity, HOTP create/Next, delete
+vault.
+
+## Commits in this pass
+
+```text
+a3f42fd fix(core): keep rotated session key after password change
+5e01f8d fix(app): protect secrets in state and external pickers
+4d0be7b fix(core): cap Aegis scrypt memory and import size
+536a52a fix(app): bound vault imports and keep a pre-import copy
+96b6e67 fix(app): bind biometric enrollment to the vault id
+0cbf0b3 refactor(app): drive auto-lock from process lifecycle
+739c346 fix(app): clear filters, sanitize URL input and localize dates
+c3f796e feat(app): support HOTP and Steam tokens
+2ee40df fix(app): preserve navigation state and confirm discarded edits
+aea573a feat(app): add favorites, URL opening and vault deletion
+572feb6 feat(app): migrate copy to string resources and improve accessibility
+c2d1ff2 fix(app): decode icons at the requested size
+c816ff5 refactor(app): share security rules and add CI
+eefd618 fix(app): refresh backups after sensitive writes
+ab854d3 fix(app): localize accessibility labels and sync system bars
+6626f07 docs: describe HOTP/Steam, backups and localization
+3ffaa11 feat(app): skip duplicate tokens during imports
+416b746 docs(review): record remediation status and refresh screenshots
+a614655 test(app): update editor test and compile android tests in CI
+```
 
 ## Remaining work
 
