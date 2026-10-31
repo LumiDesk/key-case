@@ -20,6 +20,7 @@ object ImportedIconPack {
         val name: String,
         val issuer: String?,
         val file: File,
+        val packName: String,
     )
 
     data class ImportResult(
@@ -33,6 +34,7 @@ object ImportedIconPack {
         root.listFiles()?.filter { it.isDirectory }?.forEach { dir ->
             runCatching {
                 val manifest = JSONObject(File(dir, "pack.json").readText())
+                val packName = manifest.optString("name").ifBlank { dir.name }
                 val icons = manifest.optJSONArray("icons") ?: return@runCatching
                 for (i in 0 until icons.length()) {
                     val obj = icons.optJSONObject(i) ?: continue
@@ -41,7 +43,7 @@ object ImportedIconPack {
                     if (name.isBlank() || filename.isBlank()) continue
                     val file = File(dir, filename.substringAfterLast('/'))
                     if (file.isFile) {
-                        result += PackIcon(name, issuerOf(obj), file)
+                        result += PackIcon(name, issuerOf(obj), file, packName)
                     }
                 }
             }

@@ -163,22 +163,85 @@ object AegisIconPack {
         if (svg.isBlank()) return null
         val viewBox = Regex("""viewBox="([^"]+)"""").find(svg)?.groupValues?.get(1)
             ?.trim()?.split(Regex("""[\s,]+"""))?.mapNotNull { it.toFloatOrNull() }
-        val pathData = Regex("""<path[^>]*\sd="([^"]+)"""").find(svg)?.groupValues?.get(1)
-            ?: return null
         val width = viewBox?.getOrNull(2) ?: 24f
         val height = viewBox?.getOrNull(3) ?: 24f
-        return runCatching {
-            ImageVector.Builder(
-                name = name,
-                defaultWidth = 24.dp,
-                defaultHeight = 24.dp,
-                viewportWidth = width,
-                viewportHeight = height,
-            ).addPath(
-                pathData = PathParser().parsePathString(pathData).toNodes(),
-                fill = SolidColor(Color.White),
-            ).build()
-        }.getOrNull()
+        val builder = ImageVector.Builder(
+            name = name,
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = width,
+            viewportHeight = height,
+        )
+        var added = false
+
+        // The Aegis pack is based on Simple Icons: a brand-colored circle plus
+        // a white glyph. Keep the original fills instead of tinting everything.
+        Regex("""<circle\b[^>]*>""").findAll(svg).forEach { match ->
+            val tag = match.value
+            val cx = attr(tag, "cx")?.toFloatOrNull() ?: return@forEach
+            val cy = attr(tag, "cy")?.toFloatOrNull() ?: return@forEach
+            val r = attr(tag, "r")?.toFloatOrNull() ?: return@forEach
+            val fill = parseFill(attr(tag, "fill")) ?: return@forEach
+            val d = "M ${cx - r} $cy A $r $r 0 1 0 ${cx + r} $cy A $r $r 0 1 0 ${cx - r} $cy Z"
+            runCatching {
+                val nodes = PathParser().parsePathString(d).toNodes()
+                builder.addPath(pathData = nodes, fill = SolidColor(fill))
+                added = true
+            }
+        }
+
+        Regex("""<path\b[^>]*>""").findAll(svg).forEach { match ->
+            val tag = match.value
+            val data = attr(tag, "d") ?: return@forEach
+            val fill = parseFill(attr(tag, "fill")) ?: Color.Black
+            val transform = attr(tag, "transform")
+            val translate = Regex("""translate\(\s*([-\d.]+)[ ,]+([-\d.]+)\s*\)""")
+                .find(transform.orEmpty())
+            val scale = Regex("""scale\(\s*([-\d.]+)(?:[ ,]+([-\d.]+))?\s*\)""")
+                .find(transform.orEmpty())
+            runCatching {
+                val nodes = PathParser().parsePathString(data).toNodes()
+                if (translate != null || scale != null) {
+                    builder.addGroup(
+                        translationX = translate?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 0f,
+                        translationY = translate?.groupValues?.getOrNull(2)?.toFloatOrNull() ?: 0f,
+                        scaleX = scale?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 1f,
+                        scaleY = scale?.groupValues?.getOrNull(2)?.toFloatOrNull()
+                            ?: scale?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 1f,
+                        clipPathData = emptyList(),
+                    )
+                    builder.addPath(pathData = nodes, fill = SolidColor(fill))
+                    builder.clearGroup()
+                } else {
+                    builder.addPath(pathData = nodes, fill = SolidColor(fill))
+                }
+                added = true
+            }
+        }
+        return if (added) builder.build() else null
+    }
+
+    private fun attr(tag: String, name: String): String? {
+        val match = Regex("""\b$name="([^"]*)"""").find(tag) ?: return null
+        return match.groupValues[1]
+    }
+
+    private fun parseFill(value: String?): Color? {
+        if (value.isNullOrBlank()) return null
+        if (value.equals("none", ignoreCase = true)) return null
+        if (value.equals("white", ignoreCase = true)) return Color.White
+        if (value.equals("black", ignoreCase = true)) return Color.Black
+        if (value.startsWith("#")) {
+            val hex = value.removePrefix("#")
+            return runCatching {
+                when (hex.length) {
+                    6 -> Color((0xFF000000L or hex.toLong(16)).toInt())
+                    8 -> Color(hex.toLong(16).toInt())
+                    else -> null
+                }
+            }.getOrNull()
+        }
+        return null
     }
 
     private fun normalize(value: String): String =
@@ -212,16 +275,14 @@ fun BrandAvatar(
         LetterAvatar(title = title, size = size, modifier = modifier)
     } else {
         Box(
-            modifier = modifier
-                .size(size)
-                .background(avatarColor(title), RoundedCornerShape(size * 0.32f)),
+            modifier = modifier.size(size),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.White,
-                modifier = Modifier.size(size * 0.62f),
+                tint = Color.Unspecified,
+                modifier = Modifier.size(size),
             )
         }
     }
@@ -234,11 +295,14 @@ private fun CustomIconAvatar(
     size: Dp,
     modifier: Modifier,
 ) {
-    val bitmap by produceState<ImageBitmap?>(initialValue = null, encoded) {
+    val bitmap by produceState<ImageBitmap?>(
+        initialValue = IconBitmapCache.get("b64:${encoded.hashCode()}:96"),
+        encoded,
+    ) {
         value = withContext(Dispatchers.IO) {
             runCatching {
                 val bytes = Base64.decode(encoded, Base64.DEFAULT)
-                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+                IconBitmapCache.decodeBase64(encoded.hashCode().toString(), bytes)
             }.getOrNull()
         }
     }

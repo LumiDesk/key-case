@@ -205,50 +205,61 @@ fun IconPickerDialog(
                                     modifier = Modifier.padding(vertical = 4.dp),
                                 )
                             }
-                            items(filteredImported, key = { it.file.absolutePath }) { icon ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            scope.launch {
-                                                runCatching {
-                                                    withContext(Dispatchers.IO) {
-                                                        ImportedIconPack.encodeForVault(icon.file)
+                            val grouped = filteredImported.groupBy { it.packName }
+                            grouped.forEach { (packName, packIcons) ->
+                                item(key = "imported-pack-$packName") {
+                                    Text(
+                                        "$packName · ${packIcons.size}",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(top = 4.dp, bottom = 2.dp),
+                                    )
+                                }
+                                items(packIcons, key = { it.file.absolutePath }) { icon ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                scope.launch {
+                                                    runCatching {
+                                                        withContext(Dispatchers.IO) {
+                                                            ImportedIconPack.encodeForVault(icon.file)
+                                                        }
+                                                    }.onSuccess { encoded ->
+                                                        onPick(
+                                                            IconRef(
+                                                                kind = "custom",
+                                                                value = encoded,
+                                                                mime = "image/png",
+                                                            ),
+                                                        )
+                                                        onDismiss()
+                                                    }.onFailure {
+                                                        imageError = it.message ?: "无法读取图标"
                                                     }
-                                                }.onSuccess { encoded ->
-                                                    onPick(
-                                                        IconRef(
-                                                            kind = "custom",
-                                                            value = encoded,
-                                                            mime = "image/png",
-                                                        ),
-                                                    )
-                                                    onDismiss()
-                                                }.onFailure {
-                                                    imageError = it.message ?: "无法读取图标"
                                                 }
                                             }
-                                        }
-                                        .padding(horizontal = 4.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    ImportedIconPreview(icon.file)
-                                    Spacer(Modifier.width(12.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = icon.name,
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                        )
-                                        icon.issuer?.let {
+                                            .padding(horizontal = 4.dp, vertical = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                    ) {
+                                        ImportedIconPreview(icon.file)
+                                        Spacer(Modifier.width(12.dp))
+                                        Column(modifier = Modifier.weight(1f)) {
                                             Text(
-                                                text = it,
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                text = icon.name,
+                                                style = MaterialTheme.typography.bodyMedium,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis,
                                             )
+                                            icon.issuer?.let {
+                                                Text(
+                                                    text = it,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis,
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -305,11 +316,14 @@ fun IconPickerDialog(
 
 @Composable
 fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
-    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, file.absolutePath) {
+    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+        initialValue = top.talyra42.keycase.ui.icons.IconBitmapCache.get(
+            "file:${file.absolutePath}:96",
+        ),
+        file.absolutePath,
+    ) {
         value = withContext(Dispatchers.IO) {
-            runCatching {
-                BitmapFactory.decodeFile(file.absolutePath)?.asImageBitmap()
-            }.getOrNull()
+            top.talyra42.keycase.ui.icons.IconBitmapCache.decodeFile(file)
         }
     }
     val image = bitmap
@@ -319,10 +333,7 @@ fun ImportedIconPreview(file: java.io.File, size: Int = 32) {
         Image(
             bitmap = image,
             contentDescription = null,
-            modifier = Modifier
-                .size(size.dp)
-                .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(8.dp))
-                .padding(4.dp),
+            modifier = Modifier.size(size.dp),
         )
     }
 }
@@ -340,19 +351,14 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
         LetterAvatar(title = name, size = size.dp)
     } else {
         androidx.compose.foundation.layout.Box(
-            modifier = Modifier
-                .size(size.dp)
-                .background(
-                    MaterialTheme.colorScheme.primaryContainer,
-                    RoundedCornerShape((size * 0.3f).dp),
-                ),
+            modifier = Modifier.size(size.dp),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size((size * 0.62f).dp),
+                tint = androidx.compose.ui.graphics.Color.Unspecified,
+                modifier = Modifier.size((size * 0.9f).dp),
             )
         }
     }

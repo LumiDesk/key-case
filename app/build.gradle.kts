@@ -21,9 +21,10 @@ android {
 
     buildTypes {
         release {
+            // R8 full mode currently breaks kotlin.collections on this toolchain.
+            // Keep the non-debuggable release usable for performance testing.
             optimization {
-                enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+                enable = false
             }
         }
     }

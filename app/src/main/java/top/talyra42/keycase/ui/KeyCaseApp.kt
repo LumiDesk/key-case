@@ -9,6 +9,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -37,6 +39,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -51,6 +54,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -307,11 +311,19 @@ private fun MainScaffold(
     val pagerState = rememberPagerState(initialPage = tab, pageCount = { 4 })
     var lastBackAt by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(pagerState.currentPage) {
-        if (tab != pagerState.currentPage) onTab(pagerState.currentPage)
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { settled ->
+            if (tab != settled) onTab(settled)
+        }
     }
     LaunchedEffect(tab) {
-        if (tab != pagerState.currentPage) pagerState.animateScrollToPage(tab)
+        if (tab != pagerState.currentPage) {
+            if (kotlin.math.abs(tab - pagerState.currentPage) > 1) {
+                pagerState.scrollToPage(tab)
+            } else {
+                pagerState.animateScrollToPage(tab, animationSpec = tween(220))
+            }
+        }
     }
     BackHandler(enabled = backEnabled) {
         if (tab != 0) {
@@ -341,7 +353,17 @@ private fun MainScaffold(
     }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbar) },
+        snackbarHost = {
+            SnackbarHost(snackbar) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    actionColor = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(12.dp),
+                )
+            }
+        },
         bottomBar = {
             Column {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -357,19 +379,25 @@ private fun MainScaffold(
             }
         },
         floatingActionButton = {
-            when (pagerState.currentPage) {
-                1 -> FloatingActionButton(
-                    onClick = onAddPassword,
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    shape = RoundedCornerShape(16.dp),
-                ) {
-                    Icon(Icons.Outlined.Add, contentDescription = "新建密码")
+            AnimatedVisibility(
+                visible = pagerState.currentPage == 1 || pagerState.currentPage == 2,
+                enter = fadeIn(tween(160)) + scaleIn(tween(180), initialScale = 0.82f),
+                exit = fadeOut(tween(120)) + scaleOut(tween(140), targetScale = 0.82f),
+            ) {
+                when (pagerState.currentPage) {
+                    1 -> FloatingActionButton(
+                        onClick = onAddPassword,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Icon(Icons.Outlined.Add, contentDescription = "新建密码")
+                    }
+                    2 -> ExpandableTokenFab(
+                        onManualAdd = onAddToken,
+                        onScan = onScanToken,
+                    )
                 }
-                2 -> ExpandableTokenFab(
-                    onManualAdd = onAddToken,
-                    onScan = onScanToken,
-                )
             }
         },
     ) { padding ->

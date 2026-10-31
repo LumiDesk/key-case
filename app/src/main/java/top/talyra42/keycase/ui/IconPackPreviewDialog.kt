@@ -90,9 +90,19 @@ fun IconPackPreviewDialog(onDismiss: () -> Unit) {
                             )
                         }
                     } else {
-                        items(imported, key = { "imported-${it.file.absolutePath}" }) { icon ->
-                            IconPreviewCell(name = icon.name) {
-                                ImportedIconPreview(icon.file, size = 34)
+                        imported.groupBy { it.packName }.forEach { (packName, packIcons) ->
+                            item(span = { GridItemSpan(maxLineSpan) }, key = "pack-$packName") {
+                                Text(
+                                    "$packName · ${packIcons.size}",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(top = 6.dp),
+                                )
+                            }
+                            items(packIcons, key = { "imported-${it.file.absolutePath}" }) { icon ->
+                                IconPreviewCell(name = icon.name) {
+                                    ImportedIconPreview(icon.file, size = 34)
+                                }
                             }
                         }
                     }
