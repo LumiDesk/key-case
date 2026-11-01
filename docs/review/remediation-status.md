@@ -122,6 +122,10 @@ a614655 test(app): update editor test and compile android tests in CI
   touches `AndroidVaultStore`/`UnlockedVault` directly. Verified on the emulator:
   create → change master password → save item → background/lock → unlock with
   new password → item intact.
+- Extracted `VaultBackupService` and `SettingsRepository`, and moved the
+  `AppSettings`/`DarkMode`/`CodeGrouping` models to `data/`. `MainViewModel` is
+  now ~565 lines and only coordinates state/imports; no direct file I/O or
+  SharedPreferences keys remain.
 - Verified again: unit tests, Lint, debug/debug-androidTest build, connected
   tests (`test-result-exit-code.txt = 0`), release build (7.63 MB).
 
@@ -131,9 +135,10 @@ a614655 test(app): update editor test and compile android tests in CI
    error messages from `:core`/`MainViewModel` and some legacy dictionary
    strings still need mapping to error codes/resources. `LocalizedText.kt`
    remains as a fallback.
-2. **Further architecture split** — `MainViewModel` is ~660 lines; settings,
-   import orchestration and backup still live there. `VaultRepository` now owns
-   the session/disk boundary.
+2. **Further architecture split** — `MainViewModel` is ~565 lines; import
+   orchestration/state mapping still lives there. `VaultRepository`,
+   `VaultBackupService` and `SettingsRepository` now own the disk/session,
+   backup I/O and preference boundaries.
 3. **Accessibility deep pass** — TalkBack/fontScale 1.3–2.0/RTL/3-button nav
    verification; fixed-height cards and some dialog rows still need visual
    testing.
