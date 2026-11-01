@@ -108,7 +108,7 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    title = "动态令牌",
+                    title = "令牌",
                     count = tokens.size,
                     icon = Icons.Outlined.Schedule,
                     onClick = onOpenTokens,
@@ -125,7 +125,7 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    title = "待处理",
+                    title = "需处理",
                     count = issues,
                     icon = Icons.Outlined.Shield,
                     onClick = onOpenSecurity,

@@ -72,6 +72,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.launch
@@ -482,7 +483,7 @@ private fun MainScaffold(
                     tonalElevation = 0.dp,
                 ) {
                     NavigationItem(0, pagerState.currentPage, { goToPage(it) }, "首页", Icons.Outlined.Home)
-                    NavigationItem(1, pagerState.currentPage, { goToPage(it) }, "密码", Icons.Outlined.VpnKey)
+                    NavigationItem(1, pagerState.currentPage, { goToPage(it) }, "登录项", Icons.Outlined.VpnKey)
                     NavigationItem(2, pagerState.currentPage, { goToPage(it) }, "令牌", Icons.Outlined.Schedule)
                     NavigationItem(3, pagerState.currentPage, { goToPage(it) }, "设置", Icons.Outlined.Settings)
                 }
@@ -665,7 +666,14 @@ private fun RowScope.NavigationItem(
         selected = selected == index,
         onClick = { onTab(index) },
         icon = { Icon(icon, contentDescription = label) },
-        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+        label = {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.primary,
             selectedTextColor = MaterialTheme.colorScheme.primary,
