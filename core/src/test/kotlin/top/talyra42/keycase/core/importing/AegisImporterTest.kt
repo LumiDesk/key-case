@@ -41,4 +41,33 @@ class AegisImporterTest {
             )
         }
     }
+
+    @Test
+    fun rejectsScryptParametersThatWouldExhaustMemory() {
+        val zeros32 = "00".repeat(32)
+        val nonce = "00".repeat(12)
+        val tag = "00".repeat(16)
+        val json = """
+            {
+              "version": 1,
+              "header": {
+                "slots": [{
+                  "type": 1,
+                  "key": "$zeros32",
+                  "key_params": {"nonce": "$nonce", "tag": "$tag"},
+                  "n": 1048576,
+                  "r": 32,
+                  "p": 1,
+                  "salt": "$zeros32"
+                }],
+                "params": {"nonce": "$nonce", "tag": "$tag"}
+              },
+              "db": "AAAA"
+            }
+        """.trimIndent()
+
+        assertThrows(AegisImportException::class.java) {
+            AegisImporter.import(json.toByteArray(), "test".toCharArray())
+        }
+    }
 }

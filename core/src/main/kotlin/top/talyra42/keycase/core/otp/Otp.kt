@@ -147,6 +147,21 @@ fun TotpSecret.codeAt(timeMillis: Long): String {
     }
 }
 
+/**
+ * The code that will be valid next. TOTP/Steam move to the next time window;
+ * HOTP moves to the next counter value without mutating the stored secret.
+ */
+fun TotpSecret.nextCode(timeMillis: Long): String {
+    val key = Base32.decode(secret)
+    return when (type) {
+        OtpType.TOTP -> Otp.generate(key, timeMillis + period * 1000L, period, digits, algorithm)
+        OtpType.HOTP -> Otp.hotp(key, counter + 1, digits, algorithm)
+        OtpType.STEAM -> Otp.steam(key, timeMillis + period * 1000L, period)
+    }
+}
+
+fun TotpSecret.withNextCounter(): TotpSecret = copy(counter = counter + 1)
+
 data class ParsedOtp(
     val type: OtpType,
     val issuer: String,
@@ -193,9 +208,14 @@ object OtpauthParser {
             "SHA512" -> HashAlgorithm.SHA512
             else -> throw IllegalArgumentException("Unsupported algorithm: ${params["algorithm"]}")
         }
-        val digits = params["digits"]?.toIntOrNull() ?: if (type == OtpType.STEAM) 5 else 6
+        val digits = if (type == OtpType.STEAM) {
+            5
+        } else {
+            params["digits"]?.toIntOrNull() ?: 6
+        }
+        if (digits !in 1..8) throw IllegalArgumentException("Invalid digits: $digits")
         val period = params["period"]?.toIntOrNull() ?: 30
-        if (period <= 0) throw IllegalArgumentException("Invalid period: $period")
+        if (period !in 1..300) throw IllegalArgumentException("Invalid period: $period")
         val counter = params["counter"]?.toLongOrNull() ?: 0L
         if (type == OtpType.HOTP && counter < 0) {
             throw IllegalArgumentException("Invalid HOTP counter: $counter")

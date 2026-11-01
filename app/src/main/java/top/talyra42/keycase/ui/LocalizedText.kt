@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -17,11 +18,46 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import top.talyra42.keycase.R
 
 @Composable
 fun localized(text: String): String {
     val language = LocalConfiguration.current.locales[0].language
     return if (language.startsWith("zh")) text else translateEnglish(text)
+}
+
+/**
+ * Maps technical exceptions from :core and the data layer to copy that is safe
+ * and understandable in both languages. Unknown messages fall back to the
+ * legacy dictionary so no error becomes empty.
+ */
+@Composable
+fun localizedError(text: String): String {
+    if (text.isBlank()) return text
+    val raw = text.trim()
+    val errorRes = when {
+        raw.startsWith("Wrong password") ||
+            raw.contains("corrupted key slot") ||
+            raw.contains("AEADBadTag") -> R.string.error_wrong_password
+        raw.contains("Vault is locked") -> R.string.error_vault_locked
+        raw.startsWith("Invalid vault") ||
+            raw.startsWith("Bad vault") ||
+            raw.startsWith("Unsupported vault") ||
+            raw.startsWith("File is too small") ||
+            raw.contains("Vault payload is too large") -> R.string.error_vault_unreadable
+        raw.startsWith("GitHub returned") ||
+            raw.contains("Unable to resolve host") ||
+            raw.contains("timeout", ignoreCase = true) -> R.string.error_update_network
+        raw.contains("文件过大") -> R.string.error_file_too_large
+        raw.contains("无法读取文件") -> R.string.error_file_unreadable
+        raw.contains("无法写入备份文件") ||
+            raw.contains("备份目录") ||
+            raw.contains("无法创建") -> R.string.error_backup_failed
+        raw.contains("Aegis 密码错误") ||
+            raw.contains("Aegis password") -> R.string.error_aegis_password
+        else -> null
+    }
+    return if (errorRes != null) stringResource(errorRes) else localized(raw)
 }
 
 /**
@@ -135,6 +171,7 @@ private val EN = mapOf(
     "未命名" to "Untitled",
     "保险库还是空的" to "Your vault is empty",
     "待处理" to "Needs attention",
+    "需处理" to "Issues",
     "动态令牌" to "Authenticator tokens",
     "分组" to "Groups",
     "密码与动态令牌 · 仅本机" to "Passwords & TOTP · on-device",
@@ -143,6 +180,7 @@ private val EN = mapOf(
     "全部密码" to "Passwords",
     "在“密码”或“令牌”里添加第一条。" to "Add your first item in Passwords or Tokens.",
     "最近使用" to "Recently used",
+    "最近更新" to "Recently updated",
     "导入图片…" to "Import image…",
     "导入图标包…" to "Import icon pack…",
     "导入图标包" to "Import icon pack",
@@ -153,6 +191,8 @@ private val EN = mapOf(
     "还没有分组，可在设置 → 分组中创建。" to "No groups yet. Create one in Settings → Groups.",
     "分组（可选）" to "Group (optional)",
     "未分组" to "No group",
+    "验证码" to "Code",
+    "验证码已隐藏，点击显示并复制" to "Code hidden; tap to reveal and copy",
     "验证码分组" to "Code grouping",
     "搜索密码、账号、令牌" to "Search passwords, accounts, tokens",
     "搜索保险库" to "Search the vault",
@@ -205,6 +245,7 @@ private val EN = mapOf(
     "正在读取内置图标…" to "Loading built-in icons…",
     "令牌" to "Tokens",
     "密码" to "Passwords",
+    "登录项" to "Logins",
     "登录密码" to "Password",
     "令牌详情" to "Token details",
     "扫码" to "Scan",
@@ -219,6 +260,10 @@ private val EN = mapOf(
     "Google Authenticator 导入失败" to "Google Authenticator import failed",
     "保存失败" to "Save failed",
     "备份失败" to "Backup failed",
+    "主密码错误，或保险库文件已损坏。" to "Wrong master password, or the vault file is corrupted.",
+    "保险库已锁定，请重新解锁。" to "The vault is locked. Unlock it again.",
+    "无法读取保险库文件，文件可能已损坏或版本不兼容。" to
+        "Cannot read the vault file. It may be corrupted or from an unsupported version.",
     "操作失败" to "Operation failed",
     "分组名不能为空" to "Group name cannot be empty",
     "分组已存在" to "Group already exists",
@@ -253,9 +298,21 @@ private val EN = mapOf(
     "名称" to "Name",
     "排序" to "Sort",
     "删除后无法恢复。" to "This cannot be undone.",
+    "移到回收站？" to "Move to Trash?",
+    "删除后可在回收站恢复。" to "You can restore it from Trash.",
+    "放弃修改？" to "Discard changes?",
+    "未保存的修改会丢失。" to "Your unsaved changes will be lost.",
+    "放弃" to "Discard",
     "删除这个条目？" to "Delete this item?",
     "生成密码" to "Generate password",
     "收藏" to "Favorite",
+    "取消收藏" to "Remove from favorites",
+    "打开网址" to "Open URL",
+    "危险" to "Danger zone",
+    "删除保险库" to "Delete vault",
+    "永久删除本机所有密码和令牌" to "Permanently delete every password and token on this device",
+    "删除保险库？" to "Delete the vault?",
+    "所有密码和令牌将被永久删除，无法恢复。" to "All passwords and tokens will be permanently deleted. This cannot be undone.",
     "搜索" to "Search",
     "搜索名称、账号或网址" to "Search name, account or URL",
     "添加密码" to "Add password",
@@ -282,6 +339,8 @@ private val EN = mapOf(
     "从 Aegis 导入" to "Import from Aegis",
     "从 Google Authenticator 导入" to "Import from Google Authenticator",
     "otpauth:// 链接" to "otpauth:// link",
+    "otpauth-migration:// 链接" to "otpauth-migration:// link",
+    "密钥" to "Secret",
     "当前主密码" to "Current master password",
     "导入" to "Import",
     "导入并替换" to "Import and replace",
@@ -328,6 +387,7 @@ private val EN = mapOf(
     "打开取色板" to "Open color picker",
     "导出加密备份" to "Export encrypted backup",
     "合并 TOTP 条目与分组" to "Merge TOTP items and groups",
+    "合并 TOTP 条目" to "Merge TOTP items",
     "关于" to "About",
     "回收站" to "Trash",
     "旧密码立即失效" to "Old password stops working",
@@ -376,6 +436,11 @@ private val EN = mapOf(
     "搜索服务、账号或发行方" to "Search service, account or issuer",
     "算法" to "Algorithm",
     "位数" to "Digits",
+    "类型" to "Type",
+    "计数器" to "Counter",
+    "下一个" to "Next",
+    "Steam Guard 使用 SHA1、5 位字符和 30 秒周期。" to "Steam Guard uses SHA1, five characters and a 30-second period.",
+    "粘贴 otpauth://totp/、hotp/ 或 steam/ 链接；密钥只在本机解析。" to "Paste an otpauth://totp/, hotp/ or steam/ link; secrets are parsed on this device.",
     "粘贴 otpauth://totp/... 链接；密钥只在本机解析。" to "Paste an otpauth://totp/... link; it is parsed locally.",
     "周期" to "Period",
     "常见弱密码" to "Common weak password",
@@ -392,11 +457,15 @@ private val EN = mapOf(
     "删除的密码和令牌会先放在这里。" to "Deleted passwords and tokens appear here first.",
     "所有已删除条目会被永久删除，无法恢复。" to "All deleted items will be permanently removed.",
     "永久删除" to "Delete permanently",
+    "永久删除这个条目？" to "Delete this item permanently?",
+    "此操作无法撤销。" to "This action cannot be undone.",
     "只有数字" to "Digits only",
 )
 
 private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^(\d+) 个条目$""") to { "${it.groupValues[1]} items" },
+    Regex("""^密码 · (\d+)$""") to { "Passwords · ${it.groupValues[1]}" },
+    Regex("""^动态令牌 · (\d+)$""") to { "Tokens · ${it.groupValues[1]}" },
     Regex("""^(\d+) 个分组$""") to { "${it.groupValues[1]} groups" },
     Regex("""^(\d+) 个已删除条目$""") to { "${it.groupValues[1]} deleted items" },
     Regex("""^(\d+) 个条目待处理$""") to { "${it.groupValues[1]} items need attention" },
@@ -406,9 +475,18 @@ private val PATTERNS = listOf<Pair<Regex, (MatchResult) -> String>>(
     Regex("""^已导入 (\d+) 个图标$""") to { "Imported ${it.groupValues[1]} icons" },
     Regex("""^已导入 (\d+) 个条目$""") to { "Imported ${it.groupValues[1]} items" },
     Regex("""^已导入 (\d+) 个令牌$""") to { "Imported ${it.groupValues[1]} tokens" },
+    Regex("""^已导入 (\d+) 个令牌（跳过 (\d+) 个重复）$""") to {
+        "Imported ${it.groupValues[1]} tokens (skipped ${it.groupValues[2]} duplicates)"
+    },
+    Regex("""^已导入 (\d+) 个条目（跳过 (\d+) 个重复）$""") to {
+        "Imported ${it.groupValues[1]} items (skipped ${it.groupValues[2]} duplicates)"
+    },
     Regex("""^内置图标包 · (\d+)$""") to { "Built-in · ${it.groupValues[1]}" },
     Regex("""^已导入图标包 · (\d+)$""") to { "Imported · ${it.groupValues[1]}" },
     Regex("""^下一组 (.+)$""") to { "Next ${it.groupValues[1]}" },
+    Regex("""^HOTP · 计数器 (\d+)$""") to { "HOTP · counter ${it.groupValues[1]}" },
+    Regex("""^(\d+) 位$""") to { "${it.groupValues[1]} digits" },
+    Regex("""^(\d+) 秒$""") to { "${it.groupValues[1]} seconds" },
     Regex("""^(\d+) 个已删除条目$""") to { "${it.groupValues[1]} deleted items" },
     Regex("""^每次保存后备份到 (.+)$""") to { "Back up after every save to ${it.groupValues[1]}" },
     Regex("""^当前版本 v(.+)$""") to { "Current version v${it.groupValues[1]}" },

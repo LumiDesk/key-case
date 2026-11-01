@@ -2,6 +2,8 @@ package top.talyra42.keycase.ui
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import top.talyra42.keycase.core.model.OtpType
+import top.talyra42.keycase.data.CodeGrouping
 
 class TokenFormatTest {
     @Test
@@ -25,5 +27,11 @@ class TokenFormatTest {
     fun hiddenMaskKeepsGroupShape() {
         assertEquals("••• •••", hiddenTokenCode(6, CodeGrouping.AUTO))
         assertEquals("•••• ••••", hiddenTokenCode(8, CodeGrouping.AUTO))
+    }
+
+    @Test
+    fun steamCodeIsNeverGrouped() {
+        assertEquals("K5K5K", formatTokenCode("K5K5K", 5, CodeGrouping.AUTO, OtpType.STEAM))
+        assertEquals("•••••", hiddenTokenCode(5, CodeGrouping.AUTO, OtpType.STEAM))
     }
 }

@@ -21,14 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.caverock.androidsvg.SVG
@@ -42,15 +39,13 @@ import java.util.zip.ZipInputStream
 
 /**
  * Minimal reader for Aegis icon packs. The built-in pack is a ZIP with a
- * pack.json manifest and monochrome SVGs. Simple Icons SVGs are a single path,
- * so we can turn them into Compose ImageVectors without an SVG library.
+ * pack.json manifest and SVG icons; AndroidSVG renders the original colors.
  */
 object AegisIconPack {
     private const val ASSET = "iconpacks/aegis-simple-icons-v269.zip"
 
     private var zipBytes: ByteArray? = null
     private var index: Map<String, Entry>? = null
-    private val vectorCache = mutableMapOf<String, ImageVector?>()
     private val lock = Any()
 
     private data class Entry(
@@ -70,35 +65,6 @@ object AegisIconPack {
             byFile.putIfAbsent(entry.filename, PackIcon(entry.name, entry.filename))
         }
         return byFile.values.sortedBy { it.name.lowercase() }
-    }
-
-    fun vectorFor(context: Context, filename: String, name: String): ImageVector? {
-        if (filename.isBlank()) return null
-        synchronized(lock) {
-            if (vectorCache.containsKey(filename)) return vectorCache[filename]
-        }
-        val svg = readEntry(context, filename).orEmpty()
-        val vector = parseSimpleIcon(name, svg)
-        synchronized(lock) { vectorCache[filename] = vector }
-        return vector
-    }
-
-    fun find(context: Context, label: String): ImageVector? {
-        val key = normalize(label)
-        if (key.isBlank()) return null
-        val entries = ensureIndex(context) ?: return null
-        val entry = entries[key]
-            ?: entries.entries.firstOrNull { (candidate, _) ->
-                candidate.length >= 3 && (key.contains(candidate) || candidate.contains(key))
-            }?.value
-            ?: return null
-        synchronized(lock) {
-            if (vectorCache.containsKey(entry.filename)) return vectorCache[entry.filename]
-        }
-        val svg = readEntry(context, entry.filename).orEmpty()
-        val vector = parseSimpleIcon(entry.name, svg)
-        synchronized(lock) { vectorCache[entry.filename] = vector }
-        return vector
     }
 
     fun findFilename(context: Context, label: String): String? {
@@ -211,91 +177,6 @@ object AegisIconPack {
         }.getOrNull()
     }
 
-    private fun parseSimpleIcon(name: String, svg: String): ImageVector? {
-        if (svg.isBlank()) return null
-        val viewBox = Regex("""viewBox="([^"]+)"""").find(svg)?.groupValues?.get(1)
-            ?.trim()?.split(Regex("""[\s,]+"""))?.mapNotNull { it.toFloatOrNull() }
-        val width = viewBox?.getOrNull(2) ?: 24f
-        val height = viewBox?.getOrNull(3) ?: 24f
-        val builder = ImageVector.Builder(
-            name = name,
-            defaultWidth = 24.dp,
-            defaultHeight = 24.dp,
-            viewportWidth = width,
-            viewportHeight = height,
-        )
-        var added = false
-
-        // The Aegis pack is based on Simple Icons: a brand-colored circle plus
-        // a white glyph. Keep the original fills instead of tinting everything.
-        Regex("""<circle\b[^>]*>""").findAll(svg).forEach { match ->
-            val tag = match.value
-            val cx = attr(tag, "cx")?.toFloatOrNull() ?: return@forEach
-            val cy = attr(tag, "cy")?.toFloatOrNull() ?: return@forEach
-            val r = attr(tag, "r")?.toFloatOrNull() ?: return@forEach
-            val fill = parseFill(attr(tag, "fill")) ?: return@forEach
-            val d = "M ${cx - r} $cy A $r $r 0 1 0 ${cx + r} $cy A $r $r 0 1 0 ${cx - r} $cy Z"
-            runCatching {
-                val nodes = PathParser().parsePathString(d).toNodes()
-                builder.addPath(pathData = nodes, fill = SolidColor(fill))
-                added = true
-            }
-        }
-
-        Regex("""<path\b[^>]*>""").findAll(svg).forEach { match ->
-            val tag = match.value
-            val data = attr(tag, "d") ?: return@forEach
-            val fill = parseFill(attr(tag, "fill")) ?: Color.Black
-            val transform = attr(tag, "transform")
-            val translate = Regex("""translate\(\s*([-\d.]+)[ ,]+([-\d.]+)\s*\)""")
-                .find(transform.orEmpty())
-            val scale = Regex("""scale\(\s*([-\d.]+)(?:[ ,]+([-\d.]+))?\s*\)""")
-                .find(transform.orEmpty())
-            runCatching {
-                val nodes = PathParser().parsePathString(data).toNodes()
-                if (translate != null || scale != null) {
-                    builder.addGroup(
-                        translationX = translate?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 0f,
-                        translationY = translate?.groupValues?.getOrNull(2)?.toFloatOrNull() ?: 0f,
-                        scaleX = scale?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 1f,
-                        scaleY = scale?.groupValues?.getOrNull(2)?.toFloatOrNull()
-                            ?: scale?.groupValues?.getOrNull(1)?.toFloatOrNull() ?: 1f,
-                        clipPathData = emptyList(),
-                    )
-                    builder.addPath(pathData = nodes, fill = SolidColor(fill))
-                    builder.clearGroup()
-                } else {
-                    builder.addPath(pathData = nodes, fill = SolidColor(fill))
-                }
-                added = true
-            }
-        }
-        return if (added) builder.build() else null
-    }
-
-    private fun attr(tag: String, name: String): String? {
-        val match = Regex("""\b$name="([^"]*)"""").find(tag) ?: return null
-        return match.groupValues[1]
-    }
-
-    private fun parseFill(value: String?): Color? {
-        if (value.isNullOrBlank()) return null
-        if (value.equals("none", ignoreCase = true)) return null
-        if (value.equals("white", ignoreCase = true)) return Color.White
-        if (value.equals("black", ignoreCase = true)) return Color.Black
-        if (value.startsWith("#")) {
-            val hex = value.removePrefix("#")
-            return runCatching {
-                when (hex.length) {
-                    6 -> Color((0xFF000000L or hex.toLong(16)).toInt())
-                    8 -> Color(hex.toLong(16).toInt())
-                    else -> null
-                }
-            }.getOrNull()
-        }
-        return null
-    }
-
     private fun normalize(value: String): String =
         value.lowercase().filter { it.isLetterOrDigit() }
 }
@@ -312,17 +193,25 @@ fun BrandAvatar(
         return
     }
     val context = LocalContext.current
-    val initial = remember(title, iconRef) {
+    val density = LocalDensity.current
+    val targetPx = with(density) { size.toPx() }.toInt()
+    val bitmapBucket = when {
+        targetPx <= 64 -> 64
+        targetPx <= 128 -> 128
+        targetPx <= 256 -> 256
+        else -> 320
+    }
+    val initial = remember(title, iconRef, bitmapBucket) {
         val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
             iconRef.value
         } else {
             AegisIconPack.findFilename(context, title)
         }
-        filename?.let { IconBitmapCache.get("svg:$it:112") }
+        filename?.let { IconBitmapCache.get("svg:$it:$bitmapBucket") }
     }
-    var bitmap by remember(title, iconRef) { mutableStateOf(initial) }
-    var loading by remember(title, iconRef) { mutableStateOf(initial == null) }
-    LaunchedEffect(title, iconRef) {
+    var bitmap by remember(title, iconRef, bitmapBucket) { mutableStateOf(initial) }
+    var loading by remember(title, iconRef, bitmapBucket) { mutableStateOf(initial == null) }
+    LaunchedEffect(title, iconRef, bitmapBucket) {
         if (bitmap == null) {
             bitmap = withContext(Dispatchers.IO) {
                 val filename = if (iconRef?.kind == "pack" && iconRef.value.isNotBlank()) {
@@ -330,7 +219,7 @@ fun BrandAvatar(
                 } else {
                     AegisIconPack.findFilename(context, title)
                 }
-                filename?.let { AegisIconPack.bitmapFor(context, it, maxSize = 112) }
+                filename?.let { AegisIconPack.bitmapFor(context, it, maxSize = bitmapBucket) }
             }
         }
         loading = false
@@ -365,15 +254,28 @@ private fun CustomIconAvatar(
     size: Dp,
     modifier: Modifier,
 ) {
-    val cached = remember(encoded) { IconBitmapCache.get("b64:${encoded.hashCode()}:96") }
-    var image by remember(encoded) { mutableStateOf(cached) }
-    var loading by remember(encoded) { mutableStateOf(cached == null) }
-    LaunchedEffect(encoded) {
+    val density = LocalDensity.current
+    val targetPx = with(density) { size.toPx() }.toInt()
+    val bucket = when {
+        targetPx <= 64 -> 64
+        targetPx <= 128 -> 128
+        targetPx <= 256 -> 256
+        else -> 320
+    }
+    val cacheKey = "b64:${encoded.hashCode()}:$bucket"
+    val cached = remember(encoded, bucket) { IconBitmapCache.get(cacheKey) }
+    var image by remember(encoded, bucket) { mutableStateOf(cached) }
+    var loading by remember(encoded, bucket) { mutableStateOf(cached == null) }
+    LaunchedEffect(encoded, bucket) {
         if (image == null) {
             image = withContext(Dispatchers.IO) {
                 runCatching {
                     val bytes = Base64.decode(encoded, Base64.DEFAULT)
-                    IconBitmapCache.decodeBase64(encoded.hashCode().toString(), bytes)
+                    IconBitmapCache.decodeBase64(
+                        encoded.hashCode().toString(),
+                        bytes,
+                        maxSize = bucket,
+                    )
                 }.getOrNull()
             }
         }

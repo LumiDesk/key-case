@@ -31,6 +31,24 @@ class AndroidVaultStore(context: Context) {
         file.delete()
     }
 
+    /** Deletes the live vault and any safety copy created before an import. */
+    fun deleteAll() {
+        file.delete()
+        File(file.baseFile.parentFile, "$FILE_NAME.pre-import").delete()
+    }
+
+    /**
+     * Keeps the current ciphertext as a safety copy before destructive
+     * operations such as importing another vault. The copy stays encrypted.
+     */
+    fun backupBeforeImport(): File {
+        val source = file.baseFile
+        check(source.isFile) { "No vault to back up" }
+        val target = File(source.parentFile, "$FILE_NAME.pre-import")
+        source.copyTo(target, overwrite = true)
+        return target
+    }
+
     companion object {
         const val FILE_NAME = "vault.tkv"
     }

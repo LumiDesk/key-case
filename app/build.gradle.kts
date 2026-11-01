@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.process)
     implementation(libs.zxing.android.embedded)
     implementation(libs.androidsvg)
     implementation(libs.androidx.documentfile)

@@ -30,17 +30,32 @@ class BiometricVault(private val context: Context) {
             BiometricManager.BIOMETRIC_SUCCESS
     }.getOrDefault(false)
 
-    fun isEnrolled(): Boolean = runCatching {
-        prefs.contains(KEY_IV) && prefs.contains(KEY_DATA) && keyStore().containsAlias(ALIAS)
+    fun isEnrolled(expectedVaultId: String? = null): Boolean = runCatching {
+        val storedVaultId = prefs.getString(KEY_VAULT_ID, null)
+        if (expectedVaultId != null && storedVaultId != expectedVaultId) {
+            // The vault file was replaced (for example by importing a backup).
+            // The wrapped key belongs to a different vault and must not be used.
+            clear()
+            return@runCatching false
+        }
+        storedVaultId != null &&
+            prefs.contains(KEY_IV) &&
+            prefs.contains(KEY_DATA) &&
+            keyStore().containsAlias(ALIAS)
     }.getOrDefault(false)
 
     fun enable(
         activity: FragmentActivity,
+        vaultId: String,
         vaultKey: ByteArray,
         onResult: (Boolean, String?) -> Unit,
     ) {
         if (!isAvailable()) {
             onResult(false, "Biometric authentication is not available")
+            return
+        }
+        if (vaultId.isBlank()) {
+            onResult(false, "Vault identity is missing")
             return
         }
         try {
@@ -58,6 +73,7 @@ class BiometricVault(private val context: Context) {
                     runCatching {
                         val encrypted = authenticated.doFinal(vaultKey)
                         prefs.edit()
+                            .putString(KEY_VAULT_ID, vaultId)
                             .putString(KEY_IV, b64(authenticated.iv))
                             .putString(KEY_DATA, b64(encrypted))
                             .apply()
@@ -200,5 +216,6 @@ class BiometricVault(private val context: Context) {
         const val TRANSFORMATION = "AES/GCM/NoPadding"
         const val KEY_IV = "iv"
         const val KEY_DATA = "wrapped"
+        const val KEY_VAULT_ID = "vaultId"
     }
 }

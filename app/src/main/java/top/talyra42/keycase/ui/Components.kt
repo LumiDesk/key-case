@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,6 +17,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -113,7 +118,7 @@ fun StatCard(
     }
     Card(
         onClick = onClick,
-        modifier = modifier.height(72.dp),
+        modifier = modifier.heightIn(min = 72.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = container,
@@ -124,7 +129,8 @@ fun StatCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .heightIn(min = 72.dp)
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(9.dp),
@@ -205,7 +211,7 @@ fun InfoRow(
             text = label,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(56.dp),
+            modifier = Modifier.widthIn(min = 56.dp),
         )
         Text(
             text = value,
@@ -349,7 +355,7 @@ fun ConfirmDialog(
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("取消") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_4d0b4688c787)) }
         },
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,

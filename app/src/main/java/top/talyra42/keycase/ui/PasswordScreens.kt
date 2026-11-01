@@ -1,5 +1,10 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+import top.talyra42.keycase.data.CodeGrouping
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -25,6 +30,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -38,7 +44,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.OpenInNew
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Delete
@@ -80,14 +88,19 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -97,11 +110,13 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.IconRef
+import top.talyra42.keycase.core.model.OtpType
 import top.talyra42.keycase.core.model.TotpSecret
 import top.talyra42.keycase.core.model.VaultData
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.Base32
 import top.talyra42.keycase.core.otp.codeAt
+import top.talyra42.keycase.core.otp.nextCode
 import top.talyra42.keycase.ui.icons.BrandAvatar
 import java.security.SecureRandom
 import java.time.Instant
@@ -117,6 +132,11 @@ fun PasswordListScreen(
     var searchOpen by rememberSaveable { mutableStateOf(false) }
     var ascending by rememberSaveable { mutableStateOf(true) }
     val listState = rememberLazyListState()
+    val searchFocus = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    LaunchedEffect(searchOpen) {
+        if (searchOpen) searchFocus.requestFocus()
+    }
     val items = data.items
         .filter { it.kind == ItemKind.LOGIN && it.deletedAt == null }
         .filter {
@@ -148,22 +168,28 @@ fun PasswordListScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "密码",
+                    text = stringResource(R.string.s_c839a8ff1788),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                 )
                 Spacer(Modifier.weight(1f))
-                IconButton(onClick = { searchOpen = !searchOpen }) {
+                IconButton(onClick = {
+                    if (searchOpen) {
+                        query = ""
+                        keyboard?.hide()
+                    }
+                    searchOpen = !searchOpen
+                }) {
                     Icon(
                         if (searchOpen) Icons.Outlined.Close else Icons.Outlined.Search,
-                        contentDescription = if (searchOpen) "关闭搜索" else "搜索",
+                        contentDescription = localized(if (searchOpen) "关闭搜索" else "搜索"),
                         modifier = Modifier.size(20.dp),
                     )
                 }
                 IconButton(onClick = { ascending = !ascending }) {
                     Icon(
                         Icons.Outlined.SortByAlpha,
-                        contentDescription = if (ascending) "排序 Z-A" else "排序 A-Z",
+                        contentDescription = localized(if (ascending) "排序 Z-A" else "排序 A-Z"),
                         modifier = Modifier
                             .size(20.dp)
                             .rotate(if (ascending) 0f else 180f),
@@ -181,8 +207,9 @@ fun PasswordListScreen(
                     onValueChange = { query = it },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
-                    placeholder = { Text("搜索名称、账号或网址") },
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                        .focusRequester(searchFocus),
+                    placeholder = { Text(stringResource(R.string.s_1c00042939a0)) },
                     leadingIcon = {
                         Icon(Icons.Outlined.Search, contentDescription = null, modifier = Modifier.size(18.dp))
                     },
@@ -204,7 +231,7 @@ fun PasswordListScreen(
                         title = if (query.isBlank()) "还没有密码" else "没有匹配的条目",
                         subtitle = if (query.isBlank()) "点右下角 + 添加第一条。" else "换个关键词试试。",
                         action = if (query.isBlank()) {
-                            { FilledTonalButton(onClick = onAdd) { Text("添加密码") } }
+                            { FilledTonalButton(onClick = onAdd) { Text(stringResource(R.string.s_da1b9ab96ac7)) } }
                         } else {
                             null
                         },
@@ -232,7 +259,7 @@ fun PasswordListScreen(
                                     {
                                         Icon(
                                             Icons.Outlined.Star,
-                                            contentDescription = "收藏",
+                                            contentDescription = stringResource(R.string.s_d07cee786ae5),
                                             tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(15.dp),
                                         )
@@ -270,8 +297,11 @@ fun ItemDetailScreen(
     onBack: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onAdvanceHotp: () -> Unit,
+    onToggleFavorite: () -> Unit,
 ) {
     val context = LocalContext.current
+    val uriHandler = LocalUriHandler.current
     var revealed by remember(item.id) { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
     var advancedOpen by remember(item.id) { mutableStateOf(false) }
@@ -283,15 +313,26 @@ fun ItemDetailScreen(
                 title = { Text(if (item.kind == ItemKind.TOTP) "令牌详情" else "登录密码") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
                 actions = {
+                    IconButton(onClick = onToggleFavorite) {
+                        Icon(
+                            imageVector = if (item.favorite) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = localized(if (item.favorite) "取消收藏" else "收藏"),
+                            tint = if (item.favorite) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        )
+                    }
                     IconButton(onClick = onEdit) {
-                        Icon(Icons.Outlined.Edit, contentDescription = "编辑")
+                        Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.s_a7f814c0a40d))
                     }
                     IconButton(onClick = { showDelete = true }) {
-                        Icon(Icons.Outlined.Delete, contentDescription = "删除")
+                        Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.s_3755f56f2f83))
                     }
                 },
             )
@@ -345,7 +386,7 @@ fun ItemDetailScreen(
                         IconButton(onClick = { revealed = !revealed }) {
                             Icon(
                                 imageVector = if (revealed) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                                contentDescription = if (revealed) "隐藏密码" else "显示密码",
+                                contentDescription = localized(if (revealed) "隐藏密码" else "显示密码"),
                             )
                         }
                         CopyButton { copyText(context, item.password) }
@@ -354,8 +395,21 @@ fun ItemDetailScreen(
                 }
                 if (item.urls.isNotEmpty()) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                    InfoRow(label = "网址", value = item.urls.first()) {
-                        CopyButton { copyText(context, item.urls.first()) }
+                    val url = item.urls.first()
+                    val openUrl = safeHttpUrl(url)
+                    InfoRow(label = "网址", value = url) {
+                        if (openUrl != null) {
+                            IconButton(onClick = {
+                                runCatching { uriHandler.openUri(openUrl) }
+                            }) {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.OpenInNew,
+                                    contentDescription = stringResource(R.string.s_79d2519429d4),
+                                    modifier = Modifier.size(18.dp),
+                                )
+                            }
+                        }
+                        CopyButton { copyText(context, url) }
                     }
                 }
                 if (item.notes.isNotBlank()) {
@@ -363,7 +417,7 @@ fun ItemDetailScreen(
                     InfoRow(label = "备注", value = item.notes, muted = true)
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "更新", value = item.updatedAt.take(16).replace('T', ' '), muted = true)
+                InfoRow(label = "更新", value = formatUpdatedAt(item.updatedAt), muted = true)
             }
 
             item.totp?.let { secret ->
@@ -374,6 +428,7 @@ fun ItemDetailScreen(
                     showNext = showNext,
                     codeGrouping = codeGrouping,
                     onCopy = { code -> copyText(context, code) },
+                    onAdvanceHotp = onAdvanceHotp,
                 )
                 Spacer(Modifier.height(10.dp))
                 TokenAdvancedCard(
@@ -391,8 +446,8 @@ fun ItemDetailScreen(
 
     if (showDelete) {
         ConfirmDialog(
-            title = "删除这个条目？",
-            text = "删除后无法恢复。",
+            title = "移到回收站？",
+            text = "删除后可在回收站恢复。",
             onConfirm = {
                 showDelete = false
                 onDelete()
@@ -425,7 +480,7 @@ private fun TokenAdvancedCard(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "高级信息",
+                text = stringResource(R.string.s_57109d2d3250),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.weight(1f),
@@ -444,11 +499,21 @@ private fun TokenAdvancedCard(
         ) {
             Column {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "算法", value = secret.algorithm.name, muted = true)
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "位数", value = "${secret.digits} 位", muted = true)
-                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
-                InfoRow(label = "周期", value = "${secret.period} 秒", muted = true)
+                InfoRow(label = "类型", value = secret.type.name, muted = true)
+                if (secret.type != OtpType.STEAM) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "算法", value = secret.algorithm.name, muted = true)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "位数", value = "${secret.digits} 位", muted = true)
+                }
+                if (secret.type != OtpType.HOTP) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "周期", value = "${secret.period} 秒", muted = true)
+                }
+                if (secret.type == OtpType.HOTP) {
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
+                    InfoRow(label = "计数器", value = secret.counter.toString(), muted = true)
+                }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.18f))
                 InfoRow(
                     label = "密钥",
@@ -462,7 +527,7 @@ private fun TokenAdvancedCard(
                             } else {
                                 Icons.Outlined.Visibility
                             },
-                            contentDescription = if (secretRevealed) "隐藏密钥" else "显示密钥",
+                            contentDescription = localized(if (secretRevealed) "隐藏密钥" else "显示密钥"),
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -479,41 +544,49 @@ private fun TotpCard(
     showNext: Boolean,
     codeGrouping: CodeGrouping,
     onCopy: (String) -> Unit,
+    onAdvanceHotp: () -> Unit,
 ) {
     var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var revealed by remember(secret.secret) { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
+    val isHotp = secret.type == OtpType.HOTP
     LaunchedEffect(secret.secret) {
         while (true) {
             now = System.currentTimeMillis()
             delay(1000)
         }
     }
+    LaunchedEffect(revealed) {
+        if (revealed) {
+            delay(10_000L)
+            revealed = false
+        }
+    }
     val period = secret.period.coerceAtLeast(1)
     val remaining = period - ((now / 1000L) % period)
     LaunchedEffect(remaining) {
-        if (remaining in 1L..5L) {
+        if (!isHotp && remaining == 5L) {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
         }
     }
     val code = runCatching { secret.codeAt(now) }.getOrNull() ?: "—"
     val visible = showCodes || revealed
     val digits = secret.digits
-    val nextCode = if (showNext) {
-        runCatching { secret.codeAt(now + period * 1000L) }.getOrNull()
+    val nextCode = if (showNext && !isHotp) {
+        runCatching { secret.nextCode(now) }.getOrNull()
     } else {
         null
     }
     val codeText = if (visible) {
-        formatTokenCode(code, digits, codeGrouping)
+        formatTokenCode(code, digits, codeGrouping, secret.type)
     } else {
-        hiddenTokenCode(digits, codeGrouping)
+        hiddenTokenCode(digits, codeGrouping, secret.type)
     }
     val nextText = if (nextCode != null) {
         if (visible) {
-            formatTokenCode(nextCode, digits, codeGrouping)
+            formatTokenCode(nextCode, digits, codeGrouping, secret.type)
         } else {
-            hiddenTokenCode(digits, codeGrouping)
+            hiddenTokenCode(digits, codeGrouping, secret.type)
         }
     } else {
         null
@@ -565,7 +638,14 @@ private fun TotpCard(
                     letterSpacing = 2.sp,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
-                if (nextText != null) {
+                if (isHotp) {
+                    Text(
+                        text = "HOTP · 计数器 ${secret.counter}",
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                    )
+                } else if (nextText != null) {
                     Text(
                         text = nextText,
                         fontFamily = FontFamily.Monospace,
@@ -574,18 +654,24 @@ private fun TotpCard(
                     )
                 }
             }
-            Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.fillMaxSize(),
-                    strokeWidth = 3.dp,
-                    color = if (remaining <= 5) {
-                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = blinkAlpha)
-                    } else {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    },
-                    trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
-                )
+            if (isHotp) {
+                FilledTonalButton(onClick = onAdvanceHotp) {
+                    Text(stringResource(R.string.s_159a87b9e07f))
+                }
+            } else {
+                Box(modifier = Modifier.size(42.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        progress = { progress },
+                        modifier = Modifier.fillMaxSize(),
+                        strokeWidth = 3.dp,
+                        color = if (remaining <= 5) {
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = blinkAlpha)
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        },
+                        trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.16f),
+                    )
+                }
             }
         }
     }
@@ -596,7 +682,7 @@ private fun CopyButton(onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(
             Icons.Outlined.ContentCopy,
-            contentDescription = "复制",
+            contentDescription = stringResource(R.string.s_4edd1d00875d),
             modifier = Modifier.size(18.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -609,17 +695,31 @@ fun PasswordEditorScreen(
     item: VaultItem?,
     onBack: () -> Unit,
     onSave: (VaultItem) -> Unit,
+    onPrepareExternal: () -> Unit,
 ) {
     var title by rememberSaveable(item?.id) { mutableStateOf(item?.title.orEmpty()) }
     var username by rememberSaveable(item?.id) { mutableStateOf(item?.username.orEmpty()) }
-    var password by rememberSaveable(item?.id) { mutableStateOf(item?.password.orEmpty()) }
+    // Secrets and free-form notes stay in memory only. They are deliberately
+    // excluded from saved instance state and must be retyped after recreation.
+    var password by remember(item?.id) { mutableStateOf(item?.password.orEmpty()) }
     var url by rememberSaveable(item?.id) { mutableStateOf(item?.urls?.firstOrNull().orEmpty()) }
-    var notes by rememberSaveable(item?.id) { mutableStateOf(item?.notes.orEmpty()) }
+    var notes by remember(item?.id) { mutableStateOf(item?.notes.orEmpty()) }
     var revealed by remember { mutableStateOf(false) }
     var icon by remember(item?.id) { mutableStateOf(item?.icon) }
     var showIconPicker by remember { mutableStateOf(false) }
+    var showDiscard by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val dirty = title != item?.title.orEmpty() ||
+        username != item?.username.orEmpty() ||
+        password != item?.password.orEmpty() ||
+        url != item?.urls?.firstOrNull().orEmpty() ||
+        notes != item?.notes.orEmpty() ||
+        icon != item?.icon
+
+    fun requestClose() {
+        if (dirty) showDiscard = true else onBack()
+    }
 
     fun save() {
         val now = Instant.now().toString()
@@ -641,7 +741,7 @@ fun PasswordEditorScreen(
     }
 
     ModalBottomSheet(
-        onDismissRequest = onBack,
+        onDismissRequest = ::requestClose,
         sheetState = sheetState,
         sheetGesturesEnabled = false,
         containerColor = MaterialTheme.colorScheme.surface,
@@ -668,13 +768,13 @@ fun PasswordEditorScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        text = "保存到本地加密保险库",
+                        text = stringResource(R.string.s_a5f109f69f1d),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                IconButton(onClick = onBack) {
-                    Icon(Icons.Outlined.Close, contentDescription = "关闭")
+                IconButton(onClick = ::requestClose) {
+                    Icon(Icons.Outlined.Close, contentDescription = stringResource(R.string.s_6c14bd7f6f9e))
                 }
             }
             Spacer(Modifier.height(2.dp))
@@ -686,7 +786,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("名称") },
+                label = { Text(stringResource(R.string.s_1be7ae4fc257)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -694,7 +794,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("账号 / 用户名") },
+                label = { Text(stringResource(R.string.s_583ee886ee29)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -702,7 +802,7 @@ fun PasswordEditorScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("登录密码") },
+                label = { Text(stringResource(R.string.s_1a317b137803)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -722,25 +822,29 @@ fun PasswordEditorScreen(
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilledTonalButton(onClick = { password = generatePassword() }) {
-                    Text("生成密码")
+                    Text(stringResource(R.string.s_3125c0fea207))
                 }
                 FilledTonalButton(onClick = { copyText(context, password) }) {
-                    Text("复制")
+                    Text(stringResource(R.string.s_4edd1d00875d))
                 }
             }
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("网址（可选）") },
+                label = { Text(stringResource(R.string.s_75cca954d66b)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Uri,
+                    capitalization = KeyboardCapitalization.None,
+                    autoCorrectEnabled = false,
+                ),
             )
             OutlinedTextField(
                 value = notes,
                 onValueChange = { notes = it },
-                label = { Text("备注（可选）") },
+                label = { Text(stringResource(R.string.s_dde95eb32fff)) },
                 minLines = 2,
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.small,
@@ -750,10 +854,10 @@ fun PasswordEditorScreen(
                 onClick = ::save,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .heightIn(min = 50.dp),
                 shape = RoundedCornerShape(14.dp),
             ) {
-                Text("保存密码", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.s_014b4d162f47), fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -766,6 +870,20 @@ fun PasswordEditorScreen(
                 icon = picked
                 showIconPicker = false
             },
+            onPrepareExternal = onPrepareExternal,
+        )
+    }
+
+    if (showDiscard) {
+        ConfirmDialog(
+            title = "放弃修改？",
+            text = "未保存的修改会丢失。",
+            confirmLabel = "放弃",
+            onConfirm = {
+                showDiscard = false
+                onBack()
+            },
+            onDismiss = { showDiscard = false },
         )
     }
 }

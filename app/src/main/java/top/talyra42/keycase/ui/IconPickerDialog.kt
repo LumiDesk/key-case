@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
@@ -64,6 +68,7 @@ fun IconPickerDialog(
     current: IconRef?,
     onDismiss: () -> Unit,
     onPick: (IconRef?) -> Unit,
+    onPrepareExternal: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -128,36 +133,42 @@ fun IconPickerDialog(
         onDismissRequest = onDismiss,
         shape = MaterialTheme.shapes.large,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = { Text("选择图标") },
+        title = { Text(stringResource(R.string.s_ef6e0d1008d0)) },
         text = {
             Column {
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
-                    placeholder = { Text("搜索图标名称") },
+                    placeholder = { Text(stringResource(R.string.s_6d0a2ce75c15)) },
                     leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    TextButton(onClick = { imagePicker.launch("image/*") }) {
+                    TextButton(onClick = {
+                        onPrepareExternal()
+                        imagePicker.launch("image/*")
+                    }) {
                         Icon(
                             Icons.Outlined.AddPhotoAlternate,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text("导入图片…")
+                        Text(stringResource(R.string.s_a8aea3361e6a))
                     }
-                    TextButton(onClick = { packPicker.launch("*/*") }) {
+                    TextButton(onClick = {
+                        onPrepareExternal()
+                        packPicker.launch("*/*")
+                    }) {
                         Icon(
                             Icons.Outlined.UploadFile,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(6.dp))
-                        Text("导入图标包…")
+                        Text(stringResource(R.string.s_2c4d3f41834c))
                     }
                     imageError?.let {
                         Text(
@@ -186,11 +197,11 @@ fun IconPickerDialog(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("正在读取内置图标…", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.s_23a403fd6ab6), style = MaterialTheme.typography.bodySmall)
                     }
 
                     filtered.isEmpty() && filteredImported.isEmpty() -> Text(
-                        "没有匹配的图标。",
+                        stringResource(R.string.s_21d9f4a8d74f),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(vertical = 16.dp),
@@ -200,7 +211,7 @@ fun IconPickerDialog(
                         if (filteredImported.isNotEmpty()) {
                             item {
                                 Text(
-                                    "已导入图标包",
+                                    stringResource(R.string.s_efeffa950e10),
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(vertical = 4.dp),
@@ -290,7 +301,7 @@ fun IconPickerDialog(
                                 )
                                 if (selected) {
                                     Text(
-                                        "已选",
+                                        stringResource(R.string.s_f24ddc2bef8f),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                     )
@@ -302,7 +313,7 @@ fun IconPickerDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = onDismiss) { Text("完成") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.s_33246f6a5e5b)) }
         },
         dismissButton = {
             TextButton(
@@ -310,7 +321,7 @@ fun IconPickerDialog(
                     onPick(null)
                     onDismiss()
                 },
-            ) { Text("使用字母头像") }
+            ) { Text(stringResource(R.string.s_2971225c3452)) }
         },
     )
 }
@@ -376,8 +387,20 @@ fun PackIconPreview(filename: String, name: String, size: Int = 32) {
 }
 
 private fun loadScaledIcon(context: Context, uri: Uri): String? {
-    val input = context.contentResolver.openInputStream(uri) ?: return null
-    val bitmap = input.use { BitmapFactory.decodeStream(it) } ?: return null
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, bounds)
+    } ?: return null
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = imageSampleSize(bounds.outWidth, bounds.outHeight, 160)
+        inPreferredConfig = Bitmap.Config.ARGB_8888
+    }
+    val bitmap = context.contentResolver.openInputStream(uri)?.use {
+        BitmapFactory.decodeStream(it, null, options)
+    } ?: return null
+
     val maxSide = maxOf(bitmap.width, bitmap.height)
     val scale = if (maxSide > 160) 160f / maxSide else 1f
     val scaled = if (scale < 1f) {
@@ -393,4 +416,12 @@ private fun loadScaledIcon(context: Context, uri: Uri): String? {
     val output = ByteArrayOutputStream()
     scaled.compress(Bitmap.CompressFormat.PNG, 100, output)
     return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+}
+
+private fun imageSampleSize(width: Int, height: Int, maxSide: Int): Int {
+    var sample = 1
+    while (maxOf(width, height) / (sample * 2) >= maxSide) {
+        sample *= 2
+    }
+    return sample
 }

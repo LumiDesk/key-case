@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,10 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Restore
 import androidx.compose.material.icons.outlined.Shield
@@ -37,28 +42,6 @@ import top.talyra42.keycase.core.model.ItemKind
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.ui.icons.BrandAvatar
 
-data class SecurityIssue(
-    val item: VaultItem,
-    val reason: String,
-)
-
-fun securityIssues(items: List<VaultItem>): List<SecurityIssue> {
-    val common = setOf("123456", "password", "12345678", "qwerty", "111111", "abc123")
-    val reused = items.groupBy { it.password }.filterValues { it.size > 1 }.keys
-    return items.mapNotNull { item ->
-        val password = item.password
-        val reason = when {
-            password.isBlank() -> "没有密码"
-            password.length < 8 -> "密码太短"
-            password.all(Char::isDigit) -> "只有数字"
-            password.lowercase() in common -> "常见弱密码"
-            password in reused -> "密码重复"
-            else -> null
-        }
-        reason?.let { SecurityIssue(item, it) }
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SecurityScreen(
@@ -72,10 +55,10 @@ fun SecurityScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("安全中心") },
+                title = { Text(stringResource(R.string.s_9e5447826cdd)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
             )
@@ -105,7 +88,7 @@ fun SecurityScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = "列表只做本地检查，不会上传密码。",
+                        text = stringResource(R.string.s_511bf881372a),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -127,7 +110,7 @@ fun SecurityScreen(
                                     text = issue.reason,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.width(64.dp),
+                                    modifier = Modifier.widthIn(min = 64.dp),
                                 )
                             },
                         )
@@ -153,21 +136,22 @@ fun TrashScreen(
 ) {
     val deleted = items.filter { it.deletedAt != null }
     var confirmEmpty by remember { mutableStateOf(false) }
+    var pendingPurge by remember { mutableStateOf<VaultItem?>(null) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("回收站") },
+                title = { Text(stringResource(R.string.s_64ea8751fba9)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = stringResource(R.string.s_11d024154013))
                     }
                 },
                 actions = {
                     TextButton(
                         onClick = { confirmEmpty = true },
                         enabled = deleted.isNotEmpty(),
-                    ) { Text("清空") }
+                    ) { Text(stringResource(R.string.s_84fcd70d4280)) }
                 },
             )
         },
@@ -235,7 +219,7 @@ fun TrashScreen(
                                     maxLines = 1,
                                 )
                                 Text(
-                                    text = "删除于 " + item.deletedAt.orEmpty().take(10),
+                                    text = "删除于 " + formatDeletedAt(item.deletedAt.orEmpty()),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.outline,
                                 )
@@ -243,14 +227,14 @@ fun TrashScreen(
                             IconButton(onClick = { onRestore(item.id) }) {
                                 Icon(
                                     Icons.Outlined.Restore,
-                                    contentDescription = "恢复",
+                                    contentDescription = stringResource(R.string.s_79748ca1c6e5),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             }
-                            IconButton(onClick = { onPurge(item.id) }) {
+                            IconButton(onClick = { pendingPurge = item }) {
                                 Icon(
                                     Icons.Outlined.Delete,
-                                    contentDescription = "永久删除",
+                                    contentDescription = stringResource(R.string.s_a7fadbe126d2),
                                     tint = MaterialTheme.colorScheme.error,
                                 )
                             }
@@ -271,6 +255,19 @@ fun TrashScreen(
                 onEmpty()
             },
             onDismiss = { confirmEmpty = false },
+        )
+    }
+
+    pendingPurge?.let { item ->
+        ConfirmDialog(
+            title = "永久删除这个条目？",
+            text = "此操作无法撤销。",
+            confirmLabel = "永久删除",
+            onConfirm = {
+                pendingPurge = null
+                onPurge(item.id)
+            },
+            onDismiss = { pendingPurge = null },
         )
     }
 }

@@ -1,5 +1,12 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.CodeGrouping
+import top.talyra42.keycase.data.DarkMode
+
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -7,6 +14,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.DarkMode as DarkModeIcon
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FileDownload
@@ -62,6 +71,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +85,7 @@ import top.talyra42.keycase.data.UpdateChecker
 import top.talyra42.keycase.ui.icons.ImportedIconPack
 import top.talyra42.keycase.ui.theme.AccentNames
 import top.talyra42.keycase.ui.theme.AccentPalette
+import top.talyra42.keycase.ui.theme.onAccent
 
 @Composable
 fun SettingsScreen(
@@ -102,7 +115,9 @@ fun SettingsScreen(
     onEnableBiometric: () -> Unit,
     onDisableBiometric: () -> Unit,
     onChangePassword: (String, String, String) -> Unit,
+    onDeleteVault: () -> Unit,
 ) {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri -> if (uri != null) onExport(uri) }
@@ -160,6 +175,7 @@ fun SettingsScreen(
     var showIconPreview by remember { mutableStateOf(false) }
     var showAutoLock by remember { mutableStateOf(false) }
     var showCodeGrouping by remember { mutableStateOf(false) }
+    var showDeleteVault by remember { mutableStateOf(false) }
 
     fun checkUpdates() {
         if (checkingUpdate) return
@@ -185,12 +201,12 @@ fun SettingsScreen(
     ) {
         item {
             Text(
-                text = "设置",
+                text = stringResource(R.string.s_7debf9cb0372),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                text = "${data.items.size} 个条目 · 本地加密",
+                text = "${data.items.count { it.deletedAt == null }} 个条目 · 本地加密",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -217,7 +233,10 @@ fun SettingsScreen(
                     icon = Icons.Outlined.UploadFile,
                     title = "导入图标包",
                     subtitle = iconPackStatus ?: "从 Aegis ZIP 导入 PNG 图标",
-                    onClick = { iconPackLauncher.launch("*/*") },
+                    onClick = {
+                        onPrepareExternal()
+                        iconPackLauncher.launch("*/*")
+                    },
                 )
                 SettingsDivider()
                 ActionRow(
@@ -255,7 +274,7 @@ fun SettingsScreen(
                 ActionRow(
                     icon = Icons.Outlined.Folder,
                     title = "从 Aegis 导入",
-                    subtitle = "合并 TOTP 条目与分组",
+                    subtitle = "合并 TOTP 条目",
                     onClick = {
                         onPrepareExternal()
                         aegisLauncher.launch(arrayOf("application/json", "text/plain", "*/*"))
@@ -308,10 +327,11 @@ fun SettingsScreen(
                     subtitle = if (settings.lastBackupAt == 0L) {
                         "尚未备份"
                     } else {
-                        java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault())
+                        java.text.SimpleDateFormat("MM-dd HH:mm", locale)
                             .format(java.util.Date(settings.lastBackupAt))
                     },
-                    onClick = {},
+                    onClick = null,
+                    trailingChevron = false,
                 )
                 SettingsDivider()
                 ActionRow(
@@ -472,6 +492,18 @@ fun SettingsScreen(
                 )
             }
         }
+
+        item {
+            SettingsLabel("危险")
+            AppCard {
+                ActionRow(
+                    icon = Icons.Outlined.Delete,
+                    title = "删除保险库",
+                    subtitle = "永久删除本机所有密码和令牌",
+                    onClick = { showDeleteVault = true },
+                )
+            }
+        }
     }
 
     updateInfo?.let { update ->
@@ -507,7 +539,7 @@ fun SettingsScreen(
             },
             dismissButton = if (update.available) {
                 {
-                    TextButton(onClick = { updateInfo = null }) { Text("稍后") }
+                    TextButton(onClick = { updateInfo = null }) { Text(stringResource(R.string.s_479fcc1cc066)) }
                 }
             } else {
                 null
@@ -517,10 +549,10 @@ fun SettingsScreen(
     if (updateError) {
         AlertDialog(
             onDismissRequest = { updateError = false },
-            title = { Text("检查更新失败") },
-            text = { Text("请检查网络连接后重试。") },
+            title = { Text(stringResource(R.string.s_c76c74e8094b)) },
+            text = { Text(stringResource(R.string.s_51e9b77a7720)) },
             confirmButton = {
-                TextButton(onClick = { updateError = false }) { Text("好") }
+                TextButton(onClick = { updateError = false }) { Text(stringResource(R.string.s_27e4fe4c3fe2)) }
             },
         )
     }
@@ -564,7 +596,7 @@ fun SettingsScreen(
     if (showAutoLock) {
         AlertDialog(
             onDismissRequest = { showAutoLock = false },
-            title = { Text("自动锁定") },
+            title = { Text(stringResource(R.string.s_4553a16a3a0b)) },
             text = {
                 Column {
                     listOf(
@@ -596,14 +628,14 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showAutoLock = false }) { Text("取消") }
+                TextButton(onClick = { showAutoLock = false }) { Text(stringResource(R.string.s_4d0b4688c787)) }
             },
         )
     }
     if (showCodeGrouping) {
         AlertDialog(
             onDismissRequest = { showCodeGrouping = false },
-            title = { Text("验证码分组") },
+            title = { Text(stringResource(R.string.s_8276e61c0585)) },
             text = {
                 Column {
                     listOf(
@@ -635,16 +667,29 @@ fun SettingsScreen(
                 }
             },
             confirmButton = {
-                TextButton(onClick = { showCodeGrouping = false }) { Text("取消") }
+                TextButton(onClick = { showCodeGrouping = false }) { Text(stringResource(R.string.s_4d0b4688c787)) }
             },
         )
     }
-    if (showGoogleImport) {        GoogleMigrationImportDialog(
+    if (showGoogleImport) {
+        GoogleMigrationImportDialog(
             onDismiss = { showGoogleImport = false },
             onImport = {
                 onImportGoogle(it)
                 showGoogleImport = false
             },
+        )
+    }
+    if (showDeleteVault) {
+        ConfirmDialog(
+            title = "删除保险库？",
+            text = "所有密码和令牌将被永久删除，无法恢复。",
+            confirmLabel = "删除保险库",
+            onConfirm = {
+                showDeleteVault = false
+                onDeleteVault()
+            },
+            onDismiss = { showDeleteVault = false },
         )
     }
 }
@@ -675,7 +720,7 @@ private fun AccentSetting(
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("强调色", style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.s_6f67371e0527), style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
             Text(
                 if (customAccent != null) "自定义" else AccentNames[selectedIndex.coerceIn(0, AccentNames.lastIndex)],
                 style = MaterialTheme.typography.labelSmall,
@@ -689,44 +734,64 @@ private fun AccentSetting(
         ) {
             AccentPalette.forEachIndexed { index, color ->
                 val selected = customAccent == null && selectedIndex == index
+                val label = localized(AccentNames[index])
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .border(
-                            width = if (selected) 2.dp else 0.dp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            shape = CircleShape,
+                        .size(48.dp)
+                        .selectable(
+                            selected = selected,
+                            role = Role.RadioButton,
+                            onClick = { onAccent(index) },
                         )
-                        .padding(2.dp)
-                        .background(color, CircleShape)
-                        .clickable { onAccent(index) },
+                        .semantics { contentDescription = label },
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (selected) {
-                        Icon(
-                            Icons.Outlined.Check,
-                            contentDescription = "已选择",
-                            tint = if (color == AccentPalette[3]) Color.Black else Color.White,
-                            modifier = Modifier.size(14.dp),
-                        )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .border(
+                                width = if (selected) 2.dp else 0.dp,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                shape = CircleShape,
+                            )
+                            .padding(2.dp)
+                            .background(color, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (selected) {
+                            Icon(
+                                Icons.Outlined.Check,
+                                contentDescription = null,
+                                tint = onAccent(color),
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
                     }
                 }
             }
             if (customAccent != null) {
+                val customLabel = localized("自定义颜色")
                 Box(
                     modifier = Modifier
-                        .size(28.dp)
-                        .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
-                        .padding(2.dp)
-                        .background(Color(customAccent), CircleShape),
+                        .size(48.dp)
+                        .semantics { contentDescription = customLabel },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        Icons.Outlined.Check,
-                        contentDescription = "自定义颜色",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(14.dp),
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape)
+                            .padding(2.dp)
+                            .background(Color(customAccent), CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Outlined.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
                 }
             }
             IconButton(
@@ -735,7 +800,7 @@ private fun AccentSetting(
             ) {
                 Icon(
                     Icons.Outlined.Palette,
-                    contentDescription = "打开取色板",
+                    contentDescription = stringResource(R.string.s_367808b1d149),
                     modifier = Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -750,13 +815,13 @@ private fun ThemeSetting(mode: DarkMode, onDarkMode: (DarkMode) -> Unit) {
     Column(modifier = Modifier.padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                Icons.Outlined.DarkMode,
+                Icons.Outlined.DarkModeIcon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp),
             )
             Spacer(Modifier.width(8.dp))
-            Text("显示模式", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.s_4a8bb8aba399), style = MaterialTheme.typography.titleSmall)
         }
         Spacer(Modifier.height(10.dp))
         val modes = listOf(
@@ -783,12 +848,13 @@ private fun ActionRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    onClick: () -> Unit,
+    onClick: (() -> Unit)? = null,
+    trailingChevron: Boolean = true,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = onClick != null) { onClick?.invoke() }
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -814,12 +880,14 @@ private fun ActionRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Icon(
-            Icons.Outlined.ChevronRight,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(18.dp),
-        )
+        if (trailingChevron) {
+            Icon(
+                Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(18.dp),
+            )
+        }
     }
 }
 
@@ -833,7 +901,11 @@ private fun SwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            )
             .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -847,7 +919,7 @@ private fun SwitchRow(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                 checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -860,26 +932,6 @@ private fun SwitchRow(
     }
 }
 
-@Composable
-private fun InfoLine(label: String, value: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 14.dp, vertical = 11.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            label,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f),
-        )
-        Text(
-            value,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
 
 @Composable
 private fun SettingsDivider() {

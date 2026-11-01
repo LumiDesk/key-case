@@ -2,11 +2,12 @@ package top.talyra42.keycase.ui
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import top.talyra42.keycase.data.AppSettings
 import top.talyra42.keycase.ui.theme.KeyCaseTheme
 
 @RunWith(AndroidJUnit4::class)
@@ -22,6 +23,7 @@ class PasswordEditorSheetTest {
                     item = null,
                     onBack = {},
                     onSave = { _ -> },
+                    onPrepareExternal = {},
                 )
             }
         }

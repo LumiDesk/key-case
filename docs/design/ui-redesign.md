@@ -71,5 +71,4 @@ Accent changes and light/dark switches animate every large surface with `animate
 | Token detail | `docs/screenshots/token-detail.png` |
 | Settings light/dark | `docs/screenshots/settings-light.png`, `docs/screenshots/settings-dark.png` |
 | Color canvas | `docs/screenshots/color-canvas.png` |
-| Group management | `docs/screenshots/groups.png` |
 | Icon picker | `docs/screenshots/icon-picker.png` |

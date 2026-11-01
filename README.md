@@ -3,7 +3,7 @@
 **Local-first, offline-first Android password manager and TOTP authenticator.**
 No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
 
-> Status: **v0.1.2** signed R8 release (~7.6 MB), built by GitHub Actions and installed on a physical Android device. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, auto-lock, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
+> Status: **v0.1.3** signed R8 full-mode release (~5.9 MB), built by GitHub Actions. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP/HOTP/Steam codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, lifecycle auto-lock, favorites, URL opening, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
 
 ## What it is
 
@@ -25,13 +25,13 @@ The app is built for Android and is local-first. There is no sync server, no acc
 
 - [Agent guide](AGENTS.md)
 - [Design system](DESIGN.md)
+- [Security policy](SECURITY.md)
 - [App icon: B3 obsidian](docs/icon-options/b3-obsidian.svg)
 - [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
 - [UI redesign notes](docs/design/ui-redesign.md)
 - [Vault container format v1](docs/design/vault-format-v1.md)
 - [Research notes](docs/design/research.md)
-- [Clickable prototype](docs/prototype/index.html)
-- [Archived early plans](docs/archive/)
+- [Systematic code review (2026-10-31, historical)](docs/review/code-review-2026-10-31.md)
 
 ## Screenshots
 
@@ -44,7 +44,7 @@ The app is built for Android and is local-first. There is no sync server, no acc
 | ![Passwords](docs/screenshots/passwords.png) | ![Password detail](docs/screenshots/password-detail.png) |
 | Passwords with A–Z index | Password detail |
 | ![Tokens](docs/screenshots/tokens.png) | ![Token detail](docs/screenshots/token-detail.png) |
-| TOTP list with A–Z index | TOTP detail |
+| TOTP/HOTP/Steam list with A–Z index | Token detail |
 | ![Token FAB](docs/screenshots/fab-expanded.png) | ![Color canvas](docs/screenshots/color-canvas.png) |
 | Scan / manual add FAB | Visual accent color picker |
 | ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
@@ -85,6 +85,8 @@ contain only the compare link between the previous and current tag.
 
 Release builds run R8 shrinking/optimization with `-dontobfuscate`, so the APK
 is smaller while class names remain readable for an open-source project.
+Development builds now use R8 full mode; after a toolchain upgrade, launch the
+signed release APK once to catch runtime shrinker regressions.
 
 ## Tests
 

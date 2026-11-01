@@ -1,7 +1,13 @@
 package top.talyra42.keycase.ui
 
-import android.app.Activity
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.DarkMode
+
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -16,6 +22,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Arrangement
@@ -58,14 +65,16 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import kotlinx.coroutines.launch
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
@@ -81,16 +90,57 @@ sealed interface Route {
     data class Detail(val itemId: String) : Route
 }
 
-private data class PasswordEditorTarget(val itemId: String?)
-private data class TokenEditorTarget(val itemId: String?, val initialUri: String? = null)
+private val RouteSaver = Saver<Route, String>(
+    save = { route ->
+        when (route) {
+            Route.Main -> "main"
+            Route.Security -> "security"
+            Route.Trash -> "trash"
+            Route.Search -> "search"
+            is Route.Detail -> "detail:${route.itemId}"
+        }
+    },
+    restore = { encoded ->
+        when {
+            encoded == "main" -> Route.Main
+            encoded == "security" -> Route.Security
+            encoded == "trash" -> Route.Trash
+            encoded == "search" -> Route.Search
+            encoded.startsWith("detail:") -> Route.Detail(encoded.removePrefix("detail:"))
+            else -> Route.Main
+        }
+    },
+)
 
 @Composable
 fun KeyCaseApp(viewModel: MainViewModel) {
     val state by viewModel.state.collectAsState()
     val settings by viewModel.settings.collectAsState()
-    val activity = LocalContext.current as? top.talyra42.keycase.MainActivity
-    var biometricEnrolled by remember { mutableStateOf(activity?.isBiometricEnrolled() == true) }
+    val activity = LocalActivity.current as? top.talyra42.keycase.MainActivity
+    var biometricEnrolled by remember {
+        mutableStateOf(activity?.isBiometricEnrolled(state.data?.vaultId) == true)
+    }
     val biometricAvailable = activity?.isBiometricAvailable() == true
+    val darkTheme = when (settings.darkMode) {
+        DarkMode.SYSTEM -> isSystemInDarkTheme()
+        DarkMode.LIGHT -> false
+        DarkMode.DARK -> true
+    }
+
+    SideEffect {
+        activity?.let {
+            WindowCompat.getInsetsController(it.window, it.window.decorView).apply {
+                isAppearanceLightStatusBars = !darkTheme
+                isAppearanceLightNavigationBars = !darkTheme
+            }
+        }
+    }
+
+    LaunchedEffect(state.data?.vaultId) {
+        // Re-check after unlock/import. A wrapped key from a different vault is
+        // cleared by BiometricVault instead of being offered again.
+        biometricEnrolled = activity?.isBiometricEnrolled(state.data?.vaultId) == true
+    }
 
     SideEffect {
         if (settings.secureScreen) {
@@ -130,7 +180,12 @@ fun KeyCaseApp(viewModel: MainViewModel) {
                     biometricAvailable = biometricAvailable,
                     biometricEnrolled = biometricEnrolled,
                     onEnableBiometric = {
-                        activity?.enableBiometric { ok -> biometricEnrolled = ok }
+                        val vaultId = state.data?.vaultId
+                        if (vaultId.isNullOrBlank()) {
+                            biometricEnrolled = false
+                        } else {
+                            activity?.enableBiometric(vaultId) { ok -> biometricEnrolled = ok }
+                        }
                     },
                     onDisableBiometric = {
                         activity?.disableBiometric()
@@ -153,23 +208,28 @@ private fun VaultRoot(
     onDisableBiometric: () -> Unit,
 ) {
     val data = state.data ?: return
-    var route by remember { mutableStateOf<Route>(Route.Main) }
-    var detailReturn by remember { mutableStateOf<Route>(Route.Main) }
+    var route by rememberSaveable(stateSaver = RouteSaver) { mutableStateOf<Route>(Route.Main) }
+    var detailReturn by rememberSaveable(stateSaver = RouteSaver) {
+        mutableStateOf<Route>(Route.Main)
+    }
     var tab by rememberSaveable { mutableIntStateOf(0) }
-    var passwordEditor by remember { mutableStateOf<PasswordEditorTarget?>(null) }
-    var tokenEditor by remember { mutableStateOf<TokenEditorTarget?>(null) }
+    // "" means "new item", null means "editor closed", any other value is an item id.
+    var passwordEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    var tokenEditorId by rememberSaveable { mutableStateOf<String?>(null) }
+    var tokenInitialUri by remember { mutableStateOf<String?>(null) }
     val scanLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
         val contents = result.contents
         if (!contents.isNullOrBlank()) {
             if (contents.startsWith("otpauth-migration://")) {
                 viewModel.importGoogleMigration(contents)
             } else {
-                tokenEditor = TokenEditorTarget(itemId = null, initialUri = contents)
+                tokenInitialUri = contents
+                tokenEditorId = ""
             }
         }
     }
 
-    BackHandler(enabled = route != Route.Main && passwordEditor == null && tokenEditor == null) {
+    BackHandler(enabled = route != Route.Main && passwordEditorId == null && tokenEditorId == null) {
         route = if (route is Route.Detail) detailReturn else Route.Main
     }
 
@@ -206,8 +266,14 @@ private fun VaultRoot(
             initialTab = tab,
             onTabChanged = { tab = it },
             onOpenItem = openItem,
-            onAddPassword = { passwordEditor = PasswordEditorTarget(null) },
-            onAddToken = { tokenEditor = TokenEditorTarget(null) },
+            onAddPassword = {
+                tokenInitialUri = null
+                passwordEditorId = ""
+            },
+            onAddToken = {
+                tokenInitialUri = null
+                tokenEditorId = ""
+            },
             onScanToken = {
                 viewModel.prepareExternalActivity()
                 scanLauncher.launch(
@@ -230,7 +296,7 @@ private fun VaultRoot(
             onClearError = viewModel::clearError,
             message = state.message,
             onClearMessage = viewModel::clearMessage,
-            backEnabled = passwordEditor == null && tokenEditor == null,
+            backEnabled = passwordEditorId == null && tokenEditorId == null,
             biometricAvailable = biometricAvailable,
             biometricEnrolled = biometricEnrolled,
             onEnableBiometric = onEnableBiometric,
@@ -270,43 +336,54 @@ private fun VaultRoot(
                     onBack = { route = detailReturn },
                     onEdit = {
                         if (item.kind == ItemKind.TOTP) {
-                            tokenEditor = TokenEditorTarget(item.id)
+                            tokenInitialUri = null
+                            tokenEditorId = item.id
                         } else {
-                            passwordEditor = PasswordEditorTarget(item.id)
+                            passwordEditorId = item.id
                         }
                     },
                     onDelete = {
                         viewModel.deleteItem(item.id)
                         route = detailReturn
                     },
+                    onAdvanceHotp = { viewModel.advanceHotp(item.id) },
+                    onToggleFavorite = { viewModel.toggleFavorite(item.id) },
                 )
             }
         }
     }
     }
 
-    passwordEditor?.let { target ->
-        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+    passwordEditorId?.let { editorId ->
+        val item = editorId.takeIf { it.isNotBlank() }
+            ?.let { id -> data.items.firstOrNull { it.id == id } }
         PasswordEditorScreen(
             item = item,
-            onBack = { passwordEditor = null },
+            onBack = { passwordEditorId = null },
             onSave = { updated ->
                 viewModel.upsertItem(updated, "")
-                passwordEditor = null
+                passwordEditorId = null
             },
+            onPrepareExternal = viewModel::prepareExternalActivity,
         )
     }
 
-    tokenEditor?.let { target ->
-        val item = target.itemId?.let { id -> data.items.firstOrNull { it.id == id } }
+    tokenEditorId?.let { editorId ->
+        val item = editorId.takeIf { it.isNotBlank() }
+            ?.let { id -> data.items.firstOrNull { it.id == id } }
         TokenEditorScreen(
             item = item,
-            initialUri = target.initialUri,
-            onBack = { tokenEditor = null },
+            initialUri = if (editorId.isBlank()) tokenInitialUri else null,
+            onBack = {
+                tokenEditorId = null
+                tokenInitialUri = null
+            },
             onSave = { updated ->
                 viewModel.upsertItem(updated, "")
-                tokenEditor = null
+                tokenEditorId = null
+                tokenInitialUri = null
             },
+            onPrepareExternal = viewModel::prepareExternalActivity,
         )
     }
 }
@@ -342,9 +419,9 @@ private fun MainScaffold(
 ) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val host = LocalContext.current as? Activity
+    val host = LocalActivity.current
     val exitMessage = localized("再按一次退出")
-    val localizedError = localized(error.orEmpty())
+    val friendlyError = localizedError(error.orEmpty())
     val localizedMessage = localized(message.orEmpty())
     val pagerState = rememberPagerState(initialPage = initialTab, pageCount = { 4 })
     var lastBackAt by remember { mutableLongStateOf(0L) }
@@ -375,7 +452,7 @@ private fun MainScaffold(
 
     LaunchedEffect(error) {
         if (!error.isNullOrBlank()) {
-            snackbar.showSnackbar(localizedError)
+            snackbar.showSnackbar(friendlyError)
             onClearError()
         }
     }
@@ -406,7 +483,7 @@ private fun MainScaffold(
                     tonalElevation = 0.dp,
                 ) {
                     NavigationItem(0, pagerState.currentPage, { goToPage(it) }, "首页", Icons.Outlined.Home)
-                    NavigationItem(1, pagerState.currentPage, { goToPage(it) }, "密码", Icons.Outlined.VpnKey)
+                    NavigationItem(1, pagerState.currentPage, { goToPage(it) }, "登录项", Icons.Outlined.VpnKey)
                     NavigationItem(2, pagerState.currentPage, { goToPage(it) }, "令牌", Icons.Outlined.Schedule)
                     NavigationItem(3, pagerState.currentPage, { goToPage(it) }, "设置", Icons.Outlined.Settings)
                 }
@@ -425,7 +502,7 @@ private fun MainScaffold(
                         contentColor = MaterialTheme.colorScheme.onPrimary,
                         shape = RoundedCornerShape(16.dp),
                     ) {
-                        Icon(Icons.Outlined.Add, contentDescription = "新建密码")
+                        Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.s_d18784c92002))
                     }
                     2 -> ExpandableTokenFab(
                         onManualAdd = onAddToken,
@@ -498,6 +575,10 @@ private fun MainScaffold(
                         onEnableBiometric = onEnableBiometric,
                         onDisableBiometric = onDisableBiometric,
                         onChangePassword = viewModel::changeMasterPassword,
+                        onDeleteVault = {
+                            onDisableBiometric()
+                            viewModel.deleteVault()
+                        },
                     )
                 }
             }
@@ -542,7 +623,7 @@ private fun ExpandableTokenFab(
                         onScan()
                     },
                     icon = { Icon(Icons.Outlined.QrCodeScanner, contentDescription = null) },
-                    text = { Text("扫码") },
+                    text = { Text(stringResource(R.string.s_b8a8fe0d6a8f)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
@@ -552,7 +633,7 @@ private fun ExpandableTokenFab(
                         onManualAdd()
                     },
                     icon = { Icon(Icons.Outlined.Add, contentDescription = null) },
-                    text = { Text("手动添加") },
+                    text = { Text(stringResource(R.string.s_0307a7752d6c)) },
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 )
@@ -566,7 +647,7 @@ private fun ExpandableTokenFab(
         ) {
             Icon(
                 Icons.Outlined.Add,
-                contentDescription = if (expanded) "收起添加入口" else "添加动态令牌",
+                contentDescription = localized(if (expanded) "收起添加入口" else "添加动态令牌"),
                 modifier = Modifier.rotate(rotation),
             )
         }
@@ -585,7 +666,14 @@ private fun RowScope.NavigationItem(
         selected = selected == index,
         onClick = { onTab(index) },
         icon = { Icon(icon, contentDescription = label) },
-        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+        label = {
+            Text(
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = MaterialTheme.colorScheme.primary,
             selectedTextColor = MaterialTheme.colorScheme.primary,

@@ -1,5 +1,9 @@
 package top.talyra42.keycase.ui
 
+import androidx.compose.ui.res.stringResource
+
+import top.talyra42.keycase.R
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,9 +49,9 @@ fun HomeScreen(
 ) {
     val activeItems = data.items.filter { it.deletedAt == null }
     val passwords = activeItems.filter { it.kind == ItemKind.LOGIN }
-    val tokens = activeItems.filter { it.kind == ItemKind.TOTP || it.totp != null }
+    val tokens = activeItems.filter { it.kind == ItemKind.TOTP }
     val issues = passwordIssueCount(passwords)
-    val recent = activeItems.sortedByDescending { it.updatedAt }.take(6)
+    val recent = activeItems.sortedByDescending { it.updatedAt }.take(5)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +89,7 @@ fun HomeScreen(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        text = "搜索密码、账号、令牌",
+                        text = stringResource(R.string.s_dcade4ec98a9),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -104,7 +108,7 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    title = "动态令牌",
+                    title = "令牌",
                     count = tokens.size,
                     icon = Icons.Outlined.Schedule,
                     onClick = onOpenTokens,
@@ -121,7 +125,7 @@ fun HomeScreen(
                     modifier = Modifier.weight(1f),
                 )
                 StatCard(
-                    title = "待处理",
+                    title = "需处理",
                     count = issues,
                     icon = Icons.Outlined.Shield,
                     onClick = onOpenSecurity,
@@ -132,7 +136,7 @@ fun HomeScreen(
 
         item {
             SectionHeader(
-                title = "最近使用",
+                title = "最近更新",
             )
         }
 
@@ -144,12 +148,27 @@ fun HomeScreen(
                         title = "保险库还是空的",
                         subtitle = "在“密码”或“令牌”里添加第一条。",
                         action = {
-                            FilledTonalButton(onClick = onOpenAllPasswords) { Text("去添加密码") }
+                            FilledTonalButton(onClick = onOpenAllPasswords) { Text(stringResource(R.string.s_87653c04a484)) }
                         },
                     )
                 } else {
                     recent.forEachIndexed { index, item ->
-                        VaultItemRow(item = item, onClick = { onOpenItem(item) })
+                        VaultItemRow(
+                            item = item,
+                            onClick = { onOpenItem(item) },
+                            trailing = {
+                                Icon(
+                                    imageVector = if (item.kind == ItemKind.TOTP) {
+                                        Icons.Outlined.Schedule
+                                    } else {
+                                        Icons.Outlined.VpnKey
+                                    },
+                                    contentDescription = localized(if (item.kind == ItemKind.TOTP) "动态令牌" else "密码"),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f),
+                                    modifier = Modifier.size(14.dp),
+                                )
+                            },
+                        )
                         if (index != recent.lastIndex) {
                             HorizontalDivider(
                                 modifier = Modifier.padding(start = 58.dp),
@@ -160,18 +179,5 @@ fun HomeScreen(
                 }
             }
         }
-    }
-}
-
-fun passwordIssueCount(items: List<VaultItem>): Int {
-    val common = setOf("123456", "password", "12345678", "qwerty", "111111", "abc123")
-    val reused = items.groupBy { it.password }.filterValues { it.size > 1 }.keys
-    return items.count { item ->
-        val password = item.password
-        password.isBlank() ||
-            password.length < 8 ||
-            password.all(Char::isDigit) ||
-            password.lowercase() in common ||
-            password in reused
     }
 }

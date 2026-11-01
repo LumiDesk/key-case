@@ -31,6 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -120,8 +124,22 @@ fun AlphabetIndex(
         }
     }
 
+    val accessibilityActions = letters
+        .filter { it in availableLetters }
+        .map { letter ->
+            CustomAccessibilityAction(letter) {
+                jumpTo(letter)
+                true
+            }
+        }
+    val indexLabel = localized("字母索引")
+
     Box(
         modifier = modifier
+            .semantics {
+                contentDescription = indexLabel
+                customActions = accessibilityActions
+            }
             .onSizeChanged { heightPx = it.height }
             .pointerInput(letters, heightPx, sectionStarts, availableLetters) {
                 awaitEachGesture {
