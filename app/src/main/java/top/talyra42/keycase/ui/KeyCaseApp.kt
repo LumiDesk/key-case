@@ -6,8 +6,8 @@ import top.talyra42.keycase.R
 import top.talyra42.keycase.data.AppSettings
 import top.talyra42.keycase.data.DarkMode
 
-import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -72,7 +72,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import kotlinx.coroutines.launch
@@ -116,7 +115,7 @@ private val RouteSaver = Saver<Route, String>(
 fun KeyCaseApp(viewModel: MainViewModel) {
     val state by viewModel.state.collectAsState()
     val settings by viewModel.settings.collectAsState()
-    val activity = LocalContext.current as? top.talyra42.keycase.MainActivity
+    val activity = LocalActivity.current as? top.talyra42.keycase.MainActivity
     var biometricEnrolled by remember {
         mutableStateOf(activity?.isBiometricEnrolled(state.data?.vaultId) == true)
     }
@@ -419,7 +418,7 @@ private fun MainScaffold(
 ) {
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-    val host = LocalContext.current as? Activity
+    val host = LocalActivity.current
     val exitMessage = localized("再按一次退出")
     val friendlyError = localizedError(error.orEmpty())
     val localizedMessage = localized(message.orEmpty())

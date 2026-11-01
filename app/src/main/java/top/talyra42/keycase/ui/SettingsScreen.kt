@@ -117,6 +117,7 @@ fun SettingsScreen(
     onChangePassword: (String, String, String) -> Unit,
     onDeleteVault: () -> Unit,
 ) {
+    val locale = androidx.compose.ui.platform.LocalConfiguration.current.locales[0]
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/octet-stream"),
     ) { uri -> if (uri != null) onExport(uri) }
@@ -326,7 +327,7 @@ fun SettingsScreen(
                     subtitle = if (settings.lastBackupAt == 0L) {
                         "尚未备份"
                     } else {
-                        java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.getDefault())
+                        java.text.SimpleDateFormat("MM-dd HH:mm", locale)
                             .format(java.util.Date(settings.lastBackupAt))
                     },
                     onClick = null,
