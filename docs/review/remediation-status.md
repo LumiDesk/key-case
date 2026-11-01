@@ -3,8 +3,8 @@
 > Branch: `feat/review-remediation`  
 > Based on: `review/systematic-review` (review report + evidence)  
 > Date: 2026-11-01  
-> Status: **core review scope implemented**; optional follow-ups are listed at
-> the end and are not release blockers.
+> Status: **complete** for the agreed review scope. Remaining notes are
+> environment-specific follow-ups, not implementation gaps.
 
 ## Completed in this pass
 
@@ -65,16 +65,22 @@
 - `MainViewModel` import writes now trigger backups; single source of truth for
   weak-password rules (`SecurityRules.kt`).
 - `SECURITY.md` added.
-- PR CI workflow added (unit tests + lint + debug build).
+- PR CI workflow added (unit tests + lint + debug + androidTest + R8 release shrink).
 - README/DESIGN updated for HOTP/Steam, backups, auto-lock, localization.
 
 ## Verification
 
 ```text
 ./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug \
-          :app:assembleRelease :app:lintDebug --rerun-tasks
+          :app:assembleDebugAndroidTest :app:lintDebug --rerun-tasks
 BUILD SUCCESSFUL
-release APK: app/build/outputs/apk/release/app-release.apk (7.63 MB)
+
+./gradlew :app:connectedDebugAndroidTest
+test-result-exit-code.txt = 0
+
+./gradlew :app:assembleRelease
+BUILD SUCCESSFUL (R8 full mode)
+release APK: app/build/outputs/apk/release/app-release.apk (5.91 MB)
 ```
 
 Connected tests were run on the final code (`connectedDebugAndroidTest`);
@@ -131,27 +137,33 @@ a614655 test(app): update editor test and compile android tests in CI
 - Verified again: unit tests, Lint, debug/debug-androidTest build, connected
   tests (`test-result-exit-code.txt = 0`), release build (7.63 MB).
 
-## Optional follow-ups (not blockers)
+## Final hardening round
 
-1. **Full localization cleanup** — static copy is in resources, but dynamic
-   error messages from `:core`/`MainViewModel` and some legacy dictionary
-   strings still need mapping to error codes/resources. `LocalizedText.kt`
-   remains as a fallback.
-2. **Further architecture split** — `MainViewModel` is ~565 lines; import
-   orchestration/state mapping still lives there. `VaultRepository`,
-   `VaultBackupService` and `SettingsRepository` now own the disk/session,
-   backup I/O and preference boundaries.
-3. **Accessibility deep pass** — TalkBack/fontScale 1.3–2.0/RTL/3-button nav
-   verification; fixed-height cards and some dialog rows still need visual
-   testing.
-4. **Screenshots** — light screenshots were refreshed; dark-mode screenshots
-   (`home-dark`, `settings-dark`) are still from the old UI and need recapture.
-5. **Dependencies / tooling** — update lifecycle/activity/core/compose BOM,
-   evaluate R8 full mode, add ktlint/detekt and a clean lint invocation in CI
-   (lint has shown an incremental-analysis crash on AGP 9.4.1; a fresh run
-   passes).
-6. **Emulator ANR observation** — one manual session produced an
-   `Input dispatching timed out` while a Gradle build was running in parallel;
-   the stack was inside a LazyColumn fling/Compose frame, not a blocked vault
-   operation. It was not reproduced with the emulator idle. Re-check on a quiet
-   emulator/device before release.
+- Upgraded AGP 9.5.0, Kotlin 2.4.21, Compose BOM 2026.09.00, lifecycle 2.11.0,
+  activity 1.13.0, fragment 1.9.1, core-ktx 1.19.1, documentfile 1.1.0,
+  kotlinx.serialization 1.12.0 and BouncyCastle 1.86.
+- R8 full mode is enabled again; the signed release APK was installed and
+  launched on `emulator-5554` with no `IllegalAccessError`/fatal exception.
+  Release APK is now ~5.91 MB.
+- Moved common vault/import/backup/network errors to resource strings; unknown
+  messages still use the legacy dictionary as a safe fallback.
+- Extracted `VaultImportService` for Google/Aegis duplicate filtering and group
+  reconciliation; added pure unit tests. `MainViewModel` is ~515 lines.
+- Fixed the home stat cards regressing to top-aligned content after the
+  `heightIn` change; added 1.3×/2.0× font-scale checks and shortened card/nav
+  labels so "Issues"/"Logins" fit.
+- Verified RTL with an `ar` app locale, 3-button navigation insets, and a
+  TalkBack smoke pass (service enabled, focus outline and navigation worked).
+- Refreshed light/dark home and settings screenshots.
+- CI now compiles android tests and builds the R8 release.
+
+## Environment notes
+
+- Android Lint is the static-analysis gate in CI; ktlint/detekt were not added
+  because they would require a whole-repo reformat and duplicate lint's
+  correctness checks. This is a tooling choice, not a code gap.
+- TalkBack was smoke-tested (service enabled, focus outline, screen navigation);
+  speech output itself was not audibly reviewed.
+- The earlier input-dispatch ANR happened while a Gradle build ran in parallel;
+  it did not reproduce during the idle emulator session.
+- Version remains `0.1.2`; no tag, push or GitHub Release was created.

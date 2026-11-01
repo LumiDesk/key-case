@@ -88,6 +88,8 @@ contain only the compare link between the previous and current tag.
 
 Release builds run R8 shrinking/optimization with `-dontobfuscate`, so the APK
 is smaller while class names remain readable for an open-source project.
+Development builds now use R8 full mode; after a toolchain upgrade, launch the
+signed release APK once to catch runtime shrinker regressions.
 
 ## Tests
 

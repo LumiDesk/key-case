@@ -137,4 +137,4 @@ KeyCase 的视觉语言：**本地、克制、可信赖**。整体是中性底�
 - 图标解码/解析必须在 IO，并使用缓存；头像按目标像素桶渲染（64/128/256/320px）
 - 图标包导入/自定义图片使用 bounds + `inSampleSize`，禁止全尺寸解码
 - 冷启动不显示“字母占位 → 真图标”的闪烁
-- Release 开启 R8 压缩/优化但使用 `-dontobfuscate`（开源项目保留可读类名）；full mode 在当前 Kotlin 工具链关闭以避免 `IllegalAccessError`
+- Release 开启 R8 压缩/优化但使用 `-dontobfuscate`（开源项目保留可读类名）；AGP 9.5 / Kotlin 2.4 升级后已启用 R8 full mode，发布前必须启动一次签名包验证运行时

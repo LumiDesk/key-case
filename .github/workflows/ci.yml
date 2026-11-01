@@ -21,15 +21,15 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Unit tests and lint
+      - name: Unit tests, lint and release shrink
         run: >-
           ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug
-          :app:assembleDebug :app:assembleDebugAndroidTest
+          :app:assembleDebug :app:assembleDebugAndroidTest :app:assembleRelease
           --no-configuration-cache
