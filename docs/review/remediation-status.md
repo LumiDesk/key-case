@@ -117,8 +117,13 @@ a614655 test(app): update editor test and compile android tests in CI
   unknown errors still fall back to the dictionary.
 - CI now also compiles `assembleDebugAndroidTest`, which caught a missing
   `onPrepareExternal` argument in `PasswordEditorSheetTest`.
+- Extracted `VaultRepository`: it owns `vault.tkv`, the unlocked session and the
+  single write mutex. `MainViewModel` is down to ~660 lines and no longer
+  touches `AndroidVaultStore`/`UnlockedVault` directly. Verified on the emulator:
+  create → change master password → save item → background/lock → unlock with
+  new password → item intact.
 - Verified again: unit tests, Lint, debug/debug-androidTest build, connected
-  tests (`test-result-exit-code.txt = 0`).
+  tests (`test-result-exit-code.txt = 0`), release build (7.63 MB).
 
 ## Remaining work
 
@@ -126,9 +131,9 @@ a614655 test(app): update editor test and compile android tests in CI
    error messages from `:core`/`MainViewModel` and some legacy dictionary
    strings still need mapping to error codes/resources. `LocalizedText.kt`
    remains as a fallback.
-2. **Architecture split** — `MainViewModel` is still ~760 lines; split vault
-   repository / import / backup / settings concerns. Pure refactor, no behavior
-   change.
+2. **Further architecture split** — `MainViewModel` is ~660 lines; settings,
+   import orchestration and backup still live there. `VaultRepository` now owns
+   the session/disk boundary.
 3. **Accessibility deep pass** — TalkBack/fontScale 1.3–2.0/RTL/3-button nav
    verification; fixed-height cards and some dialog rows still need visual
    testing.
