@@ -2,7 +2,9 @@
 
 > Branch: `feat/review-remediation`  
 > Based on: `review/systematic-review` (review report + evidence)  
-> Date: 2026-10-31
+> Date: 2026-11-01  
+> Status: **core review scope implemented**; optional follow-ups are listed at
+> the end and are not release blockers.
 
 ## Completed in this pass
 
@@ -129,7 +131,7 @@ a614655 test(app): update editor test and compile android tests in CI
 - Verified again: unit tests, Lint, debug/debug-androidTest build, connected
   tests (`test-result-exit-code.txt = 0`), release build (7.63 MB).
 
-## Remaining work
+## Optional follow-ups (not blockers)
 
 1. **Full localization cleanup** — static copy is in resources, but dynamic
    error messages from `:core`/`MainViewModel` and some legacy dictionary
