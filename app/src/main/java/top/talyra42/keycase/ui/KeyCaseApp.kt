@@ -3,6 +3,8 @@ package top.talyra42.keycase.ui
 import androidx.compose.ui.res.stringResource
 
 import top.talyra42.keycase.R
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.DarkMode
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler

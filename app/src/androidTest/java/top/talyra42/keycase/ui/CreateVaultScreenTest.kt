@@ -8,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import top.talyra42.keycase.data.AppSettings
 import top.talyra42.keycase.ui.theme.KeyCaseTheme
 
 @RunWith(AndroidJUnit4::class)

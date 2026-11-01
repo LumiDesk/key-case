@@ -1,7 +1,6 @@
 package top.talyra42.keycase.ui
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,30 +17,14 @@ import top.talyra42.keycase.core.model.VaultGroup
 import top.talyra42.keycase.core.model.VaultItem
 import top.talyra42.keycase.core.otp.GoogleMigrationParser
 import top.talyra42.keycase.core.otp.withNextCounter
-import top.talyra42.keycase.data.AutoBackupManager
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.CodeGrouping
+import top.talyra42.keycase.data.DarkMode
+import top.talyra42.keycase.data.SettingsRepository
+import top.talyra42.keycase.data.VaultBackupService
 import top.talyra42.keycase.data.VaultRepository
-import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.UUID
-
-enum class DarkMode { SYSTEM, LIGHT, DARK }
-
-enum class CodeGrouping { AUTO, THREE, FOUR, NONE }
-
-data class AppSettings(
-    val accentIndex: Int = 0,
-    val customAccent: Int? = null,
-    val darkMode: DarkMode = DarkMode.SYSTEM,
-    val showTokenCodes: Boolean = true,
-    val showNextToken: Boolean = false,
-    val secureScreen: Boolean = false,
-    val autoLockSeconds: Int = 0,
-    val codeGrouping: CodeGrouping = CodeGrouping.AUTO,
-    val autoBackup: Boolean = false,
-    val backupTreeUri: String = "",
-    val backupFolderName: String = "",
-    val lastBackupAt: Long = 0L,
-)
 
 data class UiState(
     val vaultExists: Boolean = false,
@@ -54,14 +37,15 @@ data class UiState(
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val vault = VaultRepository(application)
-    private val prefs = application.getSharedPreferences("keycase.settings.v2", Context.MODE_PRIVATE)
+    private val backups = VaultBackupService(application)
+    private val settingsStore = SettingsRepository(application)
 
     private val _state = MutableStateFlow(
         UiState(vaultExists = vault.exists(), locked = true),
     )
     val state = _state.asStateFlow()
 
-    private val _settings = MutableStateFlow(loadSettings())
+    private val _settings = MutableStateFlow(settingsStore.load())
     val settings = _settings.asStateFlow()
 
     private var keepUnlockedForExternal = false
@@ -412,64 +396,55 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setAccent(index: Int) {
         val safe = index.coerceIn(0, 4)
-        _settings.update { it.copy(accentIndex = safe, customAccent = null) }
-        prefs.edit().putInt(KEY_ACCENT, safe).remove(KEY_CUSTOM).apply()
+        updateSettings { it.copy(accentIndex = safe, customAccent = null) }
     }
 
     fun setCustomAccent(argb: Int) {
-        _settings.update { it.copy(customAccent = argb) }
-        prefs.edit().putInt(KEY_CUSTOM, argb).apply()
+        updateSettings { it.copy(customAccent = argb) }
     }
 
     fun setDarkMode(mode: DarkMode) {
-        _settings.update { it.copy(darkMode = mode) }
-        prefs.edit().putString(KEY_DARK, mode.name).apply()
+        updateSettings { it.copy(darkMode = mode) }
     }
 
     fun setShowTokenCodes(show: Boolean) {
-        _settings.update { it.copy(showTokenCodes = show) }
-        prefs.edit().putBoolean(KEY_SHOW_CODES, show).apply()
+        updateSettings { it.copy(showTokenCodes = show) }
     }
 
     fun setShowNextToken(show: Boolean) {
-        _settings.update { it.copy(showNextToken = show) }
-        prefs.edit().putBoolean(KEY_NEXT_TOKEN, show).apply()
+        updateSettings { it.copy(showNextToken = show) }
     }
 
     fun setSecureScreen(enabled: Boolean) {
-        _settings.update { it.copy(secureScreen = enabled) }
-        prefs.edit().putBoolean(KEY_SECURE_SCREEN, enabled).apply()
+        updateSettings { it.copy(secureScreen = enabled) }
     }
 
     fun setAutoLockSeconds(seconds: Int) {
-        val safe = seconds.coerceIn(0, 300)
-        _settings.update { it.copy(autoLockSeconds = safe) }
-        prefs.edit().putInt(KEY_AUTO_LOCK, safe).apply()
+        updateSettings { it.copy(autoLockSeconds = seconds.coerceIn(0, 300)) }
     }
 
     fun setCodeGrouping(grouping: CodeGrouping) {
-        _settings.update { it.copy(codeGrouping = grouping) }
-        prefs.edit().putString(KEY_CODE_GROUPING, grouping.name).apply()
+        updateSettings { it.copy(codeGrouping = grouping) }
     }
 
     fun setAutoBackup(enabled: Boolean) {
-        _settings.update { it.copy(autoBackup = enabled) }
-        prefs.edit().putBoolean(KEY_AUTO_BACKUP, enabled).apply()
+        updateSettings { it.copy(autoBackup = enabled) }
     }
 
     fun setBackupFolder(uri: String, displayName: String) {
-        _settings.update {
+        updateSettings {
             it.copy(
                 backupTreeUri = uri,
                 backupFolderName = displayName,
                 autoBackup = true,
             )
         }
-        prefs.edit()
-            .putString(KEY_BACKUP_TREE, uri)
-            .putString(KEY_BACKUP_NAME, displayName)
-            .putBoolean(KEY_AUTO_BACKUP, true)
-            .apply()
+    }
+
+    private fun updateSettings(transform: (AppSettings) -> AppSettings) {
+        val next = transform(_settings.value)
+        _settings.value = next
+        settingsStore.save(next)
     }
 
     fun backupNow() {
@@ -488,13 +463,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun exportBackup(uri: Uri) {
-        val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(busy = true, error = null) }
             try {
-                app.contentResolver.openOutputStream(uri)?.use { out ->
-                    out.write(vault.readBytes())
-                } ?: error("无法写入备份文件")
+                backups.export(uri, vault.readBytes())
                 _state.update { it.copy(busy = false) }
             } catch (e: Exception) {
                 _state.update {
@@ -509,12 +481,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             _state.update { it.copy(error = "请输入备份的主密码") }
             return
         }
-        val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(busy = true, error = null) }
             val chars = password.toCharArray()
             try {
-                val bytes = readLimited(app, uri)
+                val bytes = backups.readLimited(uri)
                 val imported = vault.replaceWithBackup(bytes, chars)
                 autoBackupIfConfigured(bytes)
                 _state.update {
@@ -538,12 +509,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun importAegis(uri: Uri, password: String) {
-        val app = getApplication<Application>()
         viewModelScope.launch(Dispatchers.IO) {
             _state.update { it.copy(busy = true, error = null) }
             val chars = password.toCharArray()
             try {
-                val bytes = readLimited(app, uri)
+                val bytes = backups.readLimited(uri)
                 val result = AegisImporter.import(bytes, chars)
                 val current = vault.currentData() ?: error("Vault is locked")
                 val data = current
@@ -602,73 +572,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         super.onCleared()
     }
 
-    private fun loadSettings(): AppSettings {
-        val accent = prefs.getInt(KEY_ACCENT, 0).coerceIn(0, 4)
-        val custom = if (prefs.contains(KEY_CUSTOM)) prefs.getInt(KEY_CUSTOM, 0) else null
-        val dark = runCatching {
-            DarkMode.valueOf(prefs.getString(KEY_DARK, DarkMode.SYSTEM.name)!!)
-        }.getOrDefault(DarkMode.SYSTEM)
-        return AppSettings(
-            accentIndex = accent,
-            customAccent = custom,
-            darkMode = dark,
-            showTokenCodes = prefs.getBoolean(KEY_SHOW_CODES, true),
-            showNextToken = prefs.getBoolean(KEY_NEXT_TOKEN, false),
-            secureScreen = prefs.getBoolean(KEY_SECURE_SCREEN, false),
-            autoLockSeconds = prefs.getInt(KEY_AUTO_LOCK, 0),
-            codeGrouping = runCatching {
-                CodeGrouping.valueOf(
-                    prefs.getString(KEY_CODE_GROUPING, CodeGrouping.AUTO.name)!!,
-                )
-            }.getOrDefault(CodeGrouping.AUTO),
-            autoBackup = prefs.getBoolean(KEY_AUTO_BACKUP, false),
-            backupTreeUri = prefs.getString(KEY_BACKUP_TREE, "").orEmpty(),
-            backupFolderName = prefs.getString(KEY_BACKUP_NAME, "").orEmpty(),
-            lastBackupAt = prefs.getLong(KEY_LAST_BACKUP, 0L),
-        )
-    }
-
     private fun autoBackupIfConfigured(bytes: ByteArray) {
         val settings = _settings.value
         if (!settings.autoBackup || settings.backupTreeUri.isBlank()) return
         runCatching { writeBackup(bytes) }
     }
 
-    private fun readLimited(
-        context: Context,
-        uri: Uri,
-        maxBytes: Int = MAX_IMPORT_BYTES,
-    ): ByteArray {
-        val input = context.contentResolver.openInputStream(uri)
-            ?: error("无法读取文件")
-        return input.use { stream ->
-            val out = ByteArrayOutputStream()
-            val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-            var total = 0
-            while (true) {
-                val read = stream.read(buffer)
-                if (read < 0) break
-                total += read
-                if (total > maxBytes) {
-                    error("文件过大（上限 ${maxBytes / (1024 * 1024)} MB）")
-                }
-                out.write(buffer, 0, read)
-            }
-            out.toByteArray()
-        }
-    }
-
     private fun writeBackup(bytes: ByteArray) {
         val current = _settings.value
         if (current.backupTreeUri.isBlank()) error("请先选择备份目录")
-        AutoBackupManager.write(
-            context = getApplication(),
-            treeUri = current.backupTreeUri,
-            bytes = bytes,
-        )
+        backups.writeSnapshot(current.backupTreeUri, bytes)
         val now = System.currentTimeMillis()
-        _settings.update { it.copy(lastBackupAt = now) }
-        prefs.edit().putLong(KEY_LAST_BACKUP, now).apply()
+        updateSettings { it.copy(lastBackupAt = now) }
     }
 
     private fun persist(data: VaultData) {
@@ -699,21 +614,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             }
         }
-    }
-
-    companion object {
-        private const val MAX_IMPORT_BYTES = 64 * 1024 * 1024
-        private const val KEY_ACCENT = "accent"
-        private const val KEY_CUSTOM = "customAccent"
-        private const val KEY_DARK = "dark"
-        private const val KEY_SHOW_CODES = "showTokenCodes"
-        private const val KEY_NEXT_TOKEN = "showNextToken"
-        private const val KEY_SECURE_SCREEN = "secureScreen"
-        private const val KEY_AUTO_LOCK = "autoLockSeconds"
-        private const val KEY_CODE_GROUPING = "codeGrouping"
-        private const val KEY_AUTO_BACKUP = "autoBackup"
-        private const val KEY_BACKUP_TREE = "backupTreeUri"
-        private const val KEY_BACKUP_NAME = "backupFolderName"
-        private const val KEY_LAST_BACKUP = "lastBackupAt"
     }
 }

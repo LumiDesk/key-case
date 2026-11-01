@@ -3,6 +3,7 @@ package top.talyra42.keycase.ui
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import top.talyra42.keycase.core.model.OtpType
+import top.talyra42.keycase.data.CodeGrouping
 
 class TokenFormatTest {
     @Test

@@ -3,6 +3,9 @@ package top.talyra42.keycase.ui
 import androidx.compose.ui.res.stringResource
 
 import top.talyra42.keycase.R
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.CodeGrouping
+import top.talyra42.keycase.data.DarkMode
 
 import android.content.Intent
 import android.net.Uri
@@ -30,7 +33,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.DarkMode
+import androidx.compose.material.icons.outlined.DarkMode as DarkModeIcon
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FileDownload
@@ -811,7 +814,7 @@ private fun ThemeSetting(mode: DarkMode, onDarkMode: (DarkMode) -> Unit) {
     Column(modifier = Modifier.padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
-                Icons.Outlined.DarkMode,
+                Icons.Outlined.DarkModeIcon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp),

@@ -1,6 +1,7 @@
 package top.talyra42.keycase.ui
 
 import top.talyra42.keycase.core.model.OtpType
+import top.talyra42.keycase.data.CodeGrouping
 
 /**
  * Formats a TOTP code with the user's preferred group size.

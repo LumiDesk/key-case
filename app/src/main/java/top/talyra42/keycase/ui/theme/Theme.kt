@@ -14,8 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
-import top.talyra42.keycase.ui.AppSettings
-import top.talyra42.keycase.ui.DarkMode
+import top.talyra42.keycase.data.AppSettings
+import top.talyra42.keycase.data.DarkMode
 
 private fun Color.tintOn(background: Color, alpha: Float): Color =
     copy(alpha = alpha).compositeOver(background)
