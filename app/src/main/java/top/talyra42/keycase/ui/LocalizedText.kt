@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
+import top.talyra42.keycase.R
 
 @Composable
 fun localized(text: String): String {
@@ -33,22 +35,29 @@ fun localized(text: String): String {
 fun localizedError(text: String): String {
     if (text.isBlank()) return text
     val raw = text.trim()
-    val friendly = when {
+    val errorRes = when {
         raw.startsWith("Wrong password") ||
             raw.contains("corrupted key slot") ||
-            raw.contains("AEADBadTag") -> "主密码错误，或保险库文件已损坏。"
-        raw.contains("Vault is locked") -> "保险库已锁定，请重新解锁。"
+            raw.contains("AEADBadTag") -> R.string.error_wrong_password
+        raw.contains("Vault is locked") -> R.string.error_vault_locked
         raw.startsWith("Invalid vault") ||
             raw.startsWith("Bad vault") ||
             raw.startsWith("Unsupported vault") ||
             raw.startsWith("File is too small") ||
-            raw.contains("Vault payload is too large") -> "无法读取保险库文件，文件可能已损坏或版本不兼容。"
+            raw.contains("Vault payload is too large") -> R.string.error_vault_unreadable
         raw.startsWith("GitHub returned") ||
             raw.contains("Unable to resolve host") ||
-            raw.contains("timeout", ignoreCase = true) -> "检查更新失败，请检查网络连接后重试。"
+            raw.contains("timeout", ignoreCase = true) -> R.string.error_update_network
+        raw.contains("文件过大") -> R.string.error_file_too_large
+        raw.contains("无法读取文件") -> R.string.error_file_unreadable
+        raw.contains("无法写入备份文件") ||
+            raw.contains("备份目录") ||
+            raw.contains("无法创建") -> R.string.error_backup_failed
+        raw.contains("Aegis 密码错误") ||
+            raw.contains("Aegis password") -> R.string.error_aegis_password
         else -> null
     }
-    return localized(friendly ?: raw)
+    return if (errorRes != null) stringResource(errorRes) else localized(raw)
 }
 
 /**

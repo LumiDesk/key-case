@@ -296,4 +296,12 @@
     <string name="s_8276e61c0585">Code grouping</string>
     <string name="s_57109d2d3250">Advanced info</string>
     <string name="s_dd07e641ca66">Advanced settings</string>
+    <string name="error_wrong_password">Wrong master password, or the vault file is corrupted.</string>
+    <string name="error_vault_locked">The vault is locked. Unlock it again.</string>
+    <string name="error_vault_unreadable">Cannot read the vault file. It may be corrupted or from an unsupported version.</string>
+    <string name="error_update_network">Update check failed. Check your network connection and try again.</string>
+    <string name="error_file_too_large">The selected file is too large.</string>
+    <string name="error_file_unreadable">The selected file could not be read.</string>
+    <string name="error_backup_failed">The encrypted backup could not be written.</string>
+    <string name="error_aegis_password">Wrong Aegis password, or the backup slot is corrupted.</string>
 </resources>

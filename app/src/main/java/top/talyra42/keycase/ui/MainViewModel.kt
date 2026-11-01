@@ -22,6 +22,7 @@ import top.talyra42.keycase.data.CodeGrouping
 import top.talyra42.keycase.data.DarkMode
 import top.talyra42.keycase.data.SettingsRepository
 import top.talyra42.keycase.data.VaultBackupService
+import top.talyra42.keycase.data.VaultImportService
 import top.talyra42.keycase.data.VaultRepository
 import java.time.Instant
 import java.util.UUID
@@ -338,43 +339,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 val parsed = GoogleMigrationParser.parse(link.trim())
                 val current = vault.currentData() ?: error("Vault is locked")
-                val now = Instant.now().toString()
-                val existingSecrets = current.items
-                    .mapNotNull { it.totp?.secret }
-                    .toMutableSet()
-                val unique = parsed.filter { existingSecrets.add(it.secret) }
-                val skipped = parsed.size - unique.size
-                val items = unique.map { otp ->
-                    VaultItem(
-                        id = UUID.randomUUID().toString(),
-                        kind = ItemKind.TOTP,
-                        title = otp.issuer.ifBlank { otp.account }.ifBlank { "动态令牌" },
-                        issuer = otp.issuer,
-                        username = otp.account,
-                        totp = TotpSecret(
-                            type = otp.type,
-                            secret = otp.secret,
-                            algorithm = otp.algorithm,
-                            digits = otp.digits,
-                            period = otp.period,
-                            counter = otp.counter,
-                        ),
-                        createdAt = now,
-                        updatedAt = now,
-                    )
-                }
-                val nextData = current.copy(items = current.items + items)
-                val bytes = vault.persist(nextData)
+                val merged = VaultImportService.mergeGoogle(current, parsed)
+                val bytes = vault.persist(merged.data)
                 autoBackupIfConfigured(bytes)
                 _state.update {
                     it.copy(
-                        data = nextData,
+                        data = merged.data,
                         busy = false,
                         error = null,
-                        message = if (skipped > 0) {
-                            "已导入 ${items.size} 个令牌（跳过 $skipped 个重复）"
+                        message = if (merged.skippedDuplicates > 0) {
+                            "已导入 ${merged.imported} 个令牌（跳过 ${merged.skippedDuplicates} 个重复）"
                         } else {
-                            "已导入 ${items.size} 个令牌"
+                            "已导入 ${merged.imported} 个令牌"
                         },
                     )
                 }
@@ -516,44 +492,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 val bytes = backups.readLimited(uri)
                 val result = AegisImporter.import(bytes, chars)
                 val current = vault.currentData() ?: error("Vault is locked")
-                val data = current
-                val existingSecrets = data.items
-                    .mapNotNull { it.totp?.secret }
-                    .toMutableSet()
-                val uniqueItems = result.items.filter { item ->
-                    item.totp?.secret?.let { existingSecrets.add(it) } ?: true
-                }
-                val skippedDuplicates = result.items.size - uniqueItems.size
-                val groups = data.groups.toMutableList()
-                val groupIdMap = mutableMapOf<String, String>()
-                result.groups.forEach { importedGroup ->
-                    val existing = groups.firstOrNull {
-                        it.name.equals(importedGroup.name, ignoreCase = true)
-                    }
-                    val target = existing ?: importedGroup.copy(id = UUID.randomUUID().toString())
-                        .also { groups.add(it) }
-                    groupIdMap[importedGroup.id] = target.id
-                }
-                val importedItems = uniqueItems.map { item ->
-                    item.copy(
-                        groupIds = item.groupIds.mapNotNull { groupIdMap[it] },
-                    )
-                }
-                val merged = data.copy(
-                    groups = groups,
-                    items = data.items + importedItems,
-                )
-                val sealedBytes = vault.persist(merged)
+                val merged = VaultImportService.mergeAegis(current, result)
+                val sealedBytes = vault.persist(merged.data)
                 autoBackupIfConfigured(sealedBytes)
                 _state.update {
                     it.copy(
-                        data = merged,
+                        data = merged.data,
                         busy = false,
                         error = null,
-                        message = if (skippedDuplicates > 0) {
-                            "已导入 ${importedItems.size} 个条目（跳过 $skippedDuplicates 个重复）"
+                        message = if (merged.skippedDuplicates > 0) {
+                            "已导入 ${merged.imported} 个条目（跳过 ${merged.skippedDuplicates} 个重复）"
                         } else {
-                            "已导入 ${importedItems.size} 个条目"
+                            "已导入 ${merged.imported} 个条目"
                         },
                     )
                 }
