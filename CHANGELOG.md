@@ -4,6 +4,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.0.6] - 2026-11-02
+
 ### Added
 
 - About now links to the public GitHub repository.
