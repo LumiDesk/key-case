@@ -14,8 +14,9 @@ encrypted container on the device; the master password never leaves it.
 
 - **Encrypted at rest.** The vault is `AES-256-GCM` ciphertext; the vault key is wrapped by a
   key derived from the master password with `Argon2id` (64 MiB, 3 iterations, p=2).
-- **Nothing leaves the device.** The app declares no `INTERNET` permission and contains no
-  analytics, sync or crash reporting.
+- **Almost nothing leaves the device.** No analytics, no sync, no crash reporting. `INTERNET` is
+  declared for exactly one action: the user-triggered "check for updates" request to the public
+  GitHub release feed. Nothing is uploaded, ever.
 - **No plaintext on disk.** Passwords and TOTP secrets only exist in memory while unlocked and
   inside the encrypted container. Backups are encrypted container copies.
 - **Portable data.** Export/import the encrypted container at any time; scan standard
@@ -30,9 +31,10 @@ encrypted container on the device; the master password never leaves it.
 | Logins | account / password / URL / notes, random password generator, copy-to-clipboard |
 | Tokens | TOTP, HOTP (with counter), Steam; one shared ticker, per-row countdown ring |
 | Lists | A–Z grouping, search across names/accounts/URLs/notes, favorites, sorting menu |
-| Icons | built-in Aegis Simple Icons pack, automatic brand matching, letter fallback |
-| Data | encrypted export/import, 10 rotating snapshots after each save, trash with restore |
-| Appearance | system/light/dark, five accent presets, custom color, Chinese/English |
+| Icons | built-in Aegis Simple Icons pack, automatic brand matching, searchable picker, custom image icons |
+| Data | encrypted export/import, Aegis vault import, Google Authenticator migration import, snapshots into a folder you pick (10 kept), trash with restore |
+| Appearance | system/light/dark, five accent presets, HSV custom color, Chinese/English |
+| Updates | manual "check for updates" against GitHub Releases; no background polling |
 
 ## Screenshots
 

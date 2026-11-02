@@ -107,9 +107,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useBiometric => 'Unlock with fingerprint';
 
   @override
-  String get vaultLockedLabel => 'Locked';
-
-  @override
   String get strengthWeak => 'Weak';
 
   @override
@@ -237,15 +234,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get detailHideCode => 'Hide code';
-
-  @override
-  String get detailNextCode => 'Next';
-
-  @override
-  String get detailCopyCode => 'Copy code';
-
-  @override
-  String get detailOpenUrl => 'Open URL';
 
   @override
   String get detailDelete => 'Move to trash';
@@ -407,9 +395,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsAutoLock => 'Auto-lock';
-
-  @override
-  String get settingsAutoLockDesc => 'How long after leaving the app it locks';
 
   @override
   String get autoLockImmediate => 'Immediately';
@@ -614,9 +599,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aegisPasswordHint => 'Leave empty for unencrypted exports';
 
   @override
-  String get importAction => 'Import';
-
-  @override
   String get googleMigrationTitle => 'Google migration link';
 
   @override
@@ -760,12 +742,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteVaultAction => 'Delete vault';
 
   @override
-  String get emptyTrashAction => 'Empty trash';
-
-  @override
-  String get backupExportedTo => 'Exported';
-
-  @override
   String get errorBackupFolderMissing => 'No backup folder selected yet';
 
   @override
@@ -792,9 +768,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsCheckUpdate => 'Check for updates';
-
-  @override
-  String get settingsCheckUpdateDesc => 'Only contacts GitHub when you tap';
 
   @override
   String get updateAvailableTitle => 'Update available';
@@ -835,10 +808,5 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String itemsCount(int count) {
     return '$count items';
-  }
-
-  @override
-  String tokensHeaderProgress(int period) {
-    return 'Codes refresh every ${period}s';
   }
 }

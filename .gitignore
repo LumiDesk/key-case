@@ -27,3 +27,4 @@ captures/
 .DS_Store
 
 dist/
+tmp/

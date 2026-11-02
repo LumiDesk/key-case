@@ -32,7 +32,6 @@
   "unlockSubtitle": "输入主密码继续",
   "unlock": "解锁",
   "useBiometric": "使用指纹解锁",
-  "vaultLockedLabel": "已锁定",
   "strengthWeak": "弱",
   "strengthFair": "一般",
   "strengthGood": "较强",
@@ -82,9 +81,6 @@
   "detailTokenCounter": "计数器",
   "detailShowCode": "显示验证码",
   "detailHideCode": "隐藏验证码",
-  "detailNextCode": "下一组",
-  "detailCopyCode": "复制验证码",
-  "detailOpenUrl": "打开网址",
   "detailDelete": "移到回收站",
   "detailDeleteMessage": "该条目会进入回收站，可随时恢复。",
   "detailFavorite": "收藏",
@@ -138,7 +134,6 @@
   "settingsSecureScreen": "防止截屏",
   "settingsSecureScreenDesc": "禁止系统截图与录屏",
   "settingsAutoLock": "自动锁定",
-  "settingsAutoLockDesc": "离开应用后多久重新上锁",
   "autoLockImmediate": "立即",
   "autoLock30": "30 秒",
   "autoLock60": "1 分钟",
@@ -203,7 +198,6 @@
   "settingsImportGoogleDesc": "粘贴迁移链接，或扫描迁移二维码",
   "aegisPasswordTitle": "Aegis 备份密码",
   "aegisPasswordHint": "未加密的备份可留空",
-  "importAction": "导入",
   "googleMigrationTitle": "Google 迁移链接",
   "googleMigrationHint": "otpauth-migration://…",
   "noticeImported": "已导入 {count} 个条目",
@@ -262,8 +256,6 @@
   "biometricUnlockReason": "验证指纹以解锁 KeyCase",
   "biometricEnableReason": "验证指纹以启用快捷解锁",
   "deleteVaultAction": "删除保险库",
-  "emptyTrashAction": "清空回收站",
-  "backupExportedTo": "已导出",
   "errorBackupFolderMissing": "还没有选择备份目录",
   "noticeBackupFolderSelected": "备份目录已设置",
   "settingsBackupFolder": "备份目录",
@@ -273,7 +265,6 @@
   "settingsBackupNow": "立即备份",
   "settingsBackupNowDesc": "生成一份加密快照，保留最近 10 份",
   "settingsCheckUpdate": "检查更新",
-  "settingsCheckUpdateDesc": "只在点击时访问 GitHub Release",
   "updateAvailableTitle": "发现新版本",
   "updateCurrentVersion": "当前版本",
   "updateLatestVersion": "最新版本",
@@ -284,18 +275,12 @@
   "themeColorHue": "色相",
   "themeColorSaturation": "饱和度",
   "themeColorBrightness": "亮度",
-  "themeColorPreview": "效果预览",  "settingsBackup": "备份",
+  "themeColorPreview": "效果预览",
+  "settingsBackup": "备份",
   "itemsCount": "共 {count} 条",
   "@itemsCount": {
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },  "tokensHeaderProgress": "验证码每 {period} 秒刷新",
-  "@tokensHeaderProgress": {
-    "placeholders": {
-      "period": {
         "type": "int"
       }
     }

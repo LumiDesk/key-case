@@ -4,6 +4,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Changed
+
+- Removed the one-off legacy TKV1 import path: it existed only to migrate the Kotlin-era
+  backup, which is done. Imports now accept the current KCV1 container only.
+
 ## [1.0.3] - 2026-11-02
 
 ### Fixed

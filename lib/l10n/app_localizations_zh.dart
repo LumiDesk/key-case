@@ -106,9 +106,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get useBiometric => '使用指纹解锁';
 
   @override
-  String get vaultLockedLabel => '已锁定';
-
-  @override
   String get strengthWeak => '弱';
 
   @override
@@ -235,15 +232,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get detailHideCode => '隐藏验证码';
-
-  @override
-  String get detailNextCode => '下一组';
-
-  @override
-  String get detailCopyCode => '复制验证码';
-
-  @override
-  String get detailOpenUrl => '打开网址';
 
   @override
   String get detailDelete => '移到回收站';
@@ -403,9 +391,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsAutoLock => '自动锁定';
-
-  @override
-  String get settingsAutoLockDesc => '离开应用后多久重新上锁';
 
   @override
   String get autoLockImmediate => '立即';
@@ -601,9 +586,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get aegisPasswordHint => '未加密的备份可留空';
 
   @override
-  String get importAction => '导入';
-
-  @override
   String get googleMigrationTitle => 'Google 迁移链接';
 
   @override
@@ -740,12 +722,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get deleteVaultAction => '删除保险库';
 
   @override
-  String get emptyTrashAction => '清空回收站';
-
-  @override
-  String get backupExportedTo => '已导出';
-
-  @override
   String get errorBackupFolderMissing => '还没有选择备份目录';
 
   @override
@@ -771,9 +747,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsCheckUpdate => '检查更新';
-
-  @override
-  String get settingsCheckUpdateDesc => '只在点击时访问 GitHub Release';
 
   @override
   String get updateAvailableTitle => '发现新版本';
@@ -814,10 +787,5 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String itemsCount(int count) {
     return '共 $count 条';
-  }
-
-  @override
-  String tokensHeaderProgress(int period) {
-    return '验证码每 $period 秒刷新';
   }
 }

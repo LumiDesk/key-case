@@ -290,12 +290,6 @@ abstract class AppLocalizations {
   /// **'使用指纹解锁'**
   String get useBiometric;
 
-  /// No description provided for @vaultLockedLabel.
-  ///
-  /// In zh, this message translates to:
-  /// **'已锁定'**
-  String get vaultLockedLabel;
-
   /// No description provided for @strengthWeak.
   ///
   /// In zh, this message translates to:
@@ -547,24 +541,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'隐藏验证码'**
   String get detailHideCode;
-
-  /// No description provided for @detailNextCode.
-  ///
-  /// In zh, this message translates to:
-  /// **'下一组'**
-  String get detailNextCode;
-
-  /// No description provided for @detailCopyCode.
-  ///
-  /// In zh, this message translates to:
-  /// **'复制验证码'**
-  String get detailCopyCode;
-
-  /// No description provided for @detailOpenUrl.
-  ///
-  /// In zh, this message translates to:
-  /// **'打开网址'**
-  String get detailOpenUrl;
 
   /// No description provided for @detailDelete.
   ///
@@ -883,12 +859,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'自动锁定'**
   String get settingsAutoLock;
-
-  /// No description provided for @settingsAutoLockDesc.
-  ///
-  /// In zh, this message translates to:
-  /// **'离开应用后多久重新上锁'**
-  String get settingsAutoLockDesc;
 
   /// No description provided for @autoLockImmediate.
   ///
@@ -1274,12 +1244,6 @@ abstract class AppLocalizations {
   /// **'未加密的备份可留空'**
   String get aegisPasswordHint;
 
-  /// No description provided for @importAction.
-  ///
-  /// In zh, this message translates to:
-  /// **'导入'**
-  String get importAction;
-
   /// No description provided for @googleMigrationTitle.
   ///
   /// In zh, this message translates to:
@@ -1544,18 +1508,6 @@ abstract class AppLocalizations {
   /// **'删除保险库'**
   String get deleteVaultAction;
 
-  /// No description provided for @emptyTrashAction.
-  ///
-  /// In zh, this message translates to:
-  /// **'清空回收站'**
-  String get emptyTrashAction;
-
-  /// No description provided for @backupExportedTo.
-  ///
-  /// In zh, this message translates to:
-  /// **'已导出'**
-  String get backupExportedTo;
-
   /// No description provided for @errorBackupFolderMissing.
   ///
   /// In zh, this message translates to:
@@ -1609,12 +1561,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'检查更新'**
   String get settingsCheckUpdate;
-
-  /// No description provided for @settingsCheckUpdateDesc.
-  ///
-  /// In zh, this message translates to:
-  /// **'只在点击时访问 GitHub Release'**
-  String get settingsCheckUpdateDesc;
 
   /// No description provided for @updateAvailableTitle.
   ///
@@ -1693,12 +1639,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'共 {count} 条'**
   String itemsCount(int count);
-
-  /// No description provided for @tokensHeaderProgress.
-  ///
-  /// In zh, this message translates to:
-  /// **'验证码每 {period} 秒刷新'**
-  String tokensHeaderProgress(int period);
 }
 
 class _AppLocalizationsDelegate

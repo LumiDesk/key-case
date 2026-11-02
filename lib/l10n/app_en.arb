@@ -32,7 +32,6 @@
   "unlockSubtitle": "Enter your master password to continue",
   "unlock": "Unlock",
   "useBiometric": "Unlock with fingerprint",
-  "vaultLockedLabel": "Locked",
   "strengthWeak": "Weak",
   "strengthFair": "Fair",
   "strengthGood": "Good",
@@ -82,9 +81,6 @@
   "detailTokenCounter": "Counter",
   "detailShowCode": "Show code",
   "detailHideCode": "Hide code",
-  "detailNextCode": "Next",
-  "detailCopyCode": "Copy code",
-  "detailOpenUrl": "Open URL",
   "detailDelete": "Move to trash",
   "detailDeleteMessage": "The item goes to trash and can be restored.",
   "detailFavorite": "Favorite",
@@ -138,7 +134,6 @@
   "settingsSecureScreen": "Block screenshots",
   "settingsSecureScreenDesc": "Disable system screenshots and recording",
   "settingsAutoLock": "Auto-lock",
-  "settingsAutoLockDesc": "How long after leaving the app it locks",
   "autoLockImmediate": "Immediately",
   "autoLock30": "30 seconds",
   "autoLock60": "1 minute",
@@ -203,7 +198,6 @@
   "settingsImportGoogleDesc": "Paste a migration link or scan its QR code",
   "aegisPasswordTitle": "Aegis backup password",
   "aegisPasswordHint": "Leave empty for unencrypted exports",
-  "importAction": "Import",
   "googleMigrationTitle": "Google migration link",
   "googleMigrationHint": "otpauth-migration://…",
   "noticeImported": "Imported {count} items",
@@ -262,8 +256,6 @@
   "biometricUnlockReason": "Verify your fingerprint to unlock KeyCase",
   "biometricEnableReason": "Verify your fingerprint to enable quick unlock",
   "deleteVaultAction": "Delete vault",
-  "emptyTrashAction": "Empty trash",
-  "backupExportedTo": "Exported",
   "errorBackupFolderMissing": "No backup folder selected yet",
   "noticeBackupFolderSelected": "Backup folder set",
   "settingsBackupFolder": "Backup folder",
@@ -273,7 +265,6 @@
   "settingsBackupNow": "Back up now",
   "settingsBackupNowDesc": "Writes one encrypted snapshot and keeps the latest 10",
   "settingsCheckUpdate": "Check for updates",
-  "settingsCheckUpdateDesc": "Only contacts GitHub when you tap",
   "updateAvailableTitle": "Update available",
   "updateCurrentVersion": "Current version",
   "updateLatestVersion": "Latest version",
@@ -284,18 +275,12 @@
   "themeColorHue": "Hue",
   "themeColorSaturation": "Saturation",
   "themeColorBrightness": "Brightness",
-  "themeColorPreview": "Preview",  "settingsBackup": "Backup",
+  "themeColorPreview": "Preview",
+  "settingsBackup": "Backup",
   "itemsCount": "{count} items",
   "@itemsCount": {
     "placeholders": {
       "count": {
-        "type": "int"
-      }
-    }
-  },  "tokensHeaderProgress": "Codes refresh every {period}s",
-  "@tokensHeaderProgress": {
-    "placeholders": {
-      "period": {
         "type": "int"
       }
     }
