@@ -595,6 +595,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBackupAction => 'Import and replace';
 
   @override
+  String get settingsImportAegis => 'Import from Aegis';
+
+  @override
+  String get settingsImportAegisDesc => 'Merge tokens from an Aegis export';
+
+  @override
+  String get settingsImportGoogle => 'Import from Google Authenticator';
+
+  @override
+  String get settingsImportGoogleDesc =>
+      'Paste a migration link or scan its QR code';
+
+  @override
+  String get aegisPasswordTitle => 'Aegis backup password';
+
+  @override
+  String get aegisPasswordHint => 'Leave empty for unencrypted exports';
+
+  @override
+  String get importAction => 'Import';
+
+  @override
+  String get googleMigrationTitle => 'Google migration link';
+
+  @override
+  String get googleMigrationHint => 'otpauth-migration://…';
+
+  @override
+  String noticeImported(int count) {
+    return 'Imported $count items';
+  }
+
+  @override
+  String noticeMigrationImported(int count) {
+    return 'Migrated $count tokens';
+  }
+
+  @override
+  String get errorAegisPasswordRequired =>
+      'This Aegis backup is encrypted, enter its password';
+
+  @override
+  String get errorAegisWrongPassword => 'Wrong Aegis backup password';
+
+  @override
+  String get errorAegisInvalid => 'Not a valid Aegis export';
+
+  @override
+  String get errorMigrationInvalid => 'Not a valid Google migration link';
+
+  @override
+  String get editorIcon => 'Icon';
+
+  @override
+  String get iconPickerTitle => 'Choose an icon';
+
+  @override
+  String get iconSearchHint => 'Search brands';
+
+  @override
+  String get iconCustom => 'Use a custom image';
+
+  @override
+  String get iconRemove => 'Back to automatic';
+
+  @override
   String get noticeVaultCreated => 'Vault created';
 
   @override

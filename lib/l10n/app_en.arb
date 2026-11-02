@@ -197,6 +197,40 @@
   "importBackupTitle": "Import encrypted backup",
   "importBackupPassword": "Backup master password",
   "importBackupAction": "Import and replace",
+  "settingsImportAegis": "Import from Aegis",
+  "settingsImportAegisDesc": "Merge tokens from an Aegis export",
+  "settingsImportGoogle": "Import from Google Authenticator",
+  "settingsImportGoogleDesc": "Paste a migration link or scan its QR code",
+  "aegisPasswordTitle": "Aegis backup password",
+  "aegisPasswordHint": "Leave empty for unencrypted exports",
+  "importAction": "Import",
+  "googleMigrationTitle": "Google migration link",
+  "googleMigrationHint": "otpauth-migration://…",
+  "noticeImported": "Imported {count} items",
+  "@noticeImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noticeMigrationImported": "Migrated {count} tokens",
+  "@noticeMigrationImported": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "errorAegisPasswordRequired": "This Aegis backup is encrypted, enter its password",
+  "errorAegisWrongPassword": "Wrong Aegis backup password",
+  "errorAegisInvalid": "Not a valid Aegis export",
+  "errorMigrationInvalid": "Not a valid Google migration link",
+  "editorIcon": "Icon",
+  "iconPickerTitle": "Choose an icon",
+  "iconSearchHint": "Search brands",
+  "iconCustom": "Use a custom image",
+  "iconRemove": "Back to automatic",
   "noticeVaultCreated": "Vault created",
   "noticeItemSaved": "Saved",
   "noticeItemDeleted": "Moved to trash",

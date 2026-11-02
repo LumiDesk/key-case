@@ -583,6 +583,70 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importBackupAction => '导入并替换';
 
   @override
+  String get settingsImportAegis => '从 Aegis 导入';
+
+  @override
+  String get settingsImportAegisDesc => '合并 Aegis 导出的动态令牌';
+
+  @override
+  String get settingsImportGoogle => '从 Google Authenticator 导入';
+
+  @override
+  String get settingsImportGoogleDesc => '粘贴迁移链接，或扫描迁移二维码';
+
+  @override
+  String get aegisPasswordTitle => 'Aegis 备份密码';
+
+  @override
+  String get aegisPasswordHint => '未加密的备份可留空';
+
+  @override
+  String get importAction => '导入';
+
+  @override
+  String get googleMigrationTitle => 'Google 迁移链接';
+
+  @override
+  String get googleMigrationHint => 'otpauth-migration://…';
+
+  @override
+  String noticeImported(int count) {
+    return '已导入 $count 个条目';
+  }
+
+  @override
+  String noticeMigrationImported(int count) {
+    return '已迁移 $count 个令牌';
+  }
+
+  @override
+  String get errorAegisPasswordRequired => '这个 Aegis 备份已加密，请输入备份密码';
+
+  @override
+  String get errorAegisWrongPassword => 'Aegis 备份密码不正确';
+
+  @override
+  String get errorAegisInvalid => '不是有效的 Aegis 导出文件';
+
+  @override
+  String get errorMigrationInvalid => '不是有效的 Google 迁移链接';
+
+  @override
+  String get editorIcon => '图标';
+
+  @override
+  String get iconPickerTitle => '选择图标';
+
+  @override
+  String get iconSearchHint => '搜索品牌';
+
+  @override
+  String get iconCustom => '使用自定义图片';
+
+  @override
+  String get iconRemove => '恢复自动匹配';
+
+  @override
   String get noticeVaultCreated => '保险库已创建';
 
   @override

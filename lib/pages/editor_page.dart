@@ -10,6 +10,7 @@ import '../app/util/password_generator.dart';
 import '../app/util/url_tools.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
+import 'icon_picker_sheet.dart';
 import 'sheets.dart';
 
 /// 新建 / 编辑条目。
@@ -35,6 +36,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
   final TextEditingController _secret = TextEditingController();
 
   VaultItem? _original;
+  IconRef? _icon;
   bool _loaded = false;
   bool _obscurePassword = true;
   bool _obscureSecret = true;
@@ -56,6 +58,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
       final item = KeyCaseScope.read(context).state.data?.itemById(id);
       if (item != null) {
         _original = item;
+        _icon = item.icon;
         _title.text = item.title;
         _username.text = item.username;
         _password.text = item.password;
@@ -104,6 +107,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
       return true;
     }
     if (_notes.text != original.notes) return true;
+    if (_icon != original.icon) return true;
     final totp = original.totp;
     if (totp != null) {
       if (_secret.text != totp.secret) return true;
@@ -174,7 +178,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
         ),
         createdAt: original?.createdAt ?? now,
         updatedAt: now,
-        icon: original?.icon,
+        icon: _icon,
         favorite: original?.favorite ?? false,
       );
       await controller.saveItem(item);
@@ -189,12 +193,21 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
         notes: _notes.text.trim(),
         createdAt: original?.createdAt ?? now,
         updatedAt: now,
-        icon: original?.icon,
+        icon: _icon,
         favorite: original?.favorite ?? false,
       );
       await controller.saveItem(item);
     }
     if (mounted) Navigator.of(context).pop();
+  }
+
+  Future<void> _pickIcon() async {
+    final picked = await showIconPickerSheet(context: context, current: _icon);
+    if (picked == null || !mounted) return;
+    // 空名字代表「恢复自动匹配」，等价于清掉显式选择。
+    setState(
+      () => _icon = picked.name.isEmpty && !picked.isCustom ? null : picked,
+    );
   }
 
   void _generatePassword() {
@@ -255,6 +268,12 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                       hint: l10n.editorTitleHint,
                       autofocus: isNew,
                       onChanged: (_) => setState(() => _error = null),
+                    ),
+                    const SizedBox(height: 8),
+                    _EditorIconRow(
+                      icon: _icon,
+                      fallbackSeed: _title.text,
+                      onTap: _pickIcon,
                     ),
                     const SizedBox(height: 14),
                     KcLabeledField(
@@ -453,6 +472,54 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
       ],
     );
     if (value != null) setState(() => _period = value);
+  }
+}
+
+/// 编辑页的图标行：预览 + 「选择图标」。
+class _EditorIconRow extends StatelessWidget {
+  const _EditorIconRow({
+    required this.icon,
+    required this.fallbackSeed,
+    required this.onTap,
+  });
+
+  final IconRef? icon;
+  final String fallbackSeed;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final previewItem = VaultItem(
+      id: 'preview',
+      kind: ItemKind.login,
+      title: fallbackSeed.trim().isEmpty ? '?' : fallbackSeed.trim(),
+      icon: icon,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    return KcCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      onTap: onTap,
+      child: Row(
+        children: <Widget>[
+          KcItemIcon(item: previewItem, size: 34),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context).editorIcon,
+              style: Theme.of(context).textTheme.bodyLarge
+                  ?.copyWith(fontWeight: FontWeight.w500),
+            ),
+          ),
+          Icon(
+            Icons.chevron_right_rounded,
+            size: 20,
+            color: Theme.of(context).colorScheme.onSurface
+                .withValues(alpha: 0.35),
+          ),
+        ],
+      ),
+    );
   }
 }
 

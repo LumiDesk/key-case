@@ -173,6 +173,20 @@ class SettingsPage extends StatelessWidget {
                       onTap: () => _importBackup(context),
                     ),
                     const KcRowDivider(),
+                    KcSettingsRow(
+                      icon: Icons.inventory_2_outlined,
+                      title: l10n.settingsImportAegis,
+                      subtitle: l10n.settingsImportAegisDesc,
+                      onTap: () => _importAegis(context),
+                    ),
+                    const KcRowDivider(),
+                    KcSettingsRow(
+                      icon: Icons.qr_code_2_rounded,
+                      title: l10n.settingsImportGoogle,
+                      subtitle: l10n.settingsImportGoogleDesc,
+                      onTap: () => _importGoogle(context),
+                    ),
+                    const KcRowDivider(),
                     KcSwitchRow(
                       icon: Icons.history_rounded,
                       title: l10n.settingsAutoSnapshot,
@@ -512,6 +526,39 @@ class SettingsPage extends StatelessWidget {
     );
     if (password == null || password.isEmpty || !context.mounted) return;
     await controller.importBackup(bytes: bytes, password: password);
+  }
+
+  /// Aegis：先选文件，再按需问备份密码（明文导出可以直接留空）。
+  Future<void> _importAegis(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final controller = KeyCaseScope.read(context);
+    final bytes = await controller.pickAegisFile();
+    if (bytes == null || !context.mounted) return;
+    final password = await showKcTextInput(
+      context: context,
+      title: l10n.aegisPasswordTitle,
+      hint: l10n.aegisPasswordHint,
+      obscure: true,
+    );
+    if (!context.mounted) return;
+    await controller.importAegisBytes(
+      bytes: bytes,
+      password: (password ?? '').isEmpty ? null : password,
+    );
+  }
+
+  /// Google Authenticator：粘贴迁移链接（也可以直接扫迁移二维码）。
+  Future<void> _importGoogle(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    final controller = KeyCaseScope.read(context);
+    final link = await showKcTextInput(
+      context: context,
+      title: l10n.googleMigrationTitle,
+      hint: l10n.googleMigrationHint,
+      maxLines: 2,
+    );
+    if (link == null || link.trim().isEmpty) return;
+    await controller.importGoogleMigrationLink(link.trim());
   }
 
   void _showPrivacy(BuildContext context) {

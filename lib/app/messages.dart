@@ -21,6 +21,10 @@ String errorText(AppLocalizations l10n, KeyCaseError error) {
     KeyCaseError.biometricEnrolledMissing => l10n.errorBiometricEnrolledMissing,
     KeyCaseError.importFailed => l10n.errorImportFailed,
     KeyCaseError.deleteFailed => l10n.errorDeleteFailed,
+    KeyCaseError.aegisPasswordRequired => l10n.errorAegisPasswordRequired,
+    KeyCaseError.aegisWrongPassword => l10n.errorAegisWrongPassword,
+    KeyCaseError.aegisInvalid => l10n.errorAegisInvalid,
+    KeyCaseError.migrationInvalid => l10n.errorMigrationInvalid,
   };
 }
 
@@ -39,5 +43,20 @@ String noticeText(AppLocalizations l10n, KeyCaseNotice notice) {
     KeyCaseNotice.favoriteUpdated => l10n.noticeFavoriteUpdated,
     KeyCaseNotice.biometricEnabled => l10n.noticeBiometricEnabled,
     KeyCaseNotice.biometricDisabled => l10n.noticeBiometricDisabled,
+    KeyCaseNotice.imported => l10n.noticeImported(0),
+    KeyCaseNotice.migrationImported => l10n.noticeMigrationImported(0),
+  };
+}
+
+/// 带数量的导入提示。main 里的全局提示统一走这里，避免 0 条这种占位文案。
+String importNoticeText(
+  AppLocalizations l10n,
+  KeyCaseNotice notice,
+  int count,
+) {
+  return switch (notice) {
+    KeyCaseNotice.imported => l10n.noticeImported(count),
+    KeyCaseNotice.migrationImported => l10n.noticeMigrationImported(count),
+    _ => noticeText(l10n, notice),
   };
 }

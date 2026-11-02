@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../app/app_theme.dart';
 import '../app/feedback.dart';
+import '../app/import/google_migration.dart';
 import '../app/import/otpauth_parser.dart';
 import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
@@ -47,6 +48,23 @@ class _TokenScanPageState extends State<TokenScanPage> {
   Future<void> _consume(String raw) async {
     if (_handling) return;
     _handling = true;
+    final controller = KeyCaseScope.read(context);
+
+    // Google Authenticator 的迁移二维码是另一种协议，直接整体导入。
+    if (isGoogleMigrationLink(raw)) {
+      final ok = await controller.importGoogleMigrationLink(raw);
+      if (!mounted) return;
+      if (!ok) {
+        setState(() {
+          _error = AppLocalizations.of(context).errorMigrationInvalid;
+          _handling = false;
+        });
+        return;
+      }
+      Navigator.of(context).pop(true);
+      return;
+    }
+
     final payload = parseOtpauthUri(raw);
     if (payload == null) {
       setState(() {
@@ -55,7 +73,6 @@ class _TokenScanPageState extends State<TokenScanPage> {
       });
       return;
     }
-    final controller = KeyCaseScope.read(context);
     final now = DateTime.now().toUtc();
     final item = payload
         .toItem(now)

@@ -1238,6 +1238,126 @@ abstract class AppLocalizations {
   /// **'导入并替换'**
   String get importBackupAction;
 
+  /// No description provided for @settingsImportAegis.
+  ///
+  /// In zh, this message translates to:
+  /// **'从 Aegis 导入'**
+  String get settingsImportAegis;
+
+  /// No description provided for @settingsImportAegisDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'合并 Aegis 导出的动态令牌'**
+  String get settingsImportAegisDesc;
+
+  /// No description provided for @settingsImportGoogle.
+  ///
+  /// In zh, this message translates to:
+  /// **'从 Google Authenticator 导入'**
+  String get settingsImportGoogle;
+
+  /// No description provided for @settingsImportGoogleDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'粘贴迁移链接，或扫描迁移二维码'**
+  String get settingsImportGoogleDesc;
+
+  /// No description provided for @aegisPasswordTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'Aegis 备份密码'**
+  String get aegisPasswordTitle;
+
+  /// No description provided for @aegisPasswordHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'未加密的备份可留空'**
+  String get aegisPasswordHint;
+
+  /// No description provided for @importAction.
+  ///
+  /// In zh, this message translates to:
+  /// **'导入'**
+  String get importAction;
+
+  /// No description provided for @googleMigrationTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'Google 迁移链接'**
+  String get googleMigrationTitle;
+
+  /// No description provided for @googleMigrationHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'otpauth-migration://…'**
+  String get googleMigrationHint;
+
+  /// No description provided for @noticeImported.
+  ///
+  /// In zh, this message translates to:
+  /// **'已导入 {count} 个条目'**
+  String noticeImported(int count);
+
+  /// No description provided for @noticeMigrationImported.
+  ///
+  /// In zh, this message translates to:
+  /// **'已迁移 {count} 个令牌'**
+  String noticeMigrationImported(int count);
+
+  /// No description provided for @errorAegisPasswordRequired.
+  ///
+  /// In zh, this message translates to:
+  /// **'这个 Aegis 备份已加密，请输入备份密码'**
+  String get errorAegisPasswordRequired;
+
+  /// No description provided for @errorAegisWrongPassword.
+  ///
+  /// In zh, this message translates to:
+  /// **'Aegis 备份密码不正确'**
+  String get errorAegisWrongPassword;
+
+  /// No description provided for @errorAegisInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'不是有效的 Aegis 导出文件'**
+  String get errorAegisInvalid;
+
+  /// No description provided for @errorMigrationInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'不是有效的 Google 迁移链接'**
+  String get errorMigrationInvalid;
+
+  /// No description provided for @editorIcon.
+  ///
+  /// In zh, this message translates to:
+  /// **'图标'**
+  String get editorIcon;
+
+  /// No description provided for @iconPickerTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'选择图标'**
+  String get iconPickerTitle;
+
+  /// No description provided for @iconSearchHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'搜索品牌'**
+  String get iconSearchHint;
+
+  /// No description provided for @iconCustom.
+  ///
+  /// In zh, this message translates to:
+  /// **'使用自定义图片'**
+  String get iconCustom;
+
+  /// No description provided for @iconRemove.
+  ///
+  /// In zh, this message translates to:
+  /// **'恢复自动匹配'**
+  String get iconRemove;
+
   /// No description provided for @noticeVaultCreated.
   ///
   /// In zh, this message translates to:

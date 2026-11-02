@@ -42,6 +42,8 @@ dependencies:
   cryptography: ^2.9.0
   # 打开条目里的网址，只走系统默认浏览器。
   url_launcher: ^6.3.3
+  pointycastle: ^4.0.0
+  image_picker: ^1.2.4
 
 dev_dependencies:
   flutter_test:

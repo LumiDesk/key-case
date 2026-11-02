@@ -60,6 +60,22 @@ class KcItemIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final custom = item.icon;
+    if (custom != null && custom.isCustom) {
+      final bytes = custom.imageBytes;
+      if (bytes != null && bytes.isNotEmpty) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(size * 0.24),
+          child: Image.memory(
+            bytes,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            gaplessPlayback: true,
+          ),
+        );
+      }
+    }
     return ValueListenableBuilder<bool>(
       valueListenable: AegisIconPack.instance.loaded,
       builder: (context, _, _) {

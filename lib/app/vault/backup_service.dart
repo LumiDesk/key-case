@@ -74,13 +74,21 @@ class BackupService {
   }
 
   /// 让用户挑一个备份文件并读入内存；取消返回 null。
-  Future<Uint8List?> pickImportFile() async {
+  Future<Uint8List?> pickImportFile() => pickDocument(
+    label: 'KeyCase 加密备份',
+    extensions: const <String>[fileExtension, 'kcv', 'bin'],
+  );
+
+  /// 通用文档选择：读入内存（上限 64 MB），取消返回 null。
+  ///
+  /// 只用于几十 MB 以内的配置文件；大文件走原生流式接口，不要用这里。
+  Future<Uint8List?> pickDocument({
+    required String label,
+    required List<String> extensions,
+  }) async {
     final file = await openFile(
-      acceptedTypeGroups: const <XTypeGroup>[
-        XTypeGroup(
-          label: 'KeyCase 加密备份',
-          extensions: <String>[fileExtension, 'kcv', 'bin'],
-        ),
+      acceptedTypeGroups: <XTypeGroup>[
+        XTypeGroup(label: label, extensions: extensions),
       ],
     );
     if (file == null) return null;

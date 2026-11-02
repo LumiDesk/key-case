@@ -73,7 +73,9 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
     final state = widget.controller.state;
     final l10n = _localizations();
     if (state.notice != null) {
-      _feedback.show(noticeText(l10n, state.notice!));
+      _feedback.show(
+        importNoticeText(l10n, state.notice!, state.lastImportCount),
+      );
       widget.controller.clearNotice();
     }
     if (state.error != null && state.status == VaultStatus.unlocked) {

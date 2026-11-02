@@ -67,9 +67,12 @@ class AegisIconPack {
 
   /// 为条目挑选图标名：显式指定优先，其次按标题、网址主机名匹配。
   String? resolve(VaultItem item) {
-    final explicit = item.icon?.name;
-    if (explicit != null && explicit.isNotEmpty) {
-      return _fileByName.containsKey(explicit) ? explicit : null;
+    final explicit = item.icon;
+    if (explicit != null && !explicit.isCustom) {
+      // 空名字表示用户主动选择「恢复自动匹配」，继续往下走。
+      if (explicit.name.isNotEmpty) {
+        return _fileByName.containsKey(explicit.name) ? explicit.name : null;
+      }
     }
     if (!loaded.value) return null;
     final title = item.title.trim();

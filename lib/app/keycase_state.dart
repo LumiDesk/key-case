@@ -31,6 +31,10 @@ enum KeyCaseError {
   biometricEnrolledMissing,
   importFailed,
   deleteFailed,
+  aegisPasswordRequired,
+  aegisWrongPassword,
+  aegisInvalid,
+  migrationInvalid,
 }
 
 /// 一次性成功提示，同样交给 UI 翻译。
@@ -48,6 +52,8 @@ enum KeyCaseNotice {
   favoriteUpdated,
   biometricEnabled,
   biometricDisabled,
+  imported,
+  migrationImported,
 }
 
 class KeyCaseState {
@@ -58,6 +64,7 @@ class KeyCaseState {
     this.error,
     this.notice,
     this.biometricEnrolled = false,
+    this.lastImportCount = 0,
   });
 
   final VaultStatus status;
@@ -70,6 +77,9 @@ class KeyCaseState {
 
   /// 本机是否已保存可用于生物识别解锁的包裹密钥。
   final bool biometricEnrolled;
+
+  /// 最近一次导入新增的条目数，供「已导入 N 个」提示使用。
+  final int lastImportCount;
 
   bool get isUnlocked => status == VaultStatus.unlocked && data != null;
 
@@ -90,6 +100,7 @@ class KeyCaseState {
     KeyCaseError? error,
     KeyCaseNotice? notice,
     bool? biometricEnrolled,
+    int? lastImportCount,
     bool clearError = false,
     bool clearNotice = false,
   }) {
@@ -100,6 +111,7 @@ class KeyCaseState {
       error: clearError ? null : (error ?? this.error),
       notice: clearNotice ? null : (notice ?? this.notice),
       biometricEnrolled: biometricEnrolled ?? this.biometricEnrolled,
+      lastImportCount: lastImportCount ?? this.lastImportCount,
     );
   }
 }

@@ -4,7 +4,7 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-11-02
+## [1.0.1] - 2026-11-02
 
 Complete Flutter rewrite of KeyCase. The Kotlin implementation stays available at tag `v0.1.3`.
 
@@ -22,6 +22,10 @@ Complete Flutter rewrite of KeyCase. The Kotlin implementation stays available a
 - A–Z grouped lists, global search, favorites, three sort orders, trash with restore and purge.
 - Security center: weak, reused and outdated passwords.
 - Built-in Aegis Simple Icons pack with automatic brand matching and letter avatars fallback.
+- Icon picker: searchable brand list, custom image (PNG stored encrypted in the vault) and
+  "back to automatic matching".
+- Aegis vault import (plain or password-encrypted exports), merged with duplicate detection.
+- Google Authenticator migration import: paste the `otpauth-migration://` link or scan its QR.
 - Encrypted backup export/import (`.kcbak`) and 10 rotating automatic snapshots after each save.
 - Appearance settings: system/light/dark, five accent presets, custom accent color, Chinese and
   English UI.

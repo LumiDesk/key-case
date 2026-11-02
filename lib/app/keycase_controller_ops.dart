@@ -254,3 +254,96 @@ extension KeyCaseControllerOps on KeyCaseController {
     }
   }
 }
+
+/// 第三方数据导入：Aegis 保险库与 Google Authenticator 迁移链接。
+extension KeyCaseImportOps on KeyCaseController {
+  /// 选一个 Aegis 导出文件（.json）；取消返回 null。
+  Future<Uint8List?> pickAegisFile() async {
+    beginExternalActivity();
+    try {
+      return await _backups.pickDocument(
+        label: 'Aegis 导出文件',
+        extensions: const <String>['json', 'txt'],
+      );
+    } catch (error) {
+      AppLogger.error('pick aegis file failed', error);
+      _fail(KeyCaseError.aegisInvalid);
+      return null;
+    }
+  }
+
+  /// 导入 Aegis 导出（合并进现有库，重复项跳过）。
+  Future<bool> importAegisBytes({
+    required Uint8List bytes,
+    String? password,
+  }) async {
+    final data = _state.data;
+    if (data == null) return false;
+    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+    try {
+      final result = await importAegisVault(bytes, password: password);
+      final merged = mergeImportedItems(data, result.items);
+      final sealed = await _vault.save(merged.data);
+      _emit(
+        _state.copyWith(
+          data: merged.data,
+          busy: false,
+          notice: KeyCaseNotice.imported,
+          lastImportCount: merged.imported,
+        ),
+      );
+      await _snapshotBytesQuietly(sealed);
+      return true;
+    } on AegisImportException catch (error) {
+      _fail(_mapAegisError(error));
+    } catch (error) {
+      AppLogger.error('import aegis failed', error);
+      _fail(KeyCaseError.importFailed);
+    }
+    return false;
+  }
+
+  /// 导入 Google Authenticator 迁移链接（`otpauth-migration://...`）。
+  Future<bool> importGoogleMigrationLink(String link) async {
+    final data = _state.data;
+    if (data == null) return false;
+    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+    try {
+      final entries = parseGoogleMigration(link);
+      final now = DateTime.now().toUtc();
+      final imported = <VaultItem>[
+        for (var i = 0; i < entries.length; i++)
+          entries[i].toItem(now, 'migration-${now.microsecondsSinceEpoch}-$i'),
+      ];
+      final merged = mergeImportedItems(data, imported);
+      final sealed = await _vault.save(merged.data);
+      _emit(
+        _state.copyWith(
+          data: merged.data,
+          busy: false,
+          notice: KeyCaseNotice.migrationImported,
+          lastImportCount: merged.imported,
+        ),
+      );
+      await _snapshotBytesQuietly(sealed);
+      return true;
+    } on GoogleMigrationException catch (error) {
+      AppLogger.warn('google migration invalid: $error');
+      _fail(KeyCaseError.migrationInvalid);
+    } catch (error) {
+      AppLogger.error('import google migration failed', error);
+      _fail(KeyCaseError.importFailed);
+    }
+    return false;
+  }
+
+  KeyCaseError _mapAegisError(AegisImportException error) {
+    return switch (error.code) {
+      AegisErrorCode.passwordRequired => KeyCaseError.aegisPasswordRequired,
+      AegisErrorCode.wrongPassword => KeyCaseError.aegisWrongPassword,
+      AegisErrorCode.notAegis ||
+      AegisErrorCode.unsupported ||
+      AegisErrorCode.tooLarge => KeyCaseError.aegisInvalid,
+    };
+  }
+}
