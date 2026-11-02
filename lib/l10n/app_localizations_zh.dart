@@ -70,6 +70,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionRestore => '恢复';
 
   @override
+  String get pressBackAgainToExit => '再次返回退出软件';
+
+  @override
   String get copied => '已复制';
 
   @override

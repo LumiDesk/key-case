@@ -4,6 +4,16 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-11-02
+
+### Fixed
+
+- Pressing back on a non-home tab now returns to Home instead of closing the app.
+- Pressing back on Home now shows a "press back again to exit" hint; the app closes only on a
+  second back press within two seconds.
+
+## [1.0.4] - 2026-11-02
+
 ### Added
 
 - The token tab's add button now expands into "scan" and "manual" actions instead of opening a

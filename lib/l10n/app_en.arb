@@ -20,6 +20,7 @@
   "actionSort": "Sort",
   "actionDone": "Done",
   "actionRestore": "Restore",
+  "pressBackAgainToExit": "Press back again to exit",
   "copied": "Copied",
   "loading": "Working…",
   "createTitle": "Create your vault",

@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'恢复'**
   String get actionRestore;
 
+  /// No description provided for @pressBackAgainToExit.
+  ///
+  /// In zh, this message translates to:
+  /// **'再次返回退出软件'**
+  String get pressBackAgainToExit;
+
   /// No description provided for @copied.
   ///
   /// In zh, this message translates to:

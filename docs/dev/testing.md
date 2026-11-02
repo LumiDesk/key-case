@@ -7,7 +7,7 @@
 | 纯函数 | OTP、Base32、otpauth、导入合并、安全审计、排序/搜索、网址、密码生成、日期、版本比较 | `test/*_test.dart` |
 | 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、锁定与删除 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
 | 状态与操作 | Controller 启动、创建/解锁/锁定、自动锁定、条目增删改、回收站、HOTP、偏好、生物识别、备份、导入 | `test/controller_test.dart` |
-| 页面与组件 | 解锁页自动指纹、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情、设置、编辑 | `test/*_page_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart` |
+| 页面与组件 | 解锁页自动指纹、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情、设置、编辑、返回键 | `test/*_page_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
 | 组件策略 | 禁止底部单选弹层、禁止分段单选控件、禁止 `sheets.dart` 之外的裸弹层 | `test/component_policy_test.dart` |
 
 ```bash
@@ -29,6 +29,7 @@ flutter test --coverage
 - 手动锁定、自动锁定回前台：解锁页重新出现并自动弹一次；主密码仍可解锁。
 - 关闭「显示验证码」：列表显示与位数一致的圆点，下一码不显示数字；点击验证码揭开并复制，点其他区域或 10 秒后恢复隐藏。
 - 令牌页加号：展开「扫码添加 / 手动添加」，主按钮变叉；再次点击、点页面空白、切换底部导航都会收起。
+- 返回键：在登录、令牌、设置 Tab 按返回先回主页；在主页第一次返回显示「再次返回退出软件」底部提示，2 秒内第二次返回才退出；速拨展开时先收起速拨。
 - 设置页和编辑令牌高级设置：点行弹出锚点菜单，选项与当前值一致，小屏下菜单不越界。
 - 搜索：点结果进入详情；返回后搜索词仍在。
 - 图标选择器：搜索品牌、滚动到列表末尾、选择自定义图片。

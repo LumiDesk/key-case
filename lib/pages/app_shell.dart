@@ -1,5 +1,9 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../app/feedback.dart';
 import '../app/keycase_scope.dart';
 import '../app/models/models.dart';
 import '../common_widgets.dart';
@@ -27,13 +31,25 @@ class _AppShellState extends State<AppShell> {
   int _index = 0;
   bool _tokenDialOpen = false;
 
+  /// 首页第一次返回后的退出确认窗口；窗口内再次返回才退出应用。
+  bool _exitArmed = false;
+  Timer? _exitArmTimer;
+
   @override
   void dispose() {
+    _exitArmTimer?.cancel();
     _pages.dispose();
     super.dispose();
   }
 
+  void _resetExitArm() {
+    _exitArmTimer?.cancel();
+    _exitArmTimer = null;
+    _exitArmed = false;
+  }
+
   void _goTo(int index) {
+    _resetExitArm();
     setState(() {
       _index = index;
       _tokenDialOpen = false;
@@ -50,7 +66,32 @@ class _AppShellState extends State<AppShell> {
     setState(() => _tokenDialOpen = false);
   }
 
+  /// 系统返回键：外部页面由各自路由处理；这里只处理主壳。
+  void _handleBack(bool didPop, Object? result) {
+    if (didPop) return;
+    if (_tokenDialOpen) {
+      _closeTokenDial();
+      return;
+    }
+    if (_index != 0) {
+      _resetExitArm();
+      _goTo(0);
+      return;
+    }
+    if (_exitArmed) {
+      _resetExitArm();
+      unawaited(SystemNavigator.pop());
+      return;
+    }
+    _exitArmed = true;
+    _exitArmTimer?.cancel();
+    _exitArmTimer = Timer(const Duration(seconds: 2), _resetExitArm);
+    KcFeedbackScope.maybeOf(context)
+        ?.show(AppLocalizations.of(context).pressBackAgainToExit);
+  }
+
   Future<void> _openItem(VaultItem item) async {
+    _resetExitArm();
     _closeTokenDial();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => ItemDetailPage(itemId: item.id)),
@@ -58,6 +99,7 @@ class _AppShellState extends State<AppShell> {
   }
 
   Future<void> _openSearch() async {
+    _resetExitArm();
     _closeTokenDial();
     await Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => const SearchPage()));
@@ -67,6 +109,7 @@ class _AppShellState extends State<AppShell> {
     ItemKind kind = ItemKind.login,
     String? itemId,
   }) async {
+    _resetExitArm();
     _closeTokenDial();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -76,12 +119,14 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _openTokenScan() {
+    _resetExitArm();
     _closeTokenDial();
     Navigator.of(context)
         .push(MaterialPageRoute<void>(builder: (_) => const TokenScanPage()));
   }
 
   void _openManualToken() {
+    _resetExitArm();
     _closeTokenDial();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -95,82 +140,93 @@ class _AppShellState extends State<AppShell> {
     final controller = KeyCaseScope.of(context);
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      body: Stack(
-        children: <Widget>[
-          PageView(
-            controller: _pages,
-            onPageChanged: (index) => setState(() {
-              _index = index;
-              _tokenDialOpen = false;
-            }),
-            children: <Widget>[
-              HomePage(
-                onOpenItem: _openItem,
-                onOpenSearch: _openSearch,
-                onOpenSecurity: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SecurityPage()),
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: _handleBack,
+      child: Scaffold(
+        body: Stack(
+          children: <Widget>[
+            PageView(
+              controller: _pages,
+              onPageChanged: (index) {
+                _resetExitArm();
+                setState(() {
+                  _index = index;
+                  _tokenDialOpen = false;
+                });
+              },
+              children: <Widget>[
+                HomePage(
+                  onOpenItem: _openItem,
+                  onOpenSearch: _openSearch,
+                  onOpenSecurity: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SecurityPage(),
+                    ),
+                  ),
+                  onBrowseLogins: () => _goTo(1),
                 ),
-                onBrowseLogins: () => _goTo(1),
+                LoginsPage(onOpenItem: _openItem, onAdd: _openEditor),
+                TokensPage(
+                  onOpenItem: _openItem,
+                  onAdd: _openManualToken,
+                  onScan: _openTokenScan,
+                ),
+                SettingsPage(
+                  onLock: controller.lock,
+                  onOpenTrash: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(builder: (_) => const TrashPage()),
+                  ),
+                  onOpenSecurity: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const SecurityPage(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_tokenDialOpen)
+              Positioned.fill(
+                child: GestureDetector(
+                  key: const ValueKey<String>('token_dial_barrier'),
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _closeTokenDial,
+                ),
               ),
-              LoginsPage(onOpenItem: _openItem, onAdd: _openEditor),
-              TokensPage(
-                onOpenItem: _openItem,
-                onAdd: _openManualToken,
-                onScan: _openTokenScan,
+          ],
+        ),
+        floatingActionButton: switch (_index) {
+          1 => FloatingActionButton(
+            key: const ValueKey<String>('login_add_fab'),
+            heroTag: 'login_add_fab',
+            onPressed: () => _openEditor(),
+            tooltip: l10n.editorNewLogin,
+            child: const Icon(Icons.add_rounded),
+          ),
+          2 => KcSpeedDial(
+            expanded: _tokenDialOpen,
+            onToggle: () => setState(() => _tokenDialOpen = !_tokenDialOpen),
+            tooltip: l10n.editorNewToken,
+            expandedTooltip: l10n.actionClose,
+            actions: <KcSpeedDialAction>[
+              KcSpeedDialAction(
+                id: 'scan',
+                label: l10n.tokenAddScan,
+                icon: Icons.qr_code_scanner_rounded,
+                onPressed: _openTokenScan,
               ),
-              SettingsPage(
-                onLock: controller.lock,
-                onOpenTrash: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const TrashPage()),
-                ),
-                onOpenSecurity: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => const SecurityPage()),
-                ),
+              KcSpeedDialAction(
+                id: 'manual',
+                label: l10n.tokenAddManual,
+                icon: Icons.keyboard_rounded,
+                onPressed: _openManualToken,
               ),
             ],
           ),
-          if (_tokenDialOpen)
-            Positioned.fill(
-              child: GestureDetector(
-                key: const ValueKey<String>('token_dial_barrier'),
-                behavior: HitTestBehavior.translucent,
-                onTap: _closeTokenDial,
-              ),
-            ),
-        ],
+          _ => null,
+        },
+        bottomNavigationBar: _buildNav(l10n),
       ),
-      floatingActionButton: switch (_index) {
-        1 => FloatingActionButton(
-          key: const ValueKey<String>('login_add_fab'),
-          heroTag: 'login_add_fab',
-          onPressed: () => _openEditor(),
-          tooltip: l10n.editorNewLogin,
-          child: const Icon(Icons.add_rounded),
-        ),
-        2 => KcSpeedDial(
-          expanded: _tokenDialOpen,
-          onToggle: () => setState(() => _tokenDialOpen = !_tokenDialOpen),
-          tooltip: l10n.editorNewToken,
-          expandedTooltip: l10n.actionClose,
-          actions: <KcSpeedDialAction>[
-            KcSpeedDialAction(
-              id: 'scan',
-              label: l10n.tokenAddScan,
-              icon: Icons.qr_code_scanner_rounded,
-              onPressed: _openTokenScan,
-            ),
-            KcSpeedDialAction(
-              id: 'manual',
-              label: l10n.tokenAddManual,
-              icon: Icons.keyboard_rounded,
-              onPressed: _openManualToken,
-            ),
-          ],
-        ),
-        _ => null,
-      },
-      bottomNavigationBar: _buildNav(l10n),
     );
   }
 

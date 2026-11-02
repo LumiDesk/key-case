@@ -169,7 +169,7 @@ device.
 
 ## Project status
 
-Current version: **1.0.3** (`1.0.3+8`). Only Android is supported. The
+Current version: **1.0.5** (`1.0.5+10`). Only Android is supported. The
 `android/` directory is the sole delivery target; there is no web or desktop
 build. See [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 

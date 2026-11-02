@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:keycase/app/app_theme.dart';
+import 'package:keycase/app/feedback.dart';
 import 'package:keycase/app/keycase_controller.dart';
 import 'package:keycase/app/keycase_scope.dart';
 import 'package:keycase/app/models/models.dart';
@@ -10,6 +11,7 @@ Widget kcTestApp({
   required KeyCaseController controller,
   required Widget home,
   Locale locale = const Locale('zh'),
+  KcFeedbackController? feedback,
 }) {
   return AnimatedBuilder(
     animation: controller,
@@ -21,10 +23,14 @@ Widget kcTestApp({
         brightness: Brightness.light,
         preferences: controller.preferences,
       ),
-      builder: (context, child) => KeyCaseScope(
-        controller: controller,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) {
+        final scoped = KeyCaseScope(
+          controller: controller,
+          child: child ?? const SizedBox.shrink(),
+        );
+        if (feedback == null) return scoped;
+        return KcFeedbackHost(controller: feedback, child: scoped);
+      },
       home: Material(color: Colors.transparent, child: home),
     ),
   );
@@ -42,10 +48,16 @@ Future<void> pumpKcPage(
   required KeyCaseController controller,
   required Widget page,
   Locale locale = const Locale('zh'),
+  KcFeedbackController? feedback,
 }) async {
   usePhoneSurface(tester);
   await tester.pumpWidget(
-    kcTestApp(controller: controller, home: page, locale: locale),
+    kcTestApp(
+      controller: controller,
+      home: page,
+      locale: locale,
+      feedback: feedback,
+    ),
   );
   await tester.pumpAndSettle();
 }
