@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 启动图标底色：与深色主题画布一致，避免白底闪光。 -->
+    <color name="ic_launcher_background">#FF050505</color>
+    <color name="launch_background">#FF101318</color>
+</resources>

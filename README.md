@@ -1,127 +1,95 @@
 # KeyCase
 
-**Local-first, offline-first Android password manager and TOTP authenticator.**
-No account, no cloud, no telemetry. The only network request is the optional, user-triggered GitHub update check.
+**Local-first, offline password manager and TOTP authenticator for Android.**
 
-> Status: **v0.1.3** signed R8 full-mode release (~5.9 MB), built by GitHub Actions. Create/unlock, biometric unlock with master-password fallback, password CRUD, TOTP/HOTP/Steam codes, QR scanning, global search, trash, security center, accent/dark theme, visual color picker, manual and automatic encrypted backups, Aegis vault import, Google Authenticator migration import, master-password rotation, lifecycle auto-lock, favorites, URL opening, Aegis icon matching, imported bitmap icon packs, a searchable icon picker, custom image icons, B3 launcher icon, and manual GitHub update check are implemented. UI copy follows the device language (Chinese/English).
+No account, no cloud, no telemetry, no network permission at all. Everything lives in one
+encrypted container on the device; the master password never leaves it.
 
-## What it is
-
-KeyCase keeps two kinds of items in one local, encrypted vault:
-
-- **Passwords** — accounts, passwords, URLs, notes.
-- **Dynamic tokens (TOTP)** — scanned QR codes or manually entered secrets, with codes generated on-device.
-
-The app is built for Android and is local-first. There is no sync server, no account system, and no telemetry. The only optional network request is the manual “Check for updates” action.
+> Status: **v1.0.0** — Flutter rewrite of the original Kotlin app. Create/unlock, biometric
+> unlock with master-password fallback, password CRUD, TOTP/HOTP/Steam codes, QR scanning,
+> global search, favorites, trash, security center, Aegis icon matching, encrypted backups,
+> automatic snapshots, theme accents and light/dark modes.
 
 ## Principles
 
-- The vault is encrypted on the device; the master password never leaves it.
-- The app has no cloud sync, accounts, analytics, or telemetry. `INTERNET` is declared only for the manual “Check for updates” button, which reads the public GitHub release feed.
-- Backups are encrypted snapshots written to a folder the user chooses, manually or automatically after each save, and can be imported back.
-- Data is portable: import/export the encrypted container, merge Aegis TOTP exports, and import Google Authenticator migration links.
+- **Encrypted at rest.** The vault is `AES-256-GCM` ciphertext; the vault key is wrapped by a
+  key derived from the master password with `Argon2id` (64 MiB, 3 iterations, p=2).
+- **Nothing leaves the device.** The app declares no `INTERNET` permission and contains no
+  analytics, sync or crash reporting.
+- **No plaintext on disk.** Passwords and TOTP secrets only exist in memory while unlocked and
+  inside the encrypted container. Backups are encrypted container copies.
+- **Portable data.** Export/import the encrypted container at any time; scan standard
+  `otpauth://` QR codes.
 
-## Documentation
+## Features
 
-- [Agent guide](AGENTS.md)
-- [Design system](DESIGN.md)
-- [Security policy](SECURITY.md)
-- [App icon: B3 obsidian](docs/icon-options/b3-obsidian.svg)
-- [Design decisions v0.5](docs/design/design-decisions-v0.5.md)
-- [UI redesign notes](docs/design/ui-redesign.md)
-- [Vault container format v1](docs/design/vault-format-v1.md)
-- [Research notes](docs/design/research.md)
-- [Systematic code review (2026-10-31, historical)](docs/review/code-review-2026-10-31.md)
+| Area | What you get |
+|---|---|
+| Vault | create with master password, unlock, auto-lock on leaving the app, lock now |
+| Security | Argon2id key derivation, AES-256-GCM, `FLAG_SECURE` option, biometric unlock via Android Keystore |
+| Logins | account / password / URL / notes, random password generator, copy-to-clipboard |
+| Tokens | TOTP, HOTP (with counter), Steam; one shared ticker, per-row countdown ring |
+| Lists | A–Z grouping, search across names/accounts/URLs/notes, favorites, sorting menu |
+| Icons | built-in Aegis Simple Icons pack, automatic brand matching, letter fallback |
+| Data | encrypted export/import, 10 rotating snapshots after each save, trash with restore |
+| Appearance | system/light/dark, five accent presets, custom color, Chinese/English |
 
 ## Screenshots
 
 | | |
 |---|---|
-| ![Create](docs/screenshots/create.png) | ![Unlock](docs/screenshots/unlock.png) |
-| Create a local vault | Unlock with the master password |
-| ![Home light](docs/screenshots/home.png) | ![Home dark](docs/screenshots/home-dark.png) |
-| Home, compact cards | Home, dark mode |
-| ![Passwords](docs/screenshots/passwords.png) | ![Password detail](docs/screenshots/password-detail.png) |
-| Passwords with A–Z index | Password detail |
-| ![Tokens](docs/screenshots/tokens.png) | ![Token detail](docs/screenshots/token-detail.png) |
-| TOTP/HOTP/Steam list with A–Z index | Token detail |
-| ![Token FAB](docs/screenshots/fab-expanded.png) | ![Color canvas](docs/screenshots/color-canvas.png) |
-| Scan / manual add FAB | Visual accent color picker |
-| ![Settings light](docs/screenshots/settings-light.png) | ![Settings dark](docs/screenshots/settings-dark.png) |
-| Settings, compact rows | Settings, dark mode |
-| ![Icon picker](docs/screenshots/icon-picker.png) | |
-| Icon picker | |
+| ![Home light](docs/screenshots/home-light.png) | ![Home dark](docs/screenshots/home-dark.png) |
+| Home, light | Home, dark |
+| ![Logins](docs/screenshots/logins-dark.png) | ![Tokens](docs/screenshots/tokens-dark.png) |
+| Logins with A–Z groups and brand icons | Tokens with shared countdown |
+| ![Detail](docs/screenshots/detail-dark.png) | ![Settings](docs/screenshots/settings-dark.png) |
+| Token detail | Settings |
 
 ## Build
 
-Requirements: Android Studio (with its bundled JBR), Android SDK, JDK 17+.
+Requirements: Flutter 3.47.2 (same as CI), Java 17, Android SDK.
 
-```powershell
-# Windows
-$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
-.\gradlew.bat assembleDebug
+```bash
+flutter pub get
+flutter run -d emulator-5554
+flutter build apk --release      # signed with signing/keycase-release.jks
+```
+
+```bash
+dart format .
+flutter analyze
+flutter test
 ```
 
 ## Release
 
-Signed release builds are produced by GitHub Actions. The release keystore and
-its properties are intentionally committed under `signing/` so the key cannot be
-lost between machines; this is a public open-source project and the owner accepts
-that anyone with repository access can sign builds.
+Signed releases are built by GitHub Actions from a `vX.Y.Z` tag:
 
-- Keystore: `signing/keycase-release.jks`
-- Properties: `signing/keystore.properties`
-- SHA-256: `ccd20e5c3165668bf0b5732e3cff2dcfb445fb622bd820742c3cf37f9aa28ba7`
-
-Cut a release from `main` with one command:
-
-```powershell
-.\scripts\release.ps1 patch   # or minor / major
+```bash
+dart run scripts/publish.dart patch
 ```
 
-It bumps `versionCode`/`versionName`, commits the version, creates and pushes
-`vX.Y.Z`, and GitHub Actions builds, signs, and publishes the APK. Release notes
-contain only the compare link between the previous and current tag.
-
-Release builds run R8 shrinking/optimization with `-dontobfuscate`, so the APK
-is smaller while class names remain readable for an open-source project.
-Development builds now use R8 full mode; after a toolchain upgrade, launch the
-signed release APK once to catch runtime shrinker regressions.
-
-## Tests
-
-```powershell
-.\gradlew.bat :core:test :app:testDebugUnitTest
-# with an emulator/device running:
-.\gradlew.bat :app:connectedDebugAndroidTest
-```
-
-`local.properties` is machine-specific and is not committed.
-
-Current baseline:
-
-- `applicationId` / `namespace`: `top.talyra42.keycase`
-- `minSdk`: 26
-- `compileSdk` / `targetSdk`: 37
-- Kotlin + Jetpack Compose + Material 3
+The script bumps `pubspec.yaml` + `lib/app/app_version.dart`, runs format/analyze/test,
+commits, tags and pushes. CI builds the APK with `signing/keycase-release.jks` and creates a
+**prerelease**; promote it to latest after installing on a device.
 
 ## Project layout
 
 ```
-app/                 Android app shell
-core/                pure-JVM vault, crypto, TOTP, importers
-docs/                design notes and the HTML prototype
-gradle/              version catalog and wrapper
+lib/app/        models, vault container + repository, crypto, OTP, icons, controller, theme
+lib/pages/      screens; every modal/sheet/dialog entry lives in pages/sheets.dart
+lib/common_widgets.dart  shared widgets (parts under lib/app/common_widgets_*.dart)
+lib/l10n/       Chinese (template) and English ARB files + generated localizations
+android/        MainActivity with the single MethodChannel bridge (Keystore, FLAG_SECURE)
+assets/iconpacks/  Aegis Simple Icons pack (SVG + pack.json)
+docs/           design system, component registry, architecture and technical decisions
 ```
 
-The `:core` module is deliberately free of Android APIs so its security-critical logic can be tested on the JVM. The Android layer (`app/`) owns files, QR scanning, and UI.
+## Security notes
 
-## Icon packs
+- `allowBackup="false"`: Android never copies the vault into a cloud backup.
+- Biometric unlock stores the vault key encrypted by an Android Keystore key; the plaintext key
+  only exists during an unlock.
+- The master password cannot be recovered. Export a backup before changing it.
 
-The built-in icon pack is [Aegis Simple Icons](https://github.com/alexbakker/aegis-simple-icons), derived from [Simple Icons](https://simpleicons.org/). Simple Icons are CC0; brand logos remain trademarks of their owners. The pack is stored at `app/src/main/assets/iconpacks/aegis-simple-icons-v269.zip`.
-
-The app reads `pack.json`, matches an item's title/issuer against the pack's issuer list, and renders the matching SVG path into a Compose `ImageVector`; unmatched items use an avatar placeholder while loading and the first character when no icon matches. User Aegis packs can be imported, previewed, and deleted from Settings; icons are selected from the editor's icon row, not from the detail screen.
-
-## License
-
-GPL-3.0-or-later. See [LICENSE](LICENSE).
+Report issues via GitHub Issues. Licensed GPL-3.0-or-later.

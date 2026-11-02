@@ -3,58 +3,54 @@ name: Release
 on:
   push:
     tags:
-      - "v*"
+      - 'v*.*.*'
 
 permissions:
   contents: write
 
 jobs:
-  release:
-    if: github.ref_name != 'v0.1.0'
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.2'
+          cache: true
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x gradlew
+      - name: Install dependencies
+        run: flutter pub get
 
-      - name: Build signed release APK
-        run: ./gradlew :core:test :app:testDebugUnitTest :app:assembleRelease --no-configuration-cache
-
-      - name: Verify APK signature
+      - name: Analyze and test
         run: |
-          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --verbose app/build/outputs/apk/release/app-release.apk
+          dart format --output=none --set-exit-if-changed .
+          flutter analyze
+          flutter test
 
-      - name: Publish GitHub release
+      # 签名材料按项目所有者要求入库在 signing/ 下；构建脚本直接读取，
+      # 不要把密码写进工作流日志。
+      # 只出 arm64：所有现役 Android 手机都是 64 位，单 ABI 能把包从 70MB 级压到 20MB 级。
+      - name: Build signed release APK
+        run: flutter build apk --release --target-platform android-arm64
+
+      - name: Rename artifact
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk \
+             "keycase-${GITHUB_REF_NAME}.apk"
+
+      - name: Create prerelease
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          current="${GITHUB_REF_NAME}"
-          previous=$(git tag --sort=-v:refname \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
-            | grep -v "^${current}$" \
-            | head -n 1)
-          if [ -n "$previous" ]; then
-            notes="https://github.com/${GITHUB_REPOSITORY}/compare/${previous}...${current}"
-          else
-            notes="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${current}"
-          fi
-          cp app/build/outputs/apk/release/app-release.apk "KeyCase-${current}.apk"
-          if gh release view "$current" >/dev/null 2>&1; then
-            gh release upload "$current" "KeyCase-${current}.apk" --clobber
-            gh release edit "$current" --notes "$notes" --draft=false --tag "$current"
-          else
-            gh release create "$current" "KeyCase-${current}.apk" \
-              --title "$current" \
-              --notes "$notes"
-          fi
+          gh release create "$GITHUB_REF_NAME" \
+            "keycase-${GITHUB_REF_NAME}.apk" \
+            --title "$GITHUB_REF_NAME" \
+            --prerelease \
+            --notes "KeyCase $GITHUB_REF_NAME — 安装前请先导出一份备份。"

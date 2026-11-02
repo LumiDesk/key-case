@@ -1,91 +1,154 @@
 # AGENTS.md
 
-- 本项目为 **Android 原生应用**（Kotlin + Jetpack Compose），不是 Web 前端
-- 包管理器：Gradle（Kotlin DSL，version catalog 在 `gradle/libs.versions.toml`）
-- UI：Jetpack Compose + Material 3；JSON：kotlinx.serialization；二维码：ZXing Android Embedded
-- 最低 SDK：26；目标/编译 SDK：37；JDK：Android Studio 自带 JBR
+- 本项目为 **Flutter + Dart** 的 Android 本地密码管理器 + TOTP 验证器（KeyCase）。Dart 包名 `keycase`，Android applicationId `top.talyra42.keycase`。
+- 包管理器：**pub**（`flutter pub get` / `flutter pub add`）；不引入 npm/yarn 等前端工具链。
+- 样式方案：Flutter Material 3 + 项目自有设计令牌（`kc*` 颜色、`kcRadius*` 圆角、`KcPage` / `KcCard` / `KcHeader` 页面骨架）；业务代码不硬编码颜色与圆角。
+- UI 组件库：Material 3 + `flutter_svg`（品牌图标）+ `anchored_menu`（锚点菜单）+ `mobile_scanner`（扫码）。
+- 工具链：Flutter 3.47.2（与 CI 固定版本一致）、Java 17、Android SDK；正式 APK 由 CI 构建。
 
-## 仓库结构
+## 产品原则
 
-```text
-app/                 # Android UI、Activity、Android Keystore、文件/备份
-core/                # 纯 JVM：加密容器、TOTP、Aegis/Google 导入
-signing/             # 项目所有者要求入库的 release keystore + properties
-scripts/             # release.ps1 等发布工具
-.github/workflows/   # GitHub Actions：tag -> 签名构建 -> Release
-docs/design/         # 设计决策、格式说明、UI 规范
-docs/screenshots/    # 验收截图
-docs/icon-options/   # 图标方案
-gradle/libs.versions.toml
-```
+- **本地优先、静态加密**：没有账号、没有云同步、没有统计上传。所有条目只存在于本机一个加密容器 `vault.kcv` 里，口令派生用 Argon2id，正文用 AES-256-GCM。
+- **明文不落盘**：主密码、vault key、TOTP secret、条目内容不得写入日志、偏好、缓存或临时文件。备份是同一个加密容器的副本，不是明文导出。
+- **只做 Android**：`android/` 是唯一交付目标；不维护 Web/桌面预览，不引入仅在其它平台可用的实现。
+- **能力必须真实可用**：Keystore 包裹密钥、相机扫码、系统文档选择器、截屏保护都要在真机/模拟器上核对，不能靠 stub 冒充。
 
-app 内主要目录：
+## 目录结构
 
 ```text
-app/src/main/java/top/talyra42/keycase/
-├── data/            # AndroidVaultStore、BiometricVault、AutoBackup、UpdateChecker
-├── ui/              # Compose 页面与通用组件
-│   ├── theme/       # 颜色、字体、Theme
-│   └── icons/       # Aegis 图标包、图标缓存
-└── MainActivity.kt
+lib/
+├── main.dart                  # 入口：初始化 Controller、图标包预热、根路由
+├── app/
+│   ├── models/                # 领域模型与 JSON 映射（models.dart 是稳定 barrel）
+│   ├── vault/                 # 容器编解码、文件仓库、备份、查询与排序
+│   ├── crypto/                # Argon2id、AES-GCM、Base32、随机数
+│   ├── otp/                   # TOTP/HOTP/Steam 计算与全应用唯一 ticker
+│   ├── import/                # otpauth 链接解析
+│   ├── icons/                 # Aegis 图标包解析与 SVG 渲染
+│   ├── security/              # 弱口令/复用/过期审计
+│   ├── platform/              # 原生桥（Keystore、FLAG_SECURE）与生物识别
+│   ├── data/                  # 设备偏好 KV
+│   ├── logging/               # AppLogger
+│   ├── keycase_controller*.dart / keycase_scope.dart
+│   ├── app_theme.dart         # 设计令牌与 ThemeData
+│   ├── feedback.dart          # 轻反馈宿主
+│   └── messages.dart          # 错误码/提示码 → 文案
+├── pages/                     # 页面；弹层入口集中在 sheets.dart
+├── common_widgets.dart        # 通用组件稳定入口，实现按 part 拆分在 app/
+└── l10n/                      # 中英文 ARB 与已提交的 gen-l10n 产物
+
+android/                       # 原生桥、Manifest、签名配置
+assets/iconpacks/              # Aegis Simple Icons（SVG + pack.json）
+test/                          # 单元与 widget 测试
+docs/                          # 设计与技术文档
+scripts/                       # Dart 任务脚本
 ```
+
+### 状态与数据流
+
+- 权威状态集中在 `KeyCaseController`（`ChangeNotifier`），经 `KeyCaseScope`（`InheritedNotifier`）注入；不使用 Provider / Riverpod / Bloc。
+- `VaultRepository` 独占「解锁会话 + vault key + 写互斥」，Controller 只调它的方法；UI 只调 Controller。
+- 条目数据只存在于内存与 `vault.kcv`；设备偏好（主题、语言、自动锁定、显示选项）走 `PreferencesStore`，绝不进容器。
+- Argon2id 与容器解密在后台 isolate 里完成；AES 正文加密在主 isolate（几十 KB 级，毫秒完成）。
+
+## 文档地图
+
+判断“当前实现事实”的顺序：源码/测试/工作流 → `AGENTS.md` → `docs/design/` → `docs/dev/`。
+
+- `docs/design/design-system.md`：颜色、排版、表面材质与验收约定。
+- `docs/design/components.md`：组件、弹层 helper 与纯函数注册表；写新 Widget 前先查。
+- `docs/dev/architecture.md`：源码导航与分层。
+- `docs/dev/tech-decisions.md`：KDF 参数、Keystore 取舍、格式与备份口径。
+
+`docs/` 只写当前状态：方案草稿、实施计划、评审记录不进仓库。
 
 ## Coding Style
 
-**Kotlin / Compose**
-- 页面使用 `@Composable fun XxxScreen(...)`；通用 UI 放 `ui/Components.kt` 或独立文件
-- 状态优先 `rememberSaveable` / `remember`；跨页面状态放 `MainViewModel`
-- 列表必须提供稳定 `key`
-- 渲染路径中禁止 IO；SVG/图片解码、Argon2、文件读写放 `Dispatchers.IO`
-- 不硬编码颜色；使用 `MaterialTheme.colorScheme`
-- 文案通过 `LocalizedText.kt` 或 `strings.xml` 支持中英文
+### Dart 与依赖
 
-**安全**
-- 不在日志/UI 中输出主密码、保险库密钥、TOTP secret
-- 生物识别密钥必须由 Android Keystore 保护
-- 网络仅允许用户主动触发的 GitHub Release 更新检查；不得加入遥测、同步或后台上传
-- Release 签名文件按项目所有者要求放在 `signing/` 并入库；这是公开项目的明确取舍，不要把密码/密钥复制到日志或 CI 输出
+- 遵循 `dart format` 与 `analysis_options.yaml` 的 flutter_lints + 正确性规则；两个空格缩进。
+- 文件名 `snake_case.dart`，类型 `UpperCamelCase`，成员 `lowerCamelCase`，私有加 `_`。
+- 不为简单需求新增依赖；新增前评估 APK 体积、隐私与维护成本。
+- 不修改生成文件（`lib/l10n/app_localizations*.dart`、`build/`、`.dart_tool/`）。
+
+### 组件与设计令牌
+
+- 写任何 Widget / 弹层前先查 `docs/design/components.md`，命中就复用或参数化扩展。
+- 页面骨架固定 `Scaffold > SafeArea > KcPage`，头部用 `KcHeader` / `KcSubHeader`。
+- 颜色只用 `kc*` 令牌与 `Theme.of(context).colorScheme`；语义色经 `kcSemantic(context, kcDanger)` 取用。
+- 表面一律不透明实色：禁止背景模糊、渐变、片元滤镜。
+
+### 弹窗与输入
+
+- 页面不得裸写 `showModalBottomSheet`：用 `showKcSheet`；确认用 `showKcConfirm`；文本输入用 `showKcTextInput`；短单选列表用 `showKcOptionSheet`。
+- 2–8 项静态受控单选（排序等）用外部库的 `AnchoredMenuChoice<T>` / `AnchoredMenuButton`，并只通过主题桥接视觉令牌。
+- 取消/未选统一返回 `null`。
+
+### 国际化
+
+- 新增用户可见文案必须同时写 `lib/l10n/app_zh.arb`（模板）与 `app_en.arb`，经 `AppLocalizations.of(context)` 使用。
+- 不手改生成的 `app_localizations*.dart`。
+- `contentDescription` / tooltip 同样需要本地化。
+
+### 异步、错误与日志
+
+- `await` 之后再用 `BuildContext` 必须先判断 `mounted` / `context.mounted`。
+- Controller 只暴露 `KeyCaseError` / `KeyCaseNotice` 枚举，文案由 `messages.dart` 翻译；不要把技术异常字符串直接显示给用户。
+- 捕获异常后必须 `AppLogger` 记录或明确注释这是可接受降级；禁止空 `catch`。
+- 落盘失败必须让用户知道，不能假装成功。
+
+### 数据与备份
+
+- 容器格式变更：提升 `VaultData.currentSchemaVersion`，在 `VaultMigrations` 追加“升到 N+1”的段，永不回改历史段，并补迁移测试。
+- 模型字段变更同步 `toJson` / `fromJson` 与往返测试。
+- 备份只有一种形态：同一加密容器的副本（`.kcbak`）。自动快照保留最近 10 份，只写应用私有目录。
 
 ## Build Commands
 
 ```bash
-./gradlew :app:assembleDebug          # 开发包
-./gradlew :app:assembleRelease        # 签名包（R8 压缩/优化，-dontobfuscate）
-./gradlew :core:test :app:testDebugUnitTest
-ANDROID_SERIAL=emulator-5554 ./gradlew :app:connectedDebugAndroidTest
+flutter pub get
+dart format .
+flutter analyze
+flutter test
+flutter run -d emulator-5554
+flutter build apk --debug
+flutter build apk --release
 ```
 
-Windows 使用 `gradlew.bat`，并设置 `JAVA_HOME` 为 Android Studio JBR。
+- 开发验收只在模拟器 `emulator-5554` 上进行；不安装、不测试物理机。
+- 演示数据：`--dart-define=SEED_DEMO=true` 会创建示例库并自动解锁，仅用于本地截图与点按验收。
 
-## Testing Environment
+## CI 与发版
 
-- All development verification uses the Android emulator (`emulator-5554`).
-- Never install, uninstall, or run instrumentation on the physical phone (`838918a6` / 25102RKBEC).
-- The user updates the physical phone manually from GitHub Releases, outside this agent workflow.
-- Connected tests must always set `ANDROID_SERIAL=emulator-5554`.
-
-## Release Commands
-
-```powershell
-.\scripts\release.ps1 patch   # 0.1.1 -> 0.1.2
-.\scripts\release.ps1 minor   # 0.1.x -> 0.2.0
-.\scripts\release.ps1 major   # 0.x -> 1.0.0
-```
-
-脚本会更新 `app/build.gradle.kts` 的 `versionCode`/`versionName`、提交、打 tag、推送；`.github/workflows/release.yml` 负责签名构建并发布 GitHub Release。Release notes 只写上一 tag 到当前 tag 的 compare 链接。
+- `.github/workflows/ci.yml`：push 到 `main` 时跑格式检查、analyze、全量测试与 debug APK 编译。
+- `.github/workflows/release.yml`：推送 `vX.Y.Z` 标签时用 `signing/` 里的 keystore 构建签名 APK 并发布 GitHub Release（预发布，真机验收后手动提升）。
+- 发版必须得到用户明确授权；脚本 `dart run scripts/publish.dart patch|minor|major`。
+- 签名材料是已确认的仓库例外，不要替换或额外扩散。
 
 ## Never 规则
 
-- Never 修改 `app/build/`、`core/build/` 等构建产物
-- Never 在渲染路径执行 Argon2、文件读写、SVG/Bitmap 解码
-- Never 在 Compose 列表省略 key
-- Never 把保险库密钥/主密码写进日志或明文件
-- Never 给 Token/密码行加每行独立计时器；使用单个 ticker / 顶部进度条
-- Never 直接改 core 数据格式而不写迁移/兼容逻辑
-- Never 使用 `Set-Content` 等会改变编码的方式修改含中文源码
+- Never 把主密码、vault key、TOTP secret 或条目明文写进日志、偏好、文件名或临时文件。
+- Never 在渲染路径做文件 IO、Argon2、SVG/图片解码或全量排序；这些放到 isolate / 缓存 / 构建期。
+- Never 给令牌行各起一个 Timer；全应用只有一个 `OtpClock`。
+- Never 在 Compose/Flutter 列表中省略稳定 key。
+- Never 让 UI 直接读写文件或 Keystore；只经 Controller 与 Repository。
+- Never 修改已发布的迁移段或回改容器格式而不升版本。
+- Never 硬编码 `Color(0x...)`、魔法圆角或中文文案到新组件。
+- Never 手改 `pubspec.lock`、生成的 l10n 文件或构建产物。
+- Never 未经授权 push、打标签或发版；Never 替换签名材料。
+- Never 在仓库里写本机绝对路径、用户名、设备序列号或 SDK/JDK 路径（用 `<android-sdk>` 等占位符）。
 
 ## Commit 规范
 
-- 格式：`type(scope): description`
-- 类型：`feat` / `fix` / `docs` / `style` / `refactor` / `perf` / `test` / `chore`
-- UI 改动附模拟器/真机截图到 `docs/screenshots/`（除安全页外）
+- 格式：`type: summary`，类型 `feat` / `fix` / `docs` / `style` / `refactor` / `perf` / `test` / `chore`。
+- 不写 `Generated by` / `Co-authored-by` 等 AI 署名。
+- 独立功能完成并通过验证后及时提交，不积压工作区。
+- 用户可见的功能与修复写入 `CHANGELOG.md` 顶部 `## [Unreleased]`。
+
+## 完成前检查
+
+- 改动是否严格落在请求范围内，工作树是否干净？
+- 新文案是否中英文都进了 ARB？新 UI 是否只用令牌？
+- 错误是否有日志与用户反馈？异步后是否检查了 `mounted`？
+- 是否跑了 `dart format`、`flutter analyze`、`flutter test`，UI 改动是否在模拟器上看过并留存截图？
+- 安全相关改动是否确认了“明文不落盘”？

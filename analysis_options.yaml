@@ -1,0 +1,17 @@
+# 与 verifin 相同的基线：flutter_lints + 一组偏正确性的规则。
+# 风格类交给 dart format，避免大面积无谓改动。
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+
+linter:
+  rules:
+    avoid_dynamic_calls: true
+    unawaited_futures: true
+    null_check_on_nullable_type_parameter: true
+    no_adjacent_strings_in_list: true
+    avoid_type_to_string: true
+    unnecessary_statements: true
