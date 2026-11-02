@@ -1556,6 +1556,144 @@ abstract class AppLocalizations {
   /// **'已导出'**
   String get backupExportedTo;
 
+  /// No description provided for @errorBackupFolderMissing.
+  ///
+  /// In zh, this message translates to:
+  /// **'还没有选择备份目录'**
+  String get errorBackupFolderMissing;
+
+  /// No description provided for @noticeBackupFolderSelected.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份目录已设置'**
+  String get noticeBackupFolderSelected;
+
+  /// No description provided for @settingsBackupFolder.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份目录'**
+  String get settingsBackupFolder;
+
+  /// No description provided for @settingsBackupFolderNone.
+  ///
+  /// In zh, this message translates to:
+  /// **'未选择'**
+  String get settingsBackupFolderNone;
+
+  /// No description provided for @settingsLastBackup.
+  ///
+  /// In zh, this message translates to:
+  /// **'上次备份'**
+  String get settingsLastBackup;
+
+  /// No description provided for @settingsBackupNever.
+  ///
+  /// In zh, this message translates to:
+  /// **'从未备份'**
+  String get settingsBackupNever;
+
+  /// No description provided for @settingsBackupNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'立即备份'**
+  String get settingsBackupNow;
+
+  /// No description provided for @settingsBackupNowDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'生成一份加密快照，保留最近 10 份'**
+  String get settingsBackupNowDesc;
+
+  /// No description provided for @settingsCheckUpdate.
+  ///
+  /// In zh, this message translates to:
+  /// **'检查更新'**
+  String get settingsCheckUpdate;
+
+  /// No description provided for @settingsCheckUpdateDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'只在点击时访问 GitHub Release'**
+  String get settingsCheckUpdateDesc;
+
+  /// No description provided for @updateAvailableTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'发现新版本'**
+  String get updateAvailableTitle;
+
+  /// No description provided for @updateCurrentVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'当前版本'**
+  String get updateCurrentVersion;
+
+  /// No description provided for @updateLatestVersion.
+  ///
+  /// In zh, this message translates to:
+  /// **'最新版本'**
+  String get updateLatestVersion;
+
+  /// No description provided for @updateOpenRelease.
+  ///
+  /// In zh, this message translates to:
+  /// **'前往下载'**
+  String get updateOpenRelease;
+
+  /// No description provided for @updateUpToDate.
+  ///
+  /// In zh, this message translates to:
+  /// **'已是最新版本'**
+  String get updateUpToDate;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'检查更新失败'**
+  String get updateCheckFailed;
+
+  /// No description provided for @themeColorTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'自定义主题色'**
+  String get themeColorTitle;
+
+  /// No description provided for @themeColorHue.
+  ///
+  /// In zh, this message translates to:
+  /// **'色相'**
+  String get themeColorHue;
+
+  /// No description provided for @themeColorSaturation.
+  ///
+  /// In zh, this message translates to:
+  /// **'饱和度'**
+  String get themeColorSaturation;
+
+  /// No description provided for @themeColorBrightness.
+  ///
+  /// In zh, this message translates to:
+  /// **'亮度'**
+  String get themeColorBrightness;
+
+  /// No description provided for @themeColorPreview.
+  ///
+  /// In zh, this message translates to:
+  /// **'效果预览'**
+  String get themeColorPreview;
+
+  /// No description provided for @settingsBackup.
+  ///
+  /// In zh, this message translates to:
+  /// **'备份'**
+  String get settingsBackup;
+
+  /// No description provided for @itemsCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'共 {count} 条'**
+  String itemsCount(int count);
+
   /// No description provided for @tokensHeaderProgress.
   ///
   /// In zh, this message translates to:

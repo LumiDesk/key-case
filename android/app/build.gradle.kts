@@ -72,3 +72,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // 备份目录：SAF 树写入与枚举（DocumentFile）。
+    implementation("androidx.documentfile:documentfile:1.1.0")
+}

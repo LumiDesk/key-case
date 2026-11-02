@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
+import 'app_version.dart';
 import 'data/preferences_store.dart';
 import 'import/aegis_importer.dart';
 import 'import/google_migration.dart';
@@ -11,11 +12,13 @@ import 'logging/app_logger.dart';
 import 'models/models.dart';
 import 'otp/otp_clock.dart';
 import 'platform/biometric_auth.dart';
+import 'update/update_checker.dart';
 import 'platform/native_bridge.dart';
 import 'vault/backup_service.dart';
 import 'vault/vault_container.dart';
 import 'vault/vault_repository.dart';
 
+part 'keycase_backup_ops.dart';
 part 'keycase_controller_ops.dart';
 
 /// 应用唯一的状态源。
@@ -301,9 +304,9 @@ class KeyCaseController extends ChangeNotifier {
     _emit(_state.copyWith(busy: false, error: error));
   }
 
-  /// 自动快照：失败只记日志，绝不影响保存结果。
+  /// 自动快照：只在用户选过备份目录且开关打开时写入，失败只记日志，
+  /// 绝不影响保存结果。
   Future<void> _snapshotQuietly() async {
-    if (!_preferences.autoSnapshot) return;
     try {
       await _snapshotBytesQuietly(await _vault.readBytes());
     } catch (error) {
@@ -313,8 +316,15 @@ class KeyCaseController extends ChangeNotifier {
 
   Future<void> _snapshotBytesQuietly(Uint8List bytes) async {
     if (!_preferences.autoSnapshot) return;
+    final dirUri = _preferences.backupTreeUri;
+    if (dirUri.isEmpty) return;
     try {
-      await _backups.snapshot(bytes);
+      await _backups.writeSnapshot(dirUri: dirUri, bytes: bytes);
+      await updatePreferences(
+        _preferences.copyWith(
+          lastBackupAt: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
     } catch (error) {
       AppLogger.warn('auto snapshot failed: $error');
     }

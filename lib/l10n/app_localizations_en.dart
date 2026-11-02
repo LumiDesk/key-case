@@ -766,6 +766,78 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupExportedTo => 'Exported';
 
   @override
+  String get errorBackupFolderMissing => 'No backup folder selected yet';
+
+  @override
+  String get noticeBackupFolderSelected => 'Backup folder set';
+
+  @override
+  String get settingsBackupFolder => 'Backup folder';
+
+  @override
+  String get settingsBackupFolderNone => 'Not selected';
+
+  @override
+  String get settingsLastBackup => 'Last backup';
+
+  @override
+  String get settingsBackupNever => 'Never';
+
+  @override
+  String get settingsBackupNow => 'Back up now';
+
+  @override
+  String get settingsBackupNowDesc =>
+      'Writes one encrypted snapshot and keeps the latest 10';
+
+  @override
+  String get settingsCheckUpdate => 'Check for updates';
+
+  @override
+  String get settingsCheckUpdateDesc => 'Only contacts GitHub when you tap';
+
+  @override
+  String get updateAvailableTitle => 'Update available';
+
+  @override
+  String get updateCurrentVersion => 'Current version';
+
+  @override
+  String get updateLatestVersion => 'Latest version';
+
+  @override
+  String get updateOpenRelease => 'Open release';
+
+  @override
+  String get updateUpToDate => 'You are up to date';
+
+  @override
+  String get updateCheckFailed => 'Update check failed';
+
+  @override
+  String get themeColorTitle => 'Custom accent color';
+
+  @override
+  String get themeColorHue => 'Hue';
+
+  @override
+  String get themeColorSaturation => 'Saturation';
+
+  @override
+  String get themeColorBrightness => 'Brightness';
+
+  @override
+  String get themeColorPreview => 'Preview';
+
+  @override
+  String get settingsBackup => 'Backup';
+
+  @override
+  String itemsCount(int count) {
+    return '$count items';
+  }
+
+  @override
   String tokensHeaderProgress(int period) {
     return 'Codes refresh every ${period}s';
   }

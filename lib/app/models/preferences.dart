@@ -25,7 +25,10 @@ class AppPreferences {
     this.codeGrouping = CodeGrouping.auto,
     this.languageCode = '',
     this.biometricEnabled = false,
-    this.autoSnapshot = true,
+    this.autoSnapshot = false,
+    this.backupTreeUri = '',
+    this.backupFolderName = '',
+    this.lastBackupAt = 0,
   });
 
   final ThemeModePreference themeMode;
@@ -50,8 +53,15 @@ class AppPreferences {
   /// 仅表示用户是否启用过生物识别解锁；真正的密钥在 Android Keystore。
   final bool biometricEnabled;
 
-  /// 每次保存后写一份加密快照到应用私有目录（保留最近 10 份）。
+  /// 每次保存后写一份加密快照到用户选定的备份目录（保留最近 10 份）。
   final bool autoSnapshot;
+
+  /// SAF 目录 URI 与显示名；空串表示还没选过目录。
+  final String backupTreeUri;
+  final String backupFolderName;
+
+  /// 上次成功备份的时间（毫秒时间戳，0 表示从未备份）。
+  final int lastBackupAt;
 
   AppPreferences copyWith({
     ThemeModePreference? themeMode,
@@ -66,6 +76,9 @@ class AppPreferences {
     String? languageCode,
     bool? biometricEnabled,
     bool? autoSnapshot,
+    String? backupTreeUri,
+    String? backupFolderName,
+    int? lastBackupAt,
   }) {
     return AppPreferences(
       themeMode: themeMode ?? this.themeMode,
@@ -80,6 +93,9 @@ class AppPreferences {
       languageCode: languageCode ?? this.languageCode,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
       autoSnapshot: autoSnapshot ?? this.autoSnapshot,
+      backupTreeUri: backupTreeUri ?? this.backupTreeUri,
+      backupFolderName: backupFolderName ?? this.backupFolderName,
+      lastBackupAt: lastBackupAt ?? this.lastBackupAt,
     );
   }
 
@@ -96,6 +112,9 @@ class AppPreferences {
     'languageCode': languageCode,
     'biometricEnabled': biometricEnabled,
     'autoSnapshot': autoSnapshot,
+    'backupTreeUri': backupTreeUri,
+    'backupFolderName': backupFolderName,
+    'lastBackupAt': lastBackupAt,
   };
 
   factory AppPreferences.fromJson(Map<String, Object?> json) {
@@ -121,7 +140,10 @@ class AppPreferences {
       ),
       languageCode: json['languageCode'] as String? ?? '',
       biometricEnabled: json['biometricEnabled'] as bool? ?? false,
-      autoSnapshot: json['autoSnapshot'] as bool? ?? true,
+      autoSnapshot: json['autoSnapshot'] as bool? ?? false,
+      backupTreeUri: json['backupTreeUri'] as String? ?? '',
+      backupFolderName: json['backupFolderName'] as String? ?? '',
+      lastBackupAt: (json['lastBackupAt'] as num?)?.toInt() ?? 0,
     );
   }
 }

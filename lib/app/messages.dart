@@ -25,6 +25,7 @@ String errorText(AppLocalizations l10n, KeyCaseError error) {
     KeyCaseError.aegisWrongPassword => l10n.errorAegisWrongPassword,
     KeyCaseError.aegisInvalid => l10n.errorAegisInvalid,
     KeyCaseError.migrationInvalid => l10n.errorMigrationInvalid,
+    KeyCaseError.backupFolderMissing => l10n.errorBackupFolderMissing,
   };
 }
 
@@ -45,6 +46,7 @@ String noticeText(AppLocalizations l10n, KeyCaseNotice notice) {
     KeyCaseNotice.biometricDisabled => l10n.noticeBiometricDisabled,
     KeyCaseNotice.imported => l10n.noticeImported(0),
     KeyCaseNotice.migrationImported => l10n.noticeMigrationImported(0),
+    KeyCaseNotice.backupFolderSelected => l10n.noticeBackupFolderSelected,
   };
 }
 

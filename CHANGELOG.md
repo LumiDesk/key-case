@@ -4,6 +4,29 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-11-02
+
+### Fixed
+
+- Biometric unlock failed with "fingerprint verification failed" on real devices: the
+  Activity now extends `FlutterFragmentActivity`, which `BiometricPrompt` requires.
+- Home overview card and the item card below it had no vertical gap.
+- List headers showed a bare number; they now read "共 N 条" / "N items".
+
+### Changed
+
+- Display mode, accent color, language, auto-lock and code grouping are chosen from anchored
+  menus (`anchored_menu`) instead of bottom-sheet pickers.
+- Custom accent color uses the same HSV picker as Veri Fin (preview + hue/saturation/brightness).
+- Change master password is a dialog with the same password-strength bar as vault creation.
+- Automatic snapshots now require a backup folder: pick a SAF folder (stored under its
+  `KeyCase` subdirectory), keep the last 10 snapshots, and see the last backup time.
+
+### Added
+
+- Check for updates in About: reads the GitHub release feed only when tapped, and offers to
+  open the release page when a newer version exists.
+
 ## [1.0.1] - 2026-11-02
 
 Complete Flutter rewrite of KeyCase. The Kotlin implementation stays available at tag `v0.1.3`.

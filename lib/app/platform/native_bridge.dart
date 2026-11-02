@@ -82,4 +82,83 @@ class NativeBridge {
       AppLogger.warn('clearVaultKey: native channel missing');
     }
   }
+
+  /// 让用户选一个备份目录（SAF）；取消返回 null。
+  Future<({String uri, String name})?> pickBackupFolder() async {
+    if (!_supported) return null;
+    try {
+      final result = await _channel.invokeMapMethod<String, String>(
+        'pickBackupFolder',
+      );
+      if (result == null) return null;
+      final uri = result['uri'];
+      final name = result['name'];
+      if (uri == null || uri.isEmpty) return null;
+      return (uri: uri, name: name ?? '备份目录');
+    } on PlatformException catch (error) {
+      AppLogger.warn('pickBackupFolder failed: ${error.message}');
+      return null;
+    } on MissingPluginException {
+      AppLogger.warn('pickBackupFolder: native channel missing');
+      return null;
+    }
+  }
+
+  /// 把加密快照写进所选的 SAF 目录（应用会在其中创建 KeyCase 子目录）。
+  Future<bool> writeBackupFile({
+    required String dirUri,
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    if (!_supported) return false;
+    try {
+      final ok = await _channel.invokeMethod<bool>('writeBackupFile', {
+        'dirUri': dirUri,
+        'name': name,
+        'bytes': bytes,
+      });
+      return ok ?? false;
+    } on PlatformException catch (error) {
+      AppLogger.warn('writeBackupFile failed: ${error.message}');
+      return false;
+    } on MissingPluginException {
+      AppLogger.warn('writeBackupFile: native channel missing');
+      return false;
+    }
+  }
+
+  /// 列出目录里的快照文件名（按名字降序，即时间从新到旧）。
+  Future<List<String>> listBackupFiles(String dirUri) async {
+    if (!_supported) return const <String>[];
+    try {
+      final files = await _channel.invokeListMethod<String>('listBackupFiles', {
+        'dirUri': dirUri,
+      });
+      return files ?? const <String>[];
+    } on PlatformException catch (error) {
+      AppLogger.warn('listBackupFiles failed: ${error.message}');
+      return const <String>[];
+    } on MissingPluginException {
+      return const <String>[];
+    }
+  }
+
+  Future<bool> deleteBackupFiles({
+    required String dirUri,
+    required List<String> names,
+  }) async {
+    if (!_supported || names.isEmpty) return true;
+    try {
+      final ok = await _channel.invokeMethod<bool>('deleteBackupFiles', {
+        'dirUri': dirUri,
+        'names': names,
+      });
+      return ok ?? false;
+    } on PlatformException catch (error) {
+      AppLogger.warn('deleteBackupFiles failed: ${error.message}');
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
+  }
 }

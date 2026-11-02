@@ -264,7 +264,35 @@
   "deleteVaultAction": "Delete vault",
   "emptyTrashAction": "Empty trash",
   "backupExportedTo": "Exported",
-  "tokensHeaderProgress": "Codes refresh every {period}s",
+  "errorBackupFolderMissing": "No backup folder selected yet",
+  "noticeBackupFolderSelected": "Backup folder set",
+  "settingsBackupFolder": "Backup folder",
+  "settingsBackupFolderNone": "Not selected",
+  "settingsLastBackup": "Last backup",
+  "settingsBackupNever": "Never",
+  "settingsBackupNow": "Back up now",
+  "settingsBackupNowDesc": "Writes one encrypted snapshot and keeps the latest 10",
+  "settingsCheckUpdate": "Check for updates",
+  "settingsCheckUpdateDesc": "Only contacts GitHub when you tap",
+  "updateAvailableTitle": "Update available",
+  "updateCurrentVersion": "Current version",
+  "updateLatestVersion": "Latest version",
+  "updateOpenRelease": "Open release",
+  "updateUpToDate": "You are up to date",
+  "updateCheckFailed": "Update check failed",
+  "themeColorTitle": "Custom accent color",
+  "themeColorHue": "Hue",
+  "themeColorSaturation": "Saturation",
+  "themeColorBrightness": "Brightness",
+  "themeColorPreview": "Preview",  "settingsBackup": "Backup",
+  "itemsCount": "{count} items",
+  "@itemsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },  "tokensHeaderProgress": "Codes refresh every {period}s",
   "@tokensHeaderProgress": {
     "placeholders": {
       "period": {

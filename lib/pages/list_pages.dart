@@ -38,7 +38,7 @@ class _LoginsPageState extends State<LoginsPage> {
           children: <Widget>[
             KcHeader(
               title: l10n.loginsTitle,
-              subtitle: '${items.length}',
+              subtitle: l10n.itemsCount(items.length),
               actions: <Widget>[
                 IconButton(
                   tooltip: l10n.actionSearch,
@@ -131,7 +131,7 @@ class _TokensPageState extends State<TokensPage> {
           children: <Widget>[
             KcHeader(
               title: l10n.tokensTitle,
-              subtitle: '${items.length}',
+              subtitle: l10n.itemsCount(items.length),
               actions: <Widget>[
                 IconButton(
                   tooltip: l10n.actionSearch,

@@ -746,6 +746,77 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backupExportedTo => '已导出';
 
   @override
+  String get errorBackupFolderMissing => '还没有选择备份目录';
+
+  @override
+  String get noticeBackupFolderSelected => '备份目录已设置';
+
+  @override
+  String get settingsBackupFolder => '备份目录';
+
+  @override
+  String get settingsBackupFolderNone => '未选择';
+
+  @override
+  String get settingsLastBackup => '上次备份';
+
+  @override
+  String get settingsBackupNever => '从未备份';
+
+  @override
+  String get settingsBackupNow => '立即备份';
+
+  @override
+  String get settingsBackupNowDesc => '生成一份加密快照，保留最近 10 份';
+
+  @override
+  String get settingsCheckUpdate => '检查更新';
+
+  @override
+  String get settingsCheckUpdateDesc => '只在点击时访问 GitHub Release';
+
+  @override
+  String get updateAvailableTitle => '发现新版本';
+
+  @override
+  String get updateCurrentVersion => '当前版本';
+
+  @override
+  String get updateLatestVersion => '最新版本';
+
+  @override
+  String get updateOpenRelease => '前往下载';
+
+  @override
+  String get updateUpToDate => '已是最新版本';
+
+  @override
+  String get updateCheckFailed => '检查更新失败';
+
+  @override
+  String get themeColorTitle => '自定义主题色';
+
+  @override
+  String get themeColorHue => '色相';
+
+  @override
+  String get themeColorSaturation => '饱和度';
+
+  @override
+  String get themeColorBrightness => '亮度';
+
+  @override
+  String get themeColorPreview => '效果预览';
+
+  @override
+  String get settingsBackup => '备份';
+
+  @override
+  String itemsCount(int count) {
+    return '共 $count 条';
+  }
+
+  @override
   String tokensHeaderProgress(int period) {
     return '验证码每 $period 秒刷新';
   }

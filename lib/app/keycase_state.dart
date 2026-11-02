@@ -35,6 +35,7 @@ enum KeyCaseError {
   aegisWrongPassword,
   aegisInvalid,
   migrationInvalid,
+  backupFolderMissing,
 }
 
 /// 一次性成功提示，同样交给 UI 翻译。
@@ -54,6 +55,7 @@ enum KeyCaseNotice {
   biometricDisabled,
   imported,
   migrationImported,
+  backupFolderSelected,
 }
 
 class KeyCaseState {

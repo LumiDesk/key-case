@@ -3,60 +3,53 @@ import 'dart:typed_data';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
-/// 备份仓库：自动快照 + 手动导出/导入。
+import '../platform/native_bridge.dart';
+
+/// 备份：手动导出/导入 + 写进用户选定目录的自动快照。
 ///
-/// 自动快照放在应用私有目录，只保留最近 [keepSnapshots] 份；用户主动导出才走
-/// 系统文档选择器。两种形态都是同一个加密容器，扩展名 `.kcbak`。
+/// 快照只写用户明确选过的 SAF 目录（其下的 KeyCase 子目录），保留最近
+/// [keepSnapshots] 份；没有选目录时不做任何自动写入。
 class BackupService {
-  BackupService({Directory? directory}) : _directoryOverride = directory;
+  BackupService({NativeBridge? bridge}) : _bridge = bridge ?? NativeBridge();
 
   static const int keepSnapshots = 10;
-  static const int maxImportBytes = 64 * 1024 * 1024;
   static const String fileExtension = 'kcbak';
+  static const int maxImportBytes = 64 * 1024 * 1024;
 
-  final Directory? _directoryOverride;
+  final NativeBridge _bridge;
 
-  Future<Directory> _backupDirectory() async {
-    final base = _directoryOverride ?? await getApplicationSupportDirectory();
-    final directory = Directory(p.join(base.path, 'backups'));
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    return directory;
-  }
+  /// 让用户选备份目录；取消返回 null。
+  Future<({String uri, String name})?> pickFolder() =>
+      _bridge.pickBackupFolder();
 
-  /// 写入一份自动快照并清理旧文件；返回快照路径。
-  Future<String> snapshot(Uint8List bytes) async {
-    final directory = await _backupDirectory();
+  /// 写入一份加密快照并清理超出的旧份数；返回文件名。
+  Future<String> writeSnapshot({
+    required String dirUri,
+    required Uint8List bytes,
+  }) async {
     final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
-    final file = File(p.join(directory.path, 'keycase-$stamp.$fileExtension'));
-    await file.writeAsBytes(bytes, flush: true);
-    await _prune(directory);
-    return file.path;
-  }
-
-  Future<List<File>> listSnapshots() async {
-    final directory = await _backupDirectory();
-    final files = await directory
-        .list()
-        .where(
-          (entity) => entity is File && entity.path.endsWith('.$fileExtension'),
-        )
-        .cast<File>()
-        .toList();
-    files.sort((a, b) => b.path.compareTo(a.path));
-    return files;
-  }
-
-  Future<void> _prune(Directory directory) async {
-    final snapshots = await listSnapshots();
-    for (var i = keepSnapshots; i < snapshots.length; i++) {
-      await snapshots[i].delete();
+    final name = 'keycase-$stamp.$fileExtension';
+    final ok = await _bridge.writeBackupFile(
+      dirUri: dirUri,
+      name: name,
+      bytes: bytes,
+    );
+    if (!ok) {
+      throw const FileSystemException('无法写入备份目录');
     }
+    final files = await _bridge.listBackupFiles(dirUri);
+    if (files.length > keepSnapshots) {
+      await _bridge.deleteBackupFiles(
+        dirUri: dirUri,
+        names: files.sublist(keepSnapshots),
+      );
+    }
+    return name;
   }
+
+  Future<List<String>> listSnapshots(String dirUri) =>
+      _bridge.listBackupFiles(dirUri);
 
   /// 让用户选一个位置导出当前库；取消返回 null。
   Future<String?> exportToUser(Uint8List bytes) async {
