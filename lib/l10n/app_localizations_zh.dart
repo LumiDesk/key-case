@@ -785,6 +785,30 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsBackup => '备份';
 
   @override
+  String get tokenAddScan => '扫码添加';
+
+  @override
+  String get tokenAddManual => '手动添加';
+
+  @override
+  String get timeJustNow => '刚刚';
+
+  @override
+  String timeMinutesAgo(int count) {
+    return '$count 分钟前';
+  }
+
+  @override
+  String timeHoursAgo(int count) {
+    return '$count 小时前';
+  }
+
+  @override
+  String timeDaysAgo(int count) {
+    return '$count 天前';
+  }
+
+  @override
   String itemsCount(int count) {
     return '共 $count 条';
   }

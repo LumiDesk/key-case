@@ -74,13 +74,10 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
     final theme = Theme.of(context);
     final pack = AegisIconPack.instance;
     final query = _query.text.trim().toLowerCase();
-    final names = pack.allNames
-        .where((name) {
-          if (query.isEmpty) return true;
-          return name.toLowerCase().contains(query);
-        })
-        .take(120)
-        .toList();
+    final names = pack.allNames.where((name) {
+      if (query.isEmpty) return true;
+      return name.toLowerCase().contains(query);
+    }).toList();
 
     return SafeArea(
       top: false,

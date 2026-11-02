@@ -108,9 +108,14 @@ void main() {
       expect(formatOtpCode('ABCDE', CodeGrouping.auto, steam: true), 'ABCDE');
     });
 
-    test('隐藏态与可见码等宽', () {
-      expect(hiddenOtpCode('123456'), '••• •••');
-      expect(hiddenOtpCode('12345678'), '••• ••• ••');
+    test('隐藏态保留分组且不把空格算成圆点', () {
+      expect(hiddenOtpCode('123 456'), '••• •••');
+      expect(hiddenOtpCode('1234 5678'), '•••• ••••');
+      expect(hiddenOtpCode('ABCDE'), '•••••');
+      expect(
+        hiddenOtpCode('123 456').replaceAll(' ', '').length,
+        '123 456'.replaceAll(' ', '').length,
+      );
     });
   });
 

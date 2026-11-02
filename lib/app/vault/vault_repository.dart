@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../crypto/kdf.dart';
 import '../logging/app_logger.dart';
 import '../models/models.dart';
 import 'vault_container.dart';
@@ -16,12 +17,17 @@ import 'vault_container.dart';
 /// - Argon2id 与 AES-GCM 的计算放到后台 isolate，主线程只等结果；
 /// - UI 永远不直接碰这个类，只通过 Controller。
 class VaultRepository {
-  VaultRepository({Directory? directory}) : _directoryOverride = directory;
+  VaultRepository({Directory? directory, KdfParams? kdfParams})
+    : _directoryOverride = directory,
+      _kdfParams = kdfParams ?? const KdfParams();
 
   static const String fileName = 'vault.kcv';
   static const String preImportFileName = 'vault.kcv.pre-import';
 
   final Directory? _directoryOverride;
+
+  /// 运行时使用默认 Argon2id 参数；测试可注入低成本参数避免拖慢用例。
+  final KdfParams _kdfParams;
   Directory? _cachedDirectory;
   UnlockedVault? _session;
 
@@ -49,8 +55,13 @@ class VaultRepository {
     required String password,
     required VaultData data,
   }) async {
+    final kdfParams = _kdfParams;
     final created = await Isolate.run(
-      () => VaultContainer.create(password: password, data: data),
+      () => VaultContainer.create(
+        password: password,
+        data: data,
+        kdfParams: kdfParams,
+      ),
     );
     await _writeAtomic(created.bytes);
     _session?.close();
@@ -107,18 +118,15 @@ class VaultRepository {
     if (current == null) {
       throw const VaultFormatException('保险库未解锁', code: VaultErrorCode.locked);
     }
-    // 两次派生都放在方法体里（而不是写队列闭包里），闭包只捕获参数。
+    // 两次派生都放在顶层 helper 里，避免闭包连带捕获 Repository 的写队列。
     final onDisk = await (await _vaultFile()).readAsBytes();
-    final verified = await Isolate.run(
-      () => VaultContainer.unlock(password: currentPassword, bytes: onDisk),
-    );
+    final verified = await _unlockBytesInBackground(onDisk, currentPassword);
     verified.close();
 
-    final rotated = await Isolate.run(
-      () => VaultContainer.changePassword(
-        session: current,
-        newPassword: newPassword,
-      ),
+    final rotated = await _rotatePasswordInBackground(
+      current,
+      newPassword,
+      _kdfParams,
     );
     await _serialize(() async {
       await _writeAtomic(rotated.bytes);
@@ -133,9 +141,7 @@ class VaultRepository {
     required Uint8List bytes,
     required String password,
   }) async {
-    final unlocked = await Isolate.run(
-      () => VaultContainer.unlock(password: password, bytes: bytes),
-    );
+    final unlocked = await _unlockBytesInBackground(bytes, password);
     final file = await _vaultFile();
     if (await file.exists()) {
       await file.copy(p.join((await _directory()).path, preImportFileName));
@@ -189,4 +195,28 @@ class VaultRepository {
     _writeTail = result.then<void>((_) {}, onError: (Object _) {});
     return result;
   }
+}
+
+/// 顶层函数让 isolate 闭包只捕获参数，不把 Repository 的写队列一起带走。
+Future<UnlockedVault> _unlockBytesInBackground(
+  Uint8List bytes,
+  String password,
+) {
+  return Isolate.run(
+    () => VaultContainer.unlock(password: password, bytes: bytes),
+  );
+}
+
+Future<CreatedVault> _rotatePasswordInBackground(
+  UnlockedVault session,
+  String newPassword,
+  KdfParams kdfParams,
+) {
+  return Isolate.run(
+    () => VaultContainer.changePassword(
+      session: session,
+      newPassword: newPassword,
+      kdfParams: kdfParams,
+    ),
+  );
 }

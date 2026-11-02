@@ -5,6 +5,7 @@ library;
 
 import 'dart:math' as math;
 
+import 'package:anchored_menu/anchored_menu.dart';
 import 'package:flutter/material.dart';
 
 import 'app/app_theme.dart';
@@ -17,3 +18,4 @@ import 'l10n/app_localizations.dart';
 part 'app/common_widgets_scaffold.dart';
 part 'app/common_widgets_display.dart';
 part 'app/common_widgets_forms.dart';
+part 'app/common_widgets_navigation.dart';

@@ -1634,6 +1634,42 @@ abstract class AppLocalizations {
   /// **'备份'**
   String get settingsBackup;
 
+  /// No description provided for @tokenAddScan.
+  ///
+  /// In zh, this message translates to:
+  /// **'扫码添加'**
+  String get tokenAddScan;
+
+  /// No description provided for @tokenAddManual.
+  ///
+  /// In zh, this message translates to:
+  /// **'手动添加'**
+  String get tokenAddManual;
+
+  /// No description provided for @timeJustNow.
+  ///
+  /// In zh, this message translates to:
+  /// **'刚刚'**
+  String get timeJustNow;
+
+  /// No description provided for @timeMinutesAgo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 分钟前'**
+  String timeMinutesAgo(int count);
+
+  /// No description provided for @timeHoursAgo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 小时前'**
+  String timeHoursAgo(int count);
+
+  /// No description provided for @timeDaysAgo.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 天前'**
+  String timeDaysAgo(int count);
+
   /// No description provided for @itemsCount.
   ///
   /// In zh, this message translates to:

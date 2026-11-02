@@ -137,64 +137,126 @@ class KcRowDivider extends StatelessWidget {
   }
 }
 
-/// 分段控件：用于主题模式、验证码分组这类 2–4 项短枚举。
-class KcSegmentedControl<T> extends StatelessWidget {
-  const KcSegmentedControl({
+/// 静态单选行：2–8 项受控选项统一走锚点菜单。
+///
+/// [dense] 为 true 时渲染卡片内的「标签 + 当前值 + chevron」紧凑行；
+/// 否则渲染设置页的 `KcSettingsRow`。不要为单个页面另写菜单行。
+class KcMenuRow<T> extends StatelessWidget {
+  const KcMenuRow({
     super.key,
+    required this.title,
+    required this.value,
     required this.values,
     required this.selected,
     required this.labelOf,
-    required this.onChanged,
+    required this.onSelected,
+    this.icon,
+    this.subtitle,
+    this.idOf,
+    this.semanticLabel,
+    this.trailingColor,
+    this.dense = false,
+    this.keyPrefix = 'kc_menu',
   });
 
+  final String title;
+  final String value;
   final List<T> values;
   final T selected;
   final String Function(T value) labelOf;
-  final ValueChanged<T> onChanged;
+  final ValueChanged<T> onSelected;
+  final IconData? icon;
+  final String? subtitle;
+  final String Function(T value)? idOf;
+  final String? semanticLabel;
+  final Color? trailingColor;
+  final bool dense;
+  final String keyPrefix;
 
   @override
   Widget build(BuildContext context) {
+    return AnchoredMenuChoice<T>(
+      values: values,
+      selected: selected,
+      idOf: idOf ?? (value) => '$value',
+      labelOf: labelOf,
+      onSelected: onSelected,
+      semanticLabel: semanticLabel ?? title,
+      keyPrefix: keyPrefix,
+      builder: (context, openMenu, _) => dense
+          ? _buildDense(context, openMenu)
+          : _buildSetting(context, openMenu),
+    );
+  }
+
+  Widget _buildSetting(BuildContext context, VoidCallback openMenu) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(2),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(kcRadiusMd),
-      ),
-      child: Row(
+    return KcSettingsRow(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      onTap: openMenu,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          for (final value in values)
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onChanged(value),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 180),
-                  height: 38,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: value == selected
-                        ? theme.colorScheme.primary
-                        : Colors.transparent,
-                    borderRadius: BorderRadius.circular(kcRadiusSm),
-                  ),
-                  child: Text(
-                    labelOf(value),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: value == selected
-                          ? theme.colorScheme.onPrimary
-                          : theme.colorScheme.onSurface.withValues(alpha: 0.72),
-                      fontWeight: value == selected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
-                    ),
-                  ),
+          if (trailingColor != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: trailingColor,
+                  shape: BoxShape.circle,
                 ),
               ),
             ),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+          ),
+          const SizedBox(width: 2),
+          Icon(
+            Icons.expand_more_rounded,
+            size: 20,
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDense(BuildContext context, VoidCallback openMenu) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: openMenu,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: <Widget>[
+            Text(
+              title,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 18,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
+            ),
+          ],
+        ),
       ),
     );
   }

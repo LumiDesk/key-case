@@ -1,4 +1,3 @@
-import 'package:anchored_menu/anchored_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -52,7 +51,7 @@ class SettingsPage extends StatelessWidget {
                 children: <Widget>[
                   KcSectionLabel(l10n.settingsAppearance),
                   _card(<Widget>[
-                    _MenuRow<ThemeModePreference>(
+                    KcMenuRow<ThemeModePreference>(
                       icon: Icons.dark_mode_outlined,
                       title: l10n.settingsTheme,
                       value: _themeLabel(preferences.themeMode, l10n),
@@ -60,12 +59,13 @@ class SettingsPage extends StatelessWidget {
                       selected: preferences.themeMode,
                       idOf: (value) => value.name,
                       labelOf: (value) => _themeLabel(value, l10n),
+                      keyPrefix: 'settings_theme',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(themeMode: value),
                       ),
                     ),
                     const KcRowDivider(),
-                    _MenuRow<String>(
+                    KcMenuRow<String>(
                       icon: Icons.palette_outlined,
                       title: l10n.settingsAccent,
                       value: _accentLabel(preferences, l10n),
@@ -81,6 +81,7 @@ class SettingsPage extends StatelessWidget {
                       selected: _accentValue(preferences),
                       idOf: (value) => value,
                       labelOf: (value) => _accentValueLabel(value, l10n),
+                      keyPrefix: 'settings_accent',
                       trailingColor: kcPrimaryFor(
                         preferences,
                         Theme.of(context).brightness,
@@ -93,7 +94,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
-                    _MenuRow<String>(
+                    KcMenuRow<String>(
                       icon: Icons.translate_rounded,
                       title: l10n.settingsLanguage,
                       value: _languageLabel(preferences.languageCode),
@@ -101,6 +102,7 @@ class SettingsPage extends StatelessWidget {
                       selected: preferences.languageCode,
                       idOf: (value) => value.isEmpty ? 'system' : value,
                       labelOf: (value) => _languageLabel(value),
+                      keyPrefix: 'settings_language',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(languageCode: value),
                       ),
@@ -118,7 +120,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
-                    _MenuRow<int>(
+                    KcMenuRow<int>(
                       icon: Icons.timer_outlined,
                       title: l10n.settingsAutoLock,
                       value: _autoLockLabel(preferences.autoLockSeconds, l10n),
@@ -126,6 +128,7 @@ class SettingsPage extends StatelessWidget {
                       selected: preferences.autoLockSeconds,
                       idOf: (value) => 'lock_$value',
                       labelOf: (value) => _autoLockLabel(value, l10n),
+                      keyPrefix: 'settings_autolock',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(autoLockSeconds: value),
                       ),
@@ -142,6 +145,7 @@ class SettingsPage extends StatelessWidget {
                         if (value) {
                           await controller.enableBiometrics(
                             reason: l10n.biometricEnableReason,
+                            cancelLabel: l10n.actionCancel,
                           );
                         } else {
                           await controller.disableBiometrics();
@@ -189,7 +193,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
-                    _MenuRow<CodeGrouping>(
+                    KcMenuRow<CodeGrouping>(
                       icon: Icons.short_text_rounded,
                       title: l10n.settingsGrouping,
                       value: _groupingLabel(preferences.codeGrouping, l10n),
@@ -197,6 +201,7 @@ class SettingsPage extends StatelessWidget {
                       selected: preferences.codeGrouping,
                       idOf: (value) => value.name,
                       labelOf: (value) => _groupingLabel(value, l10n),
+                      keyPrefix: 'settings_grouping',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(codeGrouping: value),
                       ),
@@ -553,82 +558,6 @@ class SettingsPage extends StatelessWidget {
     if (confirmed) {
       await controller.deleteVault();
     }
-  }
-}
-
-/// 设置行 + 锚点菜单：点行弹出菜单，选中后回到页面状态。
-class _MenuRow<T> extends StatelessWidget {
-  const _MenuRow({
-    required this.icon,
-    required this.title,
-    required this.value,
-    required this.values,
-    required this.selected,
-    required this.idOf,
-    required this.labelOf,
-    required this.onSelected,
-    this.trailingColor,
-  });
-
-  final IconData icon;
-  final String title;
-  final String value;
-  final List<T> values;
-  final T selected;
-  final String Function(T value) idOf;
-  final String Function(T value) labelOf;
-  final ValueChanged<T> onSelected;
-  final Color? trailingColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return AnchoredMenuAnchor(
-      entries: <AnchoredMenuEntry>[
-        for (final option in values)
-          AnchoredMenuItem(
-            id: idOf(option),
-            title: labelOf(option),
-            selected: option == selected,
-            onPressed: () => onSelected(option),
-          ),
-      ],
-      semanticLabel: title,
-      builder: (context, openMenu, menuOpen) => KcSettingsRow(
-        icon: icon,
-        title: title,
-        onTap: openMenu,
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (trailingColor != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: trailingColor,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            Text(
-              value,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            const SizedBox(width: 2),
-            Icon(
-              Icons.expand_more_rounded,
-              size: 20,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

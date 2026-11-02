@@ -64,6 +64,7 @@ tool/                          # 本地基准等非产品入口
 - `docs/design/design-system.md`：颜色、排版、表面材质与验收约定。
 - `docs/design/components.md`：组件、弹层 helper 与纯函数注册表；写新 Widget 前先查。
 - `docs/dev/architecture.md`：源码导航与分层。
+- `docs/dev/testing.md`：自动化测试分层、覆盖率口径与模拟器验收清单。
 - `docs/dev/tech-decisions.md`：KDF 参数、Keystore 取舍、格式与备份口径。
 
 ## 文档同步
@@ -96,15 +97,17 @@ tool/                          # 本地基准等非产品入口
 
 ### 组件与设计令牌
 
-- 写任何 Widget / 弹层前先查 `docs/design/components.md`，命中就复用或参数化扩展。
+- 写任何 Widget / 弹层前先查 `docs/design/components.md`，命中就复用或参数化扩展；禁止为同一交互另写一套同构组件。
+- 2–8 项静态受控单选（设置、排序、令牌参数等）统一使用 `KcMenuRow<T>` / `AnchoredMenuChoice<T>`；禁止引入分段控件、底部单选列表等第二套单选组件。
 - 页面骨架固定 `Scaffold > SafeArea > KcPage`，头部用 `KcHeader` / `KcSubHeader`。
 - 颜色只用 `kc*` 令牌与 `Theme.of(context).colorScheme`；语义色经 `kcSemantic(context, kcDanger)` 取用。
 - 表面一律不透明实色：禁止背景模糊、渐变、片元滤镜。
 
 ### 弹窗与输入
 
-- 页面不得裸写 `showModalBottomSheet`：用 `showKcSheet`；确认用 `showKcConfirm`；文本输入用 `showKcTextInput`；短单选列表用 `showKcOptionSheet`。
-- 2–8 项静态受控单选（排序等）用外部库的 `AnchoredMenuChoice<T>` / `AnchoredMenuButton`，并只通过主题桥接视觉令牌。
+- 页面不得裸写 `showModalBottomSheet`：自定义内容用 `showKcSheet`；确认用 `showKcConfirm`；文本输入用 `showKcTextInput`。
+- 单选统一使用锚点菜单：`KcMenuRow<T>`（设置/表单行）或外部库的 `AnchoredMenuChoice<T>` / `AnchoredMenuButton`；禁止重新引入底部单选弹层。
+- 图标搜索画廊、取色器这类搜索/调参型面板可以继续用 `showKcSheet`，但它们不是静态单选列表。
 - 取消/未选统一返回 `null`。
 
 ### 国际化

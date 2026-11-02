@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app/app_theme.dart';
@@ -38,8 +40,8 @@ class KcLoginTile extends StatelessWidget {
   }
 }
 
-/// 令牌行：验证码胶囊 + 倒计时环；点胶囊直接复制，点整行进详情。
-class KcTokenTile extends StatelessWidget {
+/// 令牌行：验证码胶囊 + 倒计时环；点胶囊揭开并复制，点整行进详情。
+class KcTokenTile extends StatefulWidget {
   const KcTokenTile({
     super.key,
     required this.item,
@@ -60,74 +62,136 @@ class KcTokenTile extends StatelessWidget {
   final VoidCallback? onLongPress;
 
   @override
+  State<KcTokenTile> createState() => _KcTokenTileState();
+}
+
+class _KcTokenTileState extends State<KcTokenTile> {
+  DateTime? _revealedUntil;
+  Timer? _revealTimer;
+
+  bool get _isRevealed =>
+      _revealedUntil != null && DateTime.now().isBefore(_revealedUntil!);
+
+  @override
+  void didUpdateWidget(covariant KcTokenTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.item.id != widget.item.id ||
+        (widget.showCode && !oldWidget.showCode)) {
+      _hideCode(notify: false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _revealTimer?.cancel();
+    super.dispose();
+  }
+
+  void _revealCode() {
+    setState(() {
+      _revealedUntil = DateTime.now().add(const Duration(seconds: 10));
+    });
+    _revealTimer?.cancel();
+    // 只负责揭开态 10 秒后自动隐藏，不参与验证码计算；OTP ticker 仍只有 OtpClock。
+    _revealTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted) setState(() => _revealedUntil = null);
+    });
+  }
+
+  void _hideCode({bool notify = true}) {
+    _revealTimer?.cancel();
+    _revealTimer = null;
+    if (_revealedUntil == null) return;
+    if (notify) {
+      setState(() => _revealedUntil = null);
+    } else {
+      _revealedUntil = null;
+    }
+  }
+
+  void _handleCodeTap(String code, bool visible) {
+    if (!visible) _revealCode();
+    unawaited(copyToClipboard(context, code));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final secret = item.totp;
+    final secret = widget.item.totp;
     if (secret == null) {
-      return _ItemRow(item: item, onTap: onTap, onLongPress: onLongPress);
+      return _ItemRow(
+        item: widget.item,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+      );
     }
     final l10n = AppLocalizations.of(context);
-    return ValueListenableBuilder<int>(
-      valueListenable: clock.seconds,
-      builder: (context, seconds, _) {
-        final time = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
-        final counter = otpCounterAt(secret, time);
-        final code = generateOtpCode(secret: secret, counter: counter);
-        final remaining = otpSecondsRemaining(secret, time);
-        final formatted = formatOtpCode(
-          code,
-          grouping,
-          steam: secret.type == OtpType.steam,
-        );
-        final next = secret.isCounterBased ? null : nextOtpCode(secret, time);
+    return TapRegion(
+      onTapOutside: (_) => _hideCode(),
+      child: ValueListenableBuilder<int>(
+        valueListenable: widget.clock.seconds,
+        builder: (context, seconds, _) {
+          final time = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+          final counter = otpCounterAt(secret, time);
+          final code = generateOtpCode(secret: secret, counter: counter);
+          final remaining = otpSecondsRemaining(secret, time);
+          final formatted = formatOtpCode(
+            code,
+            widget.grouping,
+            steam: secret.type == OtpType.steam,
+          );
+          final visible = widget.showCode || _isRevealed;
+          final next = secret.isCounterBased ? null : nextOtpCode(secret, time);
 
-        return _ItemRow(
-          item: item,
-          onTap: onTap,
-          onLongPress: onLongPress,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  KcCodeCapsule(
-                    code: formatted,
-                    hidden: !showCode,
-                    onTap: () => copyToClipboard(context, code),
-                  ),
-                  if (showNext && next != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 3),
-                      child: Text(
-                        formatOtpCode(
-                          next,
-                          grouping,
-                          steam: secret.type == OtpType.steam,
-                        ),
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface
-                              .withValues(alpha: 0.45),
-                          fontFeatures: const <FontFeature>[
-                            FontFeature.tabularFigures(),
-                          ],
+          return _ItemRow(
+            item: widget.item,
+            onTap: widget.onTap,
+            onLongPress: widget.onLongPress,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: <Widget>[
+                    KcCodeCapsule(
+                      code: formatted,
+                      hidden: !visible,
+                      onTap: () => _handleCodeTap(code, visible),
+                    ),
+                    if (widget.showNext && next != null && visible)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 3),
+                        child: Text(
+                          formatOtpCode(
+                            next,
+                            widget.grouping,
+                            steam: secret.type == OtpType.steam,
+                          ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface
+                                    .withValues(alpha: 0.45),
+                                fontFeatures: const <FontFeature>[
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 10),
-              if (secret.isCounterBased)
-                IconButton(
-                  tooltip: l10n.actionNext,
-                  onPressed: onTap,
-                  icon: const Icon(Icons.skip_next_rounded, size: 20),
-                )
-              else
-                KcCountdownRing(remaining: remaining, period: secret.period),
-            ],
-          ),
-        );
-      },
+                  ],
+                ),
+                const SizedBox(width: 10),
+                if (secret.isCounterBased)
+                  IconButton(
+                    tooltip: l10n.actionNext,
+                    onPressed: widget.onTap,
+                    icon: const Icon(Icons.skip_next_rounded, size: 20),
+                  )
+                else
+                  KcCountdownRing(remaining: remaining, period: secret.period),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

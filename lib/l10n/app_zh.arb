@@ -277,6 +277,33 @@
   "themeColorBrightness": "亮度",
   "themeColorPreview": "效果预览",
   "settingsBackup": "备份",
+  "tokenAddScan": "扫码添加",
+  "tokenAddManual": "手动添加",
+  "timeJustNow": "刚刚",
+  "timeMinutesAgo": "{count} 分钟前",
+  "@timeMinutesAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeHoursAgo": "{count} 小时前",
+  "@timeHoursAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "timeDaysAgo": "{count} 天前",
+  "@timeDaysAgo": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "itemsCount": "共 {count} 条",
   "@itemsCount": {
     "placeholders": {

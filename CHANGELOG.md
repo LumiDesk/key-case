@@ -4,6 +4,27 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Added
+
+- The token tab's add button now expands into "scan" and "manual" actions instead of opening a
+  bottom sheet.
+- The icon picker can browse and search the complete bundled icon pack instead of the first 120
+  results.
+
+### Changed
+
+- Every static single-choice menu now uses the same anchored menu; editor advanced settings no
+  longer open a bottom-sheet option list.
+
+### Fixed
+
+- The unlock screen now prompts for fingerprint automatically when biometric unlock is enabled.
+- Hidden token codes show exactly one dot per digit and keep the next code hidden until revealed.
+- Tapping a hidden token code reveals and copies it; tapping elsewhere or waiting 10 seconds hides
+  it again.
+- Tapping a search result now opens the item detail instead of only closing search.
+- Trash timestamps such as "5 minutes ago" now follow the selected app language.
+
 ### Security
 
 - Locking now closes any open detail/editor screens and drops the decrypted vault data from

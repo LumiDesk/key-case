@@ -354,33 +354,67 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                       KcCard(
                         child: Column(
                           children: <Widget>[
-                            _ChoiceRow(
-                              label: l10n.editorTokenType,
+                            KcMenuRow<OtpType>(
+                              title: l10n.editorTokenType,
                               value: switch (_type) {
                                 OtpType.totp => l10n.tokenTypeTotp,
                                 OtpType.hotp => l10n.tokenTypeHotp,
                                 OtpType.steam => l10n.tokenTypeSteam,
                               },
-                              onTap: () => _pickType(l10n),
+                              values: OtpType.values,
+                              selected: _type,
+                              idOf: (value) => value.name,
+                              labelOf: (value) => switch (value) {
+                                OtpType.totp => l10n.tokenTypeTotp,
+                                OtpType.hotp => l10n.tokenTypeHotp,
+                                OtpType.steam => l10n.tokenTypeSteam,
+                              },
+                              onSelected: (value) => setState(() {
+                                _type = value;
+                                if (value == OtpType.steam) _digits = 5;
+                              }),
+                              dense: true,
+                              keyPrefix: 'editor_token_type',
                             ),
                             const KcRowDivider(indent: 0),
-                            _ChoiceRow(
-                              label: l10n.editorAlgorithm,
+                            KcMenuRow<OtpHashAlgorithm>(
+                              title: l10n.editorAlgorithm,
                               value: _algorithm.name.toUpperCase(),
-                              onTap: () => _pickAlgorithm(l10n),
+                              values: OtpHashAlgorithm.values,
+                              selected: _algorithm,
+                              idOf: (value) => value.name,
+                              labelOf: (value) => value.name.toUpperCase(),
+                              onSelected: (value) =>
+                                  setState(() => _algorithm = value),
+                              dense: true,
+                              keyPrefix: 'editor_algorithm',
                             ),
                             const KcRowDivider(indent: 0),
-                            _ChoiceRow(
-                              label: l10n.editorDigits,
+                            KcMenuRow<int>(
+                              title: l10n.editorDigits,
                               value: '$_digits',
-                              onTap: () => _pickDigits(l10n),
+                              values: const <int>[6, 8],
+                              selected: _digits,
+                              idOf: (value) => '$value',
+                              labelOf: (value) => '$value',
+                              onSelected: (value) =>
+                                  setState(() => _digits = value),
+                              dense: true,
+                              keyPrefix: 'editor_digits',
                             ),
                             if (_type != OtpType.hotp) ...<Widget>[
                               const KcRowDivider(indent: 0),
-                              _ChoiceRow(
-                                label: l10n.editorPeriod,
+                              KcMenuRow<int>(
+                                title: l10n.editorPeriod,
                                 value: '$_period s',
-                                onTap: () => _pickPeriod(l10n),
+                                values: const <int>[30, 60],
+                                selected: _period,
+                                idOf: (value) => '$value',
+                                labelOf: (value) => '$value',
+                                onSelected: (value) =>
+                                    setState(() => _period = value),
+                                dense: true,
+                                keyPrefix: 'editor_period',
                               ),
                             ],
                             if (_type == OtpType.hotp) ...<Widget>[
@@ -414,64 +448,6 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
         ),
       ),
     );
-  }
-
-  Future<void> _pickType(AppLocalizations l10n) async {
-    final value = await showKcOptionSheet<OtpType>(
-      context: context,
-      title: l10n.editorTokenType,
-      selected: _type,
-      options: <({OtpType value, String label})>[
-        (value: OtpType.totp, label: l10n.tokenTypeTotp),
-        (value: OtpType.hotp, label: l10n.tokenTypeHotp),
-        (value: OtpType.steam, label: l10n.tokenTypeSteam),
-      ],
-    );
-    if (value != null) {
-      setState(() {
-        _type = value;
-        if (value == OtpType.steam) _digits = 5;
-      });
-    }
-  }
-
-  Future<void> _pickAlgorithm(AppLocalizations l10n) async {
-    final value = await showKcOptionSheet<OtpHashAlgorithm>(
-      context: context,
-      title: l10n.editorAlgorithm,
-      selected: _algorithm,
-      options: <({OtpHashAlgorithm value, String label})>[
-        for (final algorithm in OtpHashAlgorithm.values)
-          (value: algorithm, label: algorithm.name.toUpperCase()),
-      ],
-    );
-    if (value != null) setState(() => _algorithm = value);
-  }
-
-  Future<void> _pickDigits(AppLocalizations l10n) async {
-    final value = await showKcOptionSheet<int>(
-      context: context,
-      title: l10n.editorDigits,
-      selected: _digits,
-      options: const <({int value, String label})>[
-        (value: 6, label: '6'),
-        (value: 8, label: '8'),
-      ],
-    );
-    if (value != null) setState(() => _digits = value);
-  }
-
-  Future<void> _pickPeriod(AppLocalizations l10n) async {
-    final value = await showKcOptionSheet<int>(
-      context: context,
-      title: l10n.editorPeriod,
-      selected: _period,
-      options: const <({int value, String label})>[
-        (value: 30, label: '30'),
-        (value: 60, label: '60'),
-      ],
-    );
-    if (value != null) setState(() => _period = value);
   }
 }
 

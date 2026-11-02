@@ -117,11 +117,15 @@ String formatOtpCode(String code, CodeGrouping grouping, {bool steam = false}) {
   return buffer.toString();
 }
 
-/// 隐藏态占位符：与可见码等宽，避免开关切换时布局跳动。
+/// 隐藏态占位符：保留分组空格，只把可见字符换成圆点。
+///
+/// 入参必须是已经 [formatOtpCode] 过的文本；这样 6 位码显示为 `••• •••`，
+/// 不会把分隔空格也算成一个点。
 String hiddenOtpCode(String code) {
-  final groups = <String>[];
-  for (var i = 0; i < code.length; i += 3) {
-    groups.add('•' * (code.length - i >= 3 ? 3 : code.length - i));
+  final buffer = StringBuffer();
+  for (final rune in code.runes) {
+    final char = String.fromCharCode(rune);
+    buffer.write(char.trim().isEmpty ? char : '•');
   }
-  return groups.join(' ');
+  return buffer.toString();
 }

@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../app/keycase_scope.dart';
 import '../app/models/models.dart';
+import '../app/otp/otp_clock.dart';
 import '../app/vault/vault_query.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
+import 'detail_page.dart';
 import 'item_tiles.dart';
 
 /// 全局搜索：同时返回登录项与令牌。
@@ -112,7 +114,7 @@ class _ResultCard extends StatelessWidget {
 
   final List<VaultItem> items;
   final AppPreferences preferences;
-  final dynamic clock;
+  final OtpClock clock;
 
   @override
   Widget build(BuildContext context) {
@@ -146,6 +148,8 @@ class _ResultCard extends StatelessWidget {
   }
 
   void _open(BuildContext context, VaultItem item) {
-    Navigator.of(context).pop();
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => ItemDetailPage(itemId: item.id)),
+    );
   }
 }

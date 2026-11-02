@@ -123,13 +123,16 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     _DetailHero(item: item),
                     const SizedBox(height: 14),
                     if (item.isToken)
-                      _TokenPanel(
-                        item: item,
-                        showCode: preferences.showTokenCodes,
-                        showNext: preferences.showNextToken,
-                        grouping: preferences.codeGrouping,
-                        revealedUntil: _revealUntil,
-                        onReveal: _revealFor,
+                      TapRegion(
+                        onTapOutside: (_) => _hideCode(),
+                        child: _TokenPanel(
+                          item: item,
+                          showCode: preferences.showTokenCodes,
+                          showNext: preferences.showNextToken,
+                          grouping: preferences.codeGrouping,
+                          revealedUntil: _revealUntil,
+                          onReveal: _revealFor,
+                        ),
                       )
                     else
                       _LoginPanel(
@@ -201,6 +204,13 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
     _revealTimer = Timer(const Duration(seconds: 10), () {
       if (mounted) setState(() => _revealUntil = null);
     });
+  }
+
+  void _hideCode() {
+    _revealTimer?.cancel();
+    _revealTimer = null;
+    if (_revealUntil == null) return;
+    setState(() => _revealUntil = null);
   }
 }
 
@@ -404,11 +414,8 @@ class _TokenPanel extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(kcRadiusLg),
                 onTap: () {
-                  if (!visible) {
-                    onReveal();
-                    return;
-                  }
-                  copyToClipboard(context, code);
+                  if (!visible) onReveal();
+                  unawaited(copyToClipboard(context, code));
                 },
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
@@ -419,7 +426,7 @@ class _TokenPanel extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              visible ? formatted : hiddenOtpCode(code),
+                              visible ? formatted : hiddenOtpCode(formatted),
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontSize: 30,
                                 letterSpacing: 2,

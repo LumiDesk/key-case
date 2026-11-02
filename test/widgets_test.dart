@@ -28,26 +28,6 @@ void main() {
     expect(find.text('?'), findsOneWidget);
   });
 
-  testWidgets('分段控件切换选中值', (tester) async {
-    var selected = 'a';
-    await tester.pumpWidget(
-      host(
-        StatefulBuilder(
-          builder: (context, setState) => KcSegmentedControl<String>(
-            values: const <String>['a', 'b', 'c'],
-            selected: selected,
-            labelOf: (value) => value.toUpperCase(),
-            onChanged: (value) => setState(() => selected = value),
-          ),
-        ),
-      ),
-    );
-    expect(find.text('A'), findsOneWidget);
-    await tester.tap(find.text('B'));
-    await tester.pumpAndSettle();
-    expect(selected, 'b');
-  });
-
   testWidgets('卡片承载内容', (tester) async {
     await tester.pumpWidget(host(const KcCard(child: Text('内容'))));
     expect(find.text('内容'), findsOneWidget);

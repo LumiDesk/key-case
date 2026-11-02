@@ -49,7 +49,11 @@ class KeyCaseController extends ChangeNotifier {
   final BiometricAuth _biometrics;
 
   /// 全应用唯一的秒级时钟，令牌列表与详情共用。
-  final OtpClock clock = OtpClock();
+  ///
+  /// 延迟到第一次访问时才创建：锁定页与只在登录项之间切换的页面不必常驻
+  /// 一个每秒触发的 Timer。
+  OtpClock? _clock;
+  OtpClock get clock => _clock ??= OtpClock();
 
   KeyCaseState _state = const KeyCaseState();
   AppPreferences _preferences = const AppPreferences();
@@ -142,7 +146,10 @@ class KeyCaseController extends ChangeNotifier {
   }
 
   /// 生物识别解锁：先验证指纹，再用 Keystore 里的密钥直接解正文。
-  Future<bool> unlockWithBiometrics({required String reason}) async {
+  Future<bool> unlockWithBiometrics({
+    required String reason,
+    String cancelLabel = '取消',
+  }) async {
     if (_state.busy) return false;
     if (!_state.biometricEnrolled) {
       _fail(KeyCaseError.biometricEnrolledMissing);
@@ -155,10 +162,22 @@ class KeyCaseController extends ChangeNotifier {
         _fail(KeyCaseError.vaultNotReadable);
         return false;
       }
-      final approved = await _biometrics.authenticate(reason: reason);
-      if (!approved) {
-        _fail(KeyCaseError.biometricFailed);
-        return false;
+      final result = await _biometrics.authenticate(
+        reason: reason,
+        cancelLabel: cancelLabel,
+      );
+      switch (result) {
+        case BiometricResult.success:
+          break;
+        case BiometricResult.canceled:
+          _emit(_state.copyWith(busy: false, clearError: true));
+          return false;
+        case BiometricResult.unavailable:
+          _fail(KeyCaseError.biometricUnavailable);
+          return false;
+        case BiometricResult.failed:
+          _fail(KeyCaseError.biometricFailed);
+          return false;
       }
       final vaultKey = await _native.readVaultKey(header.vaultId);
       if (vaultKey == null) {
@@ -185,7 +204,10 @@ class KeyCaseController extends ChangeNotifier {
     return false;
   }
 
-  Future<bool> enableBiometrics({required String reason}) async {
+  Future<bool> enableBiometrics({
+    required String reason,
+    String cancelLabel = '取消',
+  }) async {
     final session = _vault.session;
     if (session == null) {
       _fail(KeyCaseError.vaultLocked);
@@ -195,10 +217,21 @@ class KeyCaseController extends ChangeNotifier {
       _fail(KeyCaseError.biometricUnavailable);
       return false;
     }
-    final approved = await _biometrics.authenticate(reason: reason);
-    if (!approved) {
-      _fail(KeyCaseError.biometricFailed);
-      return false;
+    final result = await _biometrics.authenticate(
+      reason: reason,
+      cancelLabel: cancelLabel,
+    );
+    switch (result) {
+      case BiometricResult.success:
+        break;
+      case BiometricResult.canceled:
+        return false;
+      case BiometricResult.unavailable:
+        _fail(KeyCaseError.biometricUnavailable);
+        return false;
+      case BiometricResult.failed:
+        _fail(KeyCaseError.biometricFailed);
+        return false;
     }
     // vault key 由 Keystore 加密后落在原生侧，Dart 内存里不留持久副本。
     final stored = await _native.storeVaultKey(
@@ -338,8 +371,9 @@ class KeyCaseController extends ChangeNotifier {
 
   @override
   void dispose() {
+    if (_disposed) return;
     _disposed = true;
-    clock.dispose();
+    _clock?.dispose();
     _vault.lock();
     super.dispose();
   }

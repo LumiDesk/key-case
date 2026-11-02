@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../app/app_theme.dart';
@@ -116,14 +118,48 @@ class UnlockPage extends StatefulWidget {
   State<UnlockPage> createState() => _UnlockPageState();
 }
 
-class _UnlockPageState extends State<UnlockPage> {
+class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
   final TextEditingController _password = TextEditingController();
   bool _obscure = true;
+  bool _autoPromptAttempted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _scheduleAutoPrompt();
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _password.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _scheduleAutoPrompt();
+  }
+
+  /// 解锁页出现时自动弹一次指纹；在后台创建则等回到前台再弹。
+  void _scheduleAutoPrompt() {
+    if (_autoPromptAttempted) return;
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    if (lifecycle != null && lifecycle != AppLifecycleState.resumed) return;
+    _autoPromptAttempted = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final controller = KeyCaseScope.read(context);
+      if (!controller.state.biometricEnrolled || controller.state.busy) return;
+      final l10n = AppLocalizations.of(context);
+      unawaited(
+        controller.unlockWithBiometrics(
+          reason: l10n.biometricUnlockReason,
+          cancelLabel: l10n.actionCancel,
+        ),
+      );
+    });
   }
 
   Future<void> _submit() async {
@@ -137,7 +173,10 @@ class _UnlockPageState extends State<UnlockPage> {
   Future<void> _biometric() async {
     final controller = KeyCaseScope.read(context);
     final l10n = AppLocalizations.of(context);
-    await controller.unlockWithBiometrics(reason: l10n.biometricUnlockReason);
+    await controller.unlockWithBiometrics(
+      reason: l10n.biometricUnlockReason,
+      cancelLabel: l10n.actionCancel,
+    );
   }
 
   @override

@@ -179,6 +179,7 @@ build. See [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 - [docs/design/design-system.md](docs/design/design-system.md) — colors, type, surfaces
 - [docs/design/components.md](docs/design/components.md) — component and helper registry
 - [docs/dev/architecture.md](docs/dev/architecture.md) — source navigation
+- [docs/dev/testing.md](docs/dev/testing.md) — test layers and emulator checklist
 - [docs/dev/tech-decisions.md](docs/dev/tech-decisions.md) — crypto, Keystore, format, backups
 - [SECURITY.md](SECURITY.md) — threat model and reporting
 
