@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">KeyCase</string>
-    <string name="biometric_enable_title">Enable biometric unlock</string>
-    <string name="biometric_enable_subtitle">Confirm your fingerprint to protect the vault key</string>
-    <string name="biometric_unlock_title">Unlock KeyCase</string>
-    <string name="biometric_unlock_subtitle">Use your fingerprint to unlock the vault</string>
-    <string name="biometric_negative">Use master password</string>
-</resources>

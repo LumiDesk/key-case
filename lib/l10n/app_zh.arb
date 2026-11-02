@@ -1,0 +1,19 @@
+{
+  "@@locale": "zh",
+  "appName": "KeyCase",
+  "navHome": "首页",
+  "navLogins": "登录项",
+  "navTokens": "令牌",
+  "navSettings": "设置",
+  "actionSave": "保存",
+  "actionCancel": "取消",
+  "actionDelete": "删除",
+  "actionEdit": "编辑",
+  "actionClose": "关闭",
+  "actionCopy": "复制",
+  "actionBack": "返回",
+  "actionRetry": "重试",
+  "actionNext": "下一个",
+  "copied": "已复制",
+  "loading": "处理中…"
+}

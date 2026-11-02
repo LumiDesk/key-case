@@ -1,0 +1,19 @@
+{
+  "@@locale": "en",
+  "appName": "KeyCase",
+  "navHome": "Home",
+  "navLogins": "Logins",
+  "navTokens": "Tokens",
+  "navSettings": "Settings",
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionDelete": "Delete",
+  "actionEdit": "Edit",
+  "actionClose": "Close",
+  "actionCopy": "Copy",
+  "actionBack": "Back",
+  "actionRetry": "Retry",
+  "actionNext": "Next",
+  "copied": "Copied",
+  "loading": "Working…"
+}
