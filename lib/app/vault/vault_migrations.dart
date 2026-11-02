@@ -3,7 +3,7 @@ import 'vault_container.dart';
 
 /// payload 结构迁移。
 ///
-/// 规则与 verifin 的 SQLite 迁移一致：
+/// 规则：
 /// - 已发布的迁移段永远不改，只追加「升到 N+1」的新段；
 /// - 每次改模型都提升 [VaultData.currentSchemaVersion]，并补一条迁移；
 /// - 迁移矩阵测试覆盖「每个历史版本都能升到当前版本」。

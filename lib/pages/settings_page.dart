@@ -20,8 +20,7 @@ import 'sheets.dart';
 /// 设置页：外观 / 安全 / 令牌 / 数据 / 备份 / 关于 / 危险操作。
 ///
 /// 短单选（显示模式、主题色、语言、自动锁定、验证码分组）一律用
-/// `anchored_menu` 的锚点菜单，不再弹底部选择器；只有需要输入的对话框
-/// 与取色器使用弹层。
+/// `anchored_menu` 的锚点菜单；只有需要输入的对话框与取色器使用弹层。
 class SettingsPage extends StatelessWidget {
   const SettingsPage({
     super.key,

@@ -11,18 +11,23 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
 | 容器格式与编解码 | `lib/app/vault/vault_container.dart`、`vault_migrations.dart` |
 | 文件仓库与会话 | `lib/app/vault/vault_repository.dart`（原子写、写互斥、isolate KDF） |
 | 备份 | `lib/app/vault/backup_service.dart`（快照轮转、SAF 导出/导入） |
+| 查询与排序 | `lib/app/vault/vault_query.dart` |
 | 加密原语 | `lib/app/crypto/`（Argon2id、AES-GCM、Base32、安全随机） |
 | 令牌计算 | `lib/app/otp/otp.dart`、`otp_clock.dart`（全应用唯一 ticker） |
+| 第三方导入 | `lib/app/import/`（otpauth、Aegis、Google 迁移、合并去重） |
 | 模型 | `lib/app/models/`，`models.dart` 是稳定 barrel |
 | 状态 | `keycase_controller.dart` + `keycase_controller_ops.dart`（extension）、`keycase_state.dart`、`keycase_scope.dart` |
 | 偏好 | `lib/app/data/preferences_store.dart`（SharedPreferences 单键 JSON） |
+| 安全审计 | `lib/app/security/security_audit.dart` |
 | 原生能力 | `lib/app/platform/native_bridge.dart` ↔ `android/.../MainActivity.kt` + `VaultKeyStore.kt` |
 | 生物识别 | `lib/app/platform/biometric_auth.dart`（local_auth） |
 | 图标 | `lib/app/icons/`（pack.json 索引、SVG 文本缓存、品牌匹配） |
-| 页面 | `lib/pages/`；弹层入口统一在 `pages/sheets.dart` |
+| 更新检查 | `lib/app/update/update_checker.dart` |
+| 页面 | `lib/pages/`；共用弹层入口在 `pages/sheets.dart` |
 | 设计令牌 | `lib/app/app_theme.dart` |
 | 轻反馈 | `lib/app/feedback.dart` |
 | 日志 | `lib/app/logging/app_logger.dart` |
+| 工具函数 | `lib/app/util/`（日期、网址、密码生成） |
 
 ## 数据流
 
@@ -33,7 +38,10 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
    （写队列串行、临时文件 + rename）→ 更新内存状态 → 可选自动快照。
 4. 锁定：清零 vault key、清空内存数据；后台/超时由 `handleAppPaused` / `handleAppResumed` 驱动。
 
-## 与旧版的关系
+## 分层边界
 
-旧的 Kotlin 实现保留在 `main` 与 tag `v0.1.3`；Flutter 版是全新格式（`KCV1`），
-不读取也不删除旧容器。详见 [tech-decisions](tech-decisions.md)。
+- **UI** 只依赖 `KeyCaseController` 与 `KeyCaseScope`，不 import 文件、Keystore 或容器实现。
+- **Controller** 持有 `KeyCaseState` 与 `AppPreferences`，把 `KeyCaseError` / `KeyCaseNotice`
+  交给 `messages.dart` 翻译；不直接拼用户文案。
+- **Repository** 独占解锁会话、vault key 与写队列；所有落盘都经过它。
+- **Container** 只负责 `KCV1` 编解码与密码学参数，不感知页面与偏好。

@@ -13,7 +13,7 @@ const Color kcSurfaceAltLight = Color(0xFFF5F8FC);
 const Color kcInk = Color(0xFF151922);
 const Color kcLine = Color(0xFFE1E8F1);
 
-/// KeyCase 的主色：与旧版一致的信任蓝。
+/// KeyCase 的主色：信任蓝。
 const Color kcAccent = Color(0xFF2563EB);
 const Color kcDanger = Color(0xFFE84D6A);
 const Color kcWarning = Color(0xFFFFB33E);

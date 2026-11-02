@@ -6,8 +6,8 @@ import 'app_theme.dart';
 
 /// 轻反馈：复制成功、已保存这类一闪而过的提示。
 ///
-/// 全应用只有这一个入口，不再零散使用 SnackBar / Toast：破坏性确认、表单校验
-/// 和阻塞进度不在这里，走对话框或页内状态。
+/// 全应用只有这一个轻反馈入口：破坏性确认、表单校验和阻塞进度不在这里，
+/// 走对话框或页内状态。
 class KcFeedbackController extends ChangeNotifier {
   String? _message;
   Timer? _timer;

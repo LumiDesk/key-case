@@ -74,7 +74,7 @@ class BackupService {
 
   /// 通用文档选择：读入内存（上限 64 MB），取消返回 null。
   ///
-  /// 只用于几十 MB 以内的配置文件；大文件走原生流式接口，不要用这里。
+  /// 只用于几十 MB 以内的配置文件；更大的文件不要走这里。
   Future<Uint8List?> pickDocument({
     required String label,
     required List<String> extensions,

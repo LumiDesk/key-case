@@ -7,12 +7,13 @@ import '../logging/app_logger.dart';
 
 /// 原生能力桥。整个应用只用一个 MethodChannel，按方法名分发。
 ///
-/// 目前只有两件事必须走原生：
+/// 走原生的能力：
 /// - `FLAG_SECURE`（防止截屏/录屏）；
-/// - Android Keystore 包裹的 vault key（生物识别解锁）。
+/// - Android Keystore 包裹的 vault key（生物识别解锁）；
+/// - SAF 备份目录的选择、写入、枚举与清理。
 ///
-/// 其余能力都有官方插件。非 Android 平台（单元测试、桌面调试）全部降级为
-/// 无操作，调用方不需要判平台。
+/// 其余能力由官方插件提供。非 Android 环境（单元测试）全部降级为无操作，
+/// 调用方不需要判平台。
 class NativeBridge {
   NativeBridge({MethodChannel? channel})
     : _channel = channel ?? const MethodChannel(channelName);

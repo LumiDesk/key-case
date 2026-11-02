@@ -6,7 +6,7 @@ import 'sheets.dart';
 
 /// 自定义主题色：HSV 三个滑条 + 实时预览。
 ///
-/// 与 verifin 的实现保持一致：不输入 Hex，直接用色相/饱和度/亮度调色，
+/// 不输入 Hex，直接用色相/饱和度/亮度调色，
 /// 预览块同时显示「主色上的文字」对比效果。
 Future<Color?> showThemeColorPickerSheet({
   required BuildContext context,

@@ -1,7 +1,6 @@
 /// AES-256-GCM 认证加密。
 ///
-/// 密文按「密文 || 16 字节 tag」拼接存储，与 JCE 的 AES/GCM/NoPadding 一致，
-/// 调用方不需要分别处理 tag。
+/// 密文按「密文 || 16 字节 tag」拼接存储，调用方不需要分别处理 tag。
 library;
 
 import 'dart:typed_data';

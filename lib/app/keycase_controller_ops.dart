@@ -188,8 +188,7 @@ extension KeyCaseControllerOps on KeyCaseController {
 
   /// 用备份替换当前库。成功后原库会保留为 `vault.kcv.pre-import`。
   ///
-  /// 只接受当前格式（`KCV1`）；旧 Kotlin 版的 `TKV1` 备份在 v1.0.3 里提供过
-  /// 一次性迁移，迁移完成后按用户要求移除，不再维护第二套解码器。
+  /// 只接受当前 `KCV1` 容器；口令错误与格式错误分别映射到对应提示。
   Future<bool> importBackup({
     required Uint8List bytes,
     required String password,

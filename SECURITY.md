@@ -21,12 +21,13 @@ Use a freshly created test vault.
 
 Protected against:
 
-- someone who obtains the encrypted `vault.tkv` file without the master
+- someone who obtains the encrypted `vault.kcv` file without the master
   password or an enrolled biometric credential;
-- a malicious backup/Aegis/icon-pack file that tries to exhaust memory or
-  otherwise crash the app during import (bounded file size, scrypt memory cap,
-  image sampling and decompression limits);
-- accidental plaintext persistence of secrets in Activity saved state;
+- a malicious backup, Aegis export, or image file that tries to exhaust memory
+  or crash the app during import (64 MB import cap, bounded scrypt parameters
+  for Aegis, header/payload size caps, images downsampled to 256 px);
+- accidental plaintext persistence: secrets are not written to logs,
+  preferences, caches, or temporary files;
 - screenshots and screen recording when **Block screenshots** is enabled.
 
 Not protected against:
@@ -41,17 +42,25 @@ Not protected against:
 
 ## Vault format and cryptography
 
-The on-disk contract is documented in
-[docs/design/vault-format-v1.md](docs/design/vault-format-v1.md):
-Argon2id derives a password key, AES-256-GCM wraps a random vault key, and the
-gzip-compressed JSON payload is encrypted with the vault key and bound to the
-vault id as AAD.
+The on-disk format is `KCV1`, implemented in
+[`lib/app/vault/vault_container.dart`](lib/app/vault/vault_container.dart).
+Argon2id (64 MiB, 3 iterations, p=2 by default) derives a password key from the
+master password and the per-vault salt. That key wraps a random 256-bit vault
+key with AES-256-GCM. The payload is gzip-compressed JSON encrypted with the
+vault key; the vault id is bound as AAD, and the ciphertext carries a 16-byte
+GCM tag. KDF parameters are stored in the container header, so existing vaults
+keep working if defaults change.
 
-The biometric credential is an additional Android Keystore-wrapped copy of the
-vault key. It is bound to the vault id and invalidated when biometric
-enrollment changes.
+Biometric unlock is an additional copy of the vault key encrypted by a
+non-exportable Android Keystore key. The copy is bound to the vault id; a stale
+copy from another vault is cleared on the next read. Every biometric unlock is
+gated by the system `BiometricPrompt`; the master password is always available
+as fallback.
+
+The automatic snapshots and manual exports are the same encrypted container,
+not a plaintext export.
 
 ## Supported versions
 
-Security fixes are applied to the latest release on `main`. Old APKs are not
+Security fixes are applied to the latest release on `main`. Older APKs are not
 maintained.

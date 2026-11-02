@@ -127,8 +127,8 @@ class CreatedVault {
 ///   payload 密文（AES-256-GCM，含 tag）
 ///
 /// payload = AES-GCM(gzip(JSON(VaultData)))，密钥是随机的 256 位 vault key；
-/// vault key 再由 Argon2id 派生口令密钥包在 key slot 里。改主密码只换 slot，
-/// 不重新加密正文，因此改密码和换备份是两件独立的事。
+/// vault key 再由 Argon2id 派生的口令密钥包在 key slot 里。改主密码会换新 slot
+/// 并用同一 vault key 重新加密正文（新 nonce），vault key 不变。
 class VaultContainer {
   const VaultContainer._();
 

@@ -3,7 +3,7 @@
 
     <!-- 扫码添加令牌；未授予相机权限时只能手动输入。 -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- 生物识别解锁；包裹保险库密钥的 Keystore key 要求用户认证。 -->
+    <!-- 生物识别解锁；解锁前由系统 BiometricPrompt 校验用户。 -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- 只有用户主动点「检查更新」时访问 GitHub Release 接口。 -->
     <uses-permission android:name="android.permission.INTERNET" />

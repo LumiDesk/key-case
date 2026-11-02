@@ -1,6 +1,6 @@
 # 组件与纯函数注册表
 
-新增 Widget / 弹层 / 纯函数前先查这里；命中就复用或参数化扩展，不再造同构变体。
+新增 Widget / 弹层 / 纯函数前先查这里；命中就复用或参数化扩展，避免造同构变体。
 新增、改名或删除可复用件时同步本文件。
 
 ## 1. 页面骨架（`lib/app/common_widgets_scaffold.dart`）
@@ -34,6 +34,7 @@
 | `KcRowDivider` | 卡片内分隔线（缩进到图标下方） |
 | `KcSegmentedControl<T>` | 2–4 项分段控件 |
 | `KcLabeledField` | 带外置标签的输入框 |
+| `KcPasswordStrengthBar` | 主密码强度条（`lib/app/password_strength.dart`） |
 
 ## 4. 弹层（`lib/pages/sheets.dart`）
 
@@ -63,12 +64,14 @@
 
 | 函数 | 位置 | 说明 |
 |---|---|---|
-| `generateOtpCode` / `otpCounterAt` / `otpSecondsRemaining` | `lib/app/otp/otp.dart` | RFC 6238 / 4226 / Steam |
+| `generateOtpCode` / `otpCounterAt` / `otpSecondsRemaining` / `nextOtpCode` | `lib/app/otp/otp.dart` | RFC 6238 / 4226 / Steam |
 | `formatOtpCode` / `hiddenOtpCode` | `lib/app/otp/otp.dart` | 分组与隐藏态排版 |
 | `parseOtpauthUri` / `buildOtpauthUri` | `lib/app/import/otpauth_parser.dart` | 链接解析与生成 |
-| `auditVault` / `isWeakPassword` / `masterPasswordScore` | `lib/app/security/security_audit.dart` | 安全中心 |
+| `parseGoogleMigration` | `lib/app/import/google_migration.dart` | Google Authenticator 迁移链接 |
+| `auditVault` / `isWeakPassword` / `masterPasswordScore` | `lib/app/security/security_audit.dart` | 安全中心与主密码强度 |
 | `sortItems` / `groupByInitial` / `searchItems` | `lib/app/vault/vault_query.dart` | 列表排序/分组/搜索 |
 | `normalizeUrl` / `displayUrl` | `lib/app/util/url_tools.dart` | 网址校验 |
 | `generatePassword` | `lib/app/util/password_generator.dart` | 随机密码 |
 | `formatDateTime` / `formatDate` / `formatRelative` | `lib/app/util/date_format.dart` | 日期格式化 |
 | `normalizeIconKey` | `lib/app/icons/aegis_icon_pack.dart` | 图标匹配规范化 |
+| `compareVersions` | `lib/app/update/update_checker.dart` | 语义化版本比较 |

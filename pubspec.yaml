@@ -3,8 +3,7 @@ description: "Local-first offline password manager and TOTP authenticator."
 publish_to: 'none'
 
 # Android: build-name -> versionName, build-number -> versionCode。
-# versionCode 必须大于旧 Kotlin 版最后一次发布的 4；包名与签名沿用旧版，
-# 新包才会被系统当作升级安装。
+# versionCode 必须单调递增；发版脚本负责 +1，系统升级安装依赖它。
 version: 1.0.3+8
 environment:
   sdk: ^3.13.2
@@ -33,11 +32,11 @@ dependencies:
   path: ^1.9.0
   # 备份导出/导入使用系统文档选择器（SAF）。
   file_selector: ^1.1.0
-  # 用户导入的 Aegis 图标包是 zip；只在导入路径解包。
+  # 容器正文的 gzip 编解码（vault_container 使用）。
   archive: ^4.6.0
   # TOTP/HOTP/Steam 的 HMAC 实现。
   crypto: ^3.0.8
-  # Argon2id 与 AES-GCM。纯 Dart 实现同时服务单元测试与无原生桥时的回退。
+  # Argon2id 与 AES-256-GCM 的纯 Dart 实现，测试与运行时共用。
   cryptography: ^2.9.0
   # 打开条目里的网址，只走系统默认浏览器。
   url_launcher: ^6.3.3
@@ -47,7 +46,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  # 与 verifin 相同的 lint 基线，额外收紧一组正确性规则。
+  # lint 基线：flutter_lints + 一组偏正确性的规则。
   flutter_lints: ^6.0.0
 
 flutter:

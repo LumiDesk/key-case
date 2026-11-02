@@ -1,7 +1,7 @@
 // 发版脚本：dart run scripts/publish.dart patch|minor|major|1.2.3 [--dry-run]
 //
-// 与 verifin 的分工一致：脚本只做「改版本号 → 格式化 → analyze → test → 提交 → 打标签 →
-// 推送」，签名构建与发布由 .github/workflows/release.yml 完成。
+// 脚本只做「改版本号 → 格式化 → analyze → test → 提交 → 打标签 → 推送」，
+// 签名构建与发布由 .github/workflows/release.yml 完成。
 // 打标签会触发远端 CI，因此必须由用户明确要求后才能执行。
 // 这是命令行脚本，输出就是产品本身，因此豁免 avoid_print。
 // ignore_for_file: avoid_print

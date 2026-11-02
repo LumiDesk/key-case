@@ -23,8 +23,8 @@ part 'keycase_controller_ops.dart';
 
 /// 应用唯一的状态源。
 ///
-/// 规则（与 verifin 一致）：
-/// - UI 只调用这里的公共方法，不直接访问 repository、文件或 Keychain；
+/// 规则：
+/// - UI 只调用这里的公共方法，不直接访问 repository、文件或 Keystore；
 /// - 所有落盘操作都经 [_persist]/[_vault]，失败必须让用户知道；
 /// - 偏好与保险库内容分开：偏好走 [PreferencesStore]，内容进加密容器。
 class KeyCaseController extends ChangeNotifier {
@@ -239,6 +239,7 @@ class KeyCaseController extends ChangeNotifier {
         busy: false,
         clearError: true,
         clearNotice: true,
+        clearData: true,
       ),
     );
   }

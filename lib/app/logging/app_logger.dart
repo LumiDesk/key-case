@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-/// 极简日志：发布包里用 `debugPrint` 会打到 logcat，但绝不能写入任何敏感值。
+/// 极简日志：调试包用 `debugPrint` 打到 logcat；发布包不输出日志，但绝不能写入任何敏感值。
 ///
 /// 规则：
 /// - 只记事件与错误类型，不记主密码、vault key、TOTP secret、条目内容；
@@ -18,7 +18,7 @@ class AppLogger {
 
   static void _write(String level, String message) {
     if (kReleaseMode) {
-      // 发布包不主动刷日志；真正排障走应用内的诊断页（后续版本）。
+      // 发布包不输出日志；调试与 profile 构建打到 logcat。
       return;
     }
     debugPrint('[$level] KeyCase $message');

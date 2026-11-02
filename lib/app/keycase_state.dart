@@ -105,10 +105,11 @@ class KeyCaseState {
     int? lastImportCount,
     bool clearError = false,
     bool clearNotice = false,
+    bool clearData = false,
   }) {
     return KeyCaseState(
       status: status ?? this.status,
-      data: data ?? this.data,
+      data: clearData ? null : (data ?? this.data),
       busy: busy ?? this.busy,
       error: clearError ? null : (error ?? this.error),
       notice: clearNotice ? null : (notice ?? this.notice),

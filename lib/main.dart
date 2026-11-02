@@ -36,12 +36,15 @@ class KeyCaseApp extends StatefulWidget {
 }
 
 class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final KcFeedbackController _feedback = KcFeedbackController();
+  VaultStatus _lastStatus = VaultStatus.loading;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _lastStatus = widget.controller.state.status;
     widget.controller.addListener(_handleStateChange);
   }
 
@@ -71,6 +74,14 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
   /// 锁定/创建页把错误显示在表单里。
   void _handleStateChange() {
     final state = widget.controller.state;
+    final wasUnlocked = _lastStatus == VaultStatus.unlocked;
+    _lastStatus = state.status;
+    if (wasUnlocked && state.status != VaultStatus.unlocked) {
+      // 锁定后把已打开的详情/编辑/搜索等页面一起关掉，不能让明文留在栈顶。
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      });
+    }
     final l10n = _localizations();
     if (state.notice != null) {
       _feedback.show(
@@ -103,6 +114,7 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
       builder: (context, _) {
         final preferences = widget.controller.preferences;
         return MaterialApp(
+          navigatorKey: _navigatorKey,
           title: 'KeyCase',
           debugShowCheckedModeBanner: false,
           theme: buildKeyCaseTheme(

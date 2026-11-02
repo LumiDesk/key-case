@@ -20,7 +20,7 @@ captures/
 *.aab
 *.keystore
 
-# 签名材料按项目所有者要求入库，保留这一份例外。
+# 签名材料入库是仓库的既定例外，只保留这一份。
 *.jks
 !signing/keycase-release.jks
 

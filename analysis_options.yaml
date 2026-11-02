@@ -1,4 +1,4 @@
-# 与 verifin 相同的基线：flutter_lints + 一组偏正确性的规则。
+# 基线：flutter_lints + 一组偏正确性的规则。
 # 风格类交给 dart format，避免大面积无谓改动。
 include: package:flutter_lints/flutter.yaml
 
