@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app/app_theme.dart';
 import 'app/dev_seed.dart';
 import 'app/feedback.dart';
+import 'app/icons/aegis_icon_pack.dart';
 import 'app/keycase_controller.dart';
 import 'app/keycase_scope.dart';
 import 'app/keycase_state.dart';
@@ -17,6 +20,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final controller = KeyCaseController();
   await controller.bootstrap();
+  // 图标包只读一次；没读完之前列表先用首字母头像。
+  unawaited(AegisIconPack.instance.ensureLoaded());
   await prepareDemoIfNeeded(controller);
   runApp(KeyCaseApp(controller: controller));
 }

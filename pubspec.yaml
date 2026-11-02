@@ -55,4 +55,6 @@ flutter:
   generate: true
 
   assets:
-    - assets/iconpacks/
+    # Aegis 图标包：目录声明不递归，必须把 SVG 子目录单独列出。
+    - assets/iconpacks/aegis-simple-icons-v269/pack.json
+    - assets/iconpacks/aegis-simple-icons-v269/SVG/

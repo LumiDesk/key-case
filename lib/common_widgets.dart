@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/app_theme.dart';
+import 'app/icons/aegis_icon.dart';
+import 'app/icons/aegis_icon_pack.dart';
 import 'app/models/models.dart';
 import 'app/otp/otp.dart';
 import 'l10n/app_localizations.dart';

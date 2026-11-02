@@ -51,7 +51,7 @@ class LetterAvatar extends StatelessWidget {
   }
 }
 
-/// 条目列表左侧的图标容器（品牌图标未接入前先用头像）。
+/// 条目列表左侧的图标容器：优先品牌图标，匹配不到再用首字母头像。
 class KcItemIcon extends StatelessWidget {
   const KcItemIcon({super.key, required this.item, this.size = 38});
 
@@ -60,7 +60,16 @@ class KcItemIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LetterAvatar(seed: item.displayTitle, size: size);
+    return ValueListenableBuilder<bool>(
+      valueListenable: AegisIconPack.instance.loaded,
+      builder: (context, _, _) {
+        final name = AegisIconPack.instance.resolve(item);
+        if (name != null) {
+          return AegisIcon(name: name, size: size);
+        }
+        return LetterAvatar(seed: item.displayTitle, size: size);
+      },
+    );
   }
 }
 
