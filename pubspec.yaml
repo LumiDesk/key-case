@@ -5,7 +5,7 @@ publish_to: 'none'
 # Android: build-name -> versionName, build-number -> versionCode。
 # versionCode 必须大于旧 Kotlin 版最后一次发布的 4；包名与签名沿用旧版，
 # 新包才会被系统当作升级安装。
-version: 1.0.2+7
+version: 1.0.3+8
 environment:
   sdk: ^3.13.2
 
