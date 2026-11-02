@@ -12,13 +12,16 @@ import io.flutter.plugin.common.MethodChannel
 /**
  * 唯一的原生桥入口。Flutter 侧只有 [NativeBridge] 一个 MethodChannel。
  *
- * 处理四件事：截屏保护、Keystore 包裹的 vault key、备份目录选择与写入。
+ * 处理四件事：截屏保护、Keystore 包裹的 vault key、备份目录选择与写入、
+ * 以及通过系统「新建文档」选择器导出加密容器。
  *
  * 必须继承 FlutterFragmentActivity：local_auth 的 BiometricPrompt 依赖
  * FragmentActivity，用 FlutterActivity 会直接抛异常、表现为「指纹验证未通过」。
  */
 class MainActivity : FlutterFragmentActivity() {
     private var pendingFolderResult: MethodChannel.Result? = null
+    private var pendingSaveResult: MethodChannel.Result? = null
+    private var pendingSaveBytes: ByteArray? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -66,6 +69,16 @@ class MainActivity : FlutterFragmentActivity() {
                             result.error("bad_arguments", "dirUri/name/bytes required", null)
                         } else {
                             result.success(writeBackup(dirUri, name, bytes))
+                        }
+                    }
+
+                    "saveBackupFile" -> {
+                        val name = call.argument<String>("name")
+                        val bytes = call.argument<ByteArray>("bytes")
+                        if (name == null || bytes == null) {
+                            result.error("bad_arguments", "name/bytes required", null)
+                        } else {
+                            saveBackupFile(name, bytes, result)
                         }
                     }
 
@@ -117,12 +130,42 @@ class MainActivity : FlutterFragmentActivity() {
         startActivityForResult(intent, REQUEST_PICK_FOLDER)
     }
 
-    @Deprecated("Flutter embedding v2 still routes SAF results through onActivityResult")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode != REQUEST_PICK_FOLDER) {
-            super.onActivityResult(requestCode, resultCode, data)
+    /** 通过系统「新建文档」选择器导出当前加密容器。 */
+    private fun saveBackupFile(
+        name: String,
+        bytes: ByteArray,
+        result: MethodChannel.Result,
+    ) {
+        if (pendingSaveResult != null) {
+            result.error("busy", "save picker already open", null)
             return
         }
+        pendingSaveResult = result
+        pendingSaveBytes = bytes
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_TITLE, name)
+        }
+        try {
+            startActivityForResult(intent, REQUEST_SAVE_BACKUP)
+        } catch (error: Exception) {
+            pendingSaveResult = null
+            pendingSaveBytes = null
+            result.error("save_failed", error.message, null)
+        }
+    }
+
+    @Deprecated("Flutter embedding v2 still routes SAF results through onActivityResult")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQUEST_PICK_FOLDER -> handleFolderResult(resultCode, data)
+            REQUEST_SAVE_BACKUP -> handleSaveResult(resultCode, data)
+            else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    private fun handleFolderResult(resultCode: Int, data: Intent?) {
         val result = pendingFolderResult
         pendingFolderResult = null
         val uri = data?.data
@@ -141,6 +184,32 @@ class MainActivity : FlutterFragmentActivity() {
         }
         val name = DocumentFile.fromTreeUri(this, uri)?.name ?: "备份目录"
         result?.success(mapOf("uri" to uri.toString(), "name" to name))
+    }
+
+    private fun handleSaveResult(resultCode: Int, data: Intent?) {
+        val result = pendingSaveResult
+        val bytes = pendingSaveBytes
+        pendingSaveResult = null
+        pendingSaveBytes = null
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null || bytes == null) {
+            result?.success(false)
+            return
+        }
+        val written = try {
+            contentResolver.openOutputStream(uri)?.use { output ->
+                output.write(bytes)
+                output.flush()
+                true
+            } ?: false
+        } catch (_: Exception) {
+            false
+        }
+        if (written) {
+            result?.success(true)
+        } else {
+            result?.error("save_failed", "unable to write selected document", null)
+        }
     }
 
     /** 备份统一放在所选目录下的 KeyCase 子目录，避免污染用户目录根。 */
@@ -189,6 +258,7 @@ class MainActivity : FlutterFragmentActivity() {
     companion object {
         private const val CHANNEL = "top.talyra42.keycase/native"
         private const val REQUEST_PICK_FOLDER = 4711
+        private const val REQUEST_SAVE_BACKUP = 4712
         private const val FOLDER_NAME = "KeyCase"
     }
 }

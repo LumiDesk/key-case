@@ -166,6 +166,8 @@
   "settingsVersion": "Version",
   "settingsPrivacy": "Privacy",
   "settingsPrivacyBody": "KeyCase uploads nothing: no account, no sync, no analytics. Everything lives in the encrypted container on this device.",
+  "settingsGithub": "GitHub",
+  "settingsGithubDesc": "github.com/LumiDesk/key-case",
   "settingsDanger": "Danger zone",
   "settingsDeleteVault": "Delete vault",
   "settingsDeleteVaultDesc": "Permanently delete every password and token on this device",
@@ -180,6 +182,7 @@
   "securityAllGood": "Nothing to fix",
   "securityAllGoodDesc": "Every login looks clean right now.",
   "trashTitle": "Trash",
+  "trashEmptyCount": "None",
   "trashEmpty": "Trash is empty",
   "trashEmptyDesc": "Deleted items wait here first.",
   "trashPurge": "Delete permanently",
@@ -254,6 +257,7 @@
   "errorBiometricEnrolledMissing": "Fingerprint unlock expired, use the master password",
   "errorImportFailed": "Import failed",
   "errorDeleteFailed": "Delete failed",
+  "errorOpenLinkFailed": "Could not open link",
   "biometricUnlockReason": "Verify your fingerprint to unlock KeyCase",
   "biometricEnableReason": "Verify your fingerprint to enable quick unlock",
   "deleteVaultAction": "Delete vault",
@@ -305,7 +309,7 @@
       }
     }
   },
-  "itemsCount": "{count} items",
+  "itemsCount": "{count, plural, =1{1 item} other{{count} items}}",
   "@itemsCount": {
     "placeholders": {
       "count": {

@@ -4,6 +4,19 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Added
+
+- About now links to the public GitHub repository.
+
+### Changed
+
+- The trash row in Settings shows "共 N 条" or "暂无" instead of a bare number.
+
+### Fixed
+
+- Exporting an encrypted backup now opens Android's system save dialog and writes through SAF;
+  choosing a destination no longer fails with "backup operation failed".
+
 ## [1.0.5] - 2026-11-02
 
 ### Fixed

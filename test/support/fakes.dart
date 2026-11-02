@@ -168,6 +168,10 @@ class FakeNativeBridge extends NativeBridge {
   Uint8List? vaultKey;
   bool storeResult = true;
   bool backupWriteResult = true;
+  bool saveResult = true;
+  Object? saveError;
+  String? savedName;
+  Uint8List? savedBytes;
   ({String uri, String name})? folder;
   List<String> backupFiles = <String>[];
   int clearVaultKeyCount = 0;
@@ -211,6 +215,19 @@ class FakeNativeBridge extends NativeBridge {
     writtenNames.add(name);
     backupFiles = <String>[...backupFiles, name]
       ..sort((a, b) => b.compareTo(a));
+    return true;
+  }
+
+  @override
+  Future<bool> saveBackupFile({
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    final failure = saveError;
+    if (failure != null) throw failure;
+    if (!saveResult) return false;
+    savedName = name;
+    savedBytes = Uint8List.fromList(bytes);
     return true;
   }
 

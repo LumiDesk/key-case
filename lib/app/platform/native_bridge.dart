@@ -105,6 +105,30 @@ class NativeBridge {
     }
   }
 
+  /// 把当前库导出到用户选择的位置（系统「新建文档」选择器）。
+  ///
+  /// 返回 true 表示写入成功，false 表示用户取消。写入失败抛
+  /// [PlatformException]，由 Controller 转成备份失败提示。
+  Future<bool> saveBackupFile({
+    required String name,
+    required Uint8List bytes,
+  }) async {
+    if (!_supported) return false;
+    try {
+      final ok = await _channel.invokeMethod<bool>('saveBackupFile', {
+        'name': name,
+        'bytes': bytes,
+      });
+      return ok ?? false;
+    } on PlatformException catch (error) {
+      AppLogger.warn('saveBackupFile failed: ${error.message}');
+      rethrow;
+    } on MissingPluginException {
+      AppLogger.warn('saveBackupFile: native channel missing');
+      rethrow;
+    }
+  }
+
   /// 把加密快照写进所选的 SAF 目录（应用会在其中创建 KeyCase 子目录）。
   Future<bool> writeBackupFile({
     required String dirUri,

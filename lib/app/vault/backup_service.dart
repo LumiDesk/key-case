@@ -54,16 +54,9 @@ class BackupService {
   /// 让用户选一个位置导出当前库；取消返回 null。
   Future<String?> exportToUser(Uint8List bytes) async {
     final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
-    final location = await getSaveLocation(
-      suggestedName: 'keycase-$stamp.$fileExtension',
-      acceptedTypeGroups: const <XTypeGroup>[
-        XTypeGroup(label: 'KeyCase 加密备份', extensions: <String>[fileExtension]),
-      ],
-    );
-    if (location == null) return null;
-    final file = File(location.path);
-    await file.writeAsBytes(bytes, flush: true);
-    return location.path;
+    final name = 'keycase-$stamp.$fileExtension';
+    final saved = await _bridge.saveBackupFile(name: name, bytes: bytes);
+    return saved ? name : null;
   }
 
   /// 让用户挑一个备份文件并读入内存；取消返回 null。

@@ -1052,6 +1052,18 @@ abstract class AppLocalizations {
   /// **'KeyCase 不上传任何数据：没有账号、没有云同步、没有统计。所有内容都保存在本机的加密容器里。'**
   String get settingsPrivacyBody;
 
+  /// No description provided for @settingsGithub.
+  ///
+  /// In zh, this message translates to:
+  /// **'GitHub'**
+  String get settingsGithub;
+
+  /// No description provided for @settingsGithubDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'github.com/LumiDesk/key-case'**
+  String get settingsGithubDesc;
+
   /// No description provided for @settingsDanger.
   ///
   /// In zh, this message translates to:
@@ -1135,6 +1147,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'回收站'**
   String get trashTitle;
+
+  /// No description provided for @trashEmptyCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无'**
+  String get trashEmptyCount;
 
   /// No description provided for @trashEmpty.
   ///
@@ -1495,6 +1513,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'删除失败'**
   String get errorDeleteFailed;
+
+  /// No description provided for @errorOpenLinkFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法打开链接'**
+  String get errorOpenLinkFailed;
 
   /// No description provided for @biometricUnlockReason.
   ///

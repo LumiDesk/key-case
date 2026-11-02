@@ -28,7 +28,8 @@
 ## 数据与备份
 
 - **备份只有一种形态**：同一容器的副本 `.kcbak`。自动快照写用户选定的 SAF 目录（其下的
-  `KeyCase/` 子目录），保留最近 10 份；主动导出走系统文档选择器。
+  `KeyCase/` 子目录），保留最近 10 份；主动导出通过原生 `ACTION_CREATE_DOCUMENT` 选择目标
+  URI 后直接写入，不依赖可写文件路径。
 - **迁移策略**：`VaultData.schemaVersion` + `VaultMigrations` 的链式升级；升级前先读
   `schemaVersion`，不允许读取比当前实现更新的库（提示先升级应用）。
 - **容器读入有边界**：头部 1 MiB、正文 64 MiB；导入文件上限 64 MB。Aegis 导入对 scrypt

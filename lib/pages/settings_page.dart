@@ -6,6 +6,7 @@ import '../app/app_version.dart';
 import '../app/feedback.dart';
 import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
+import '../app/logging/app_logger.dart';
 import '../app/messages.dart';
 import '../app/models/models.dart';
 import '../app/password_strength.dart';
@@ -27,6 +28,8 @@ class SettingsPage extends StatelessWidget {
     required this.onOpenTrash,
     required this.onOpenSecurity,
   });
+
+  static const String _githubUrl = 'https://github.com/LumiDesk/key-case';
 
   final VoidCallback onLock;
   final VoidCallback onOpenTrash;
@@ -284,7 +287,9 @@ class SettingsPage extends StatelessWidget {
                     KcSettingsRow(
                       icon: Icons.delete_outline_rounded,
                       title: l10n.trashTitle,
-                      subtitle: '${state.trashedItems.length}',
+                      subtitle: state.trashedItems.isEmpty
+                          ? l10n.trashEmptyCount
+                          : l10n.itemsCount(state.trashedItems.length),
                       onTap: onOpenTrash,
                     ),
                   ]),
@@ -306,6 +311,13 @@ class SettingsPage extends StatelessWidget {
                       icon: Icons.privacy_tip_outlined,
                       title: l10n.settingsPrivacy,
                       onTap: () => _showPrivacy(context),
+                    ),
+                    const KcRowDivider(),
+                    KcSettingsRow(
+                      icon: Icons.code_rounded,
+                      title: l10n.settingsGithub,
+                      subtitle: l10n.settingsGithubDesc,
+                      onTap: () => _openGithub(context),
                     ),
                   ]),
                   KcSectionLabel(l10n.settingsDanger),
@@ -543,6 +555,25 @@ class SettingsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _openGithub(BuildContext context) async {
+    final l10n = AppLocalizations.of(context);
+    try {
+      final launched = await launchUrl(
+        Uri.parse(_githubUrl),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!context.mounted) return;
+      if (!launched) {
+        KcFeedbackScope.maybeOf(context)?.show(l10n.errorOpenLinkFailed);
+      }
+    } catch (error) {
+      AppLogger.warn('open github failed: $error');
+      if (context.mounted) {
+        KcFeedbackScope.maybeOf(context)?.show(l10n.errorOpenLinkFailed);
+      }
+    }
   }
 
   Future<void> _deleteVault(BuildContext context) async {

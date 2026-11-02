@@ -19,7 +19,7 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
 | 状态 | `keycase_controller.dart` + `keycase_controller_ops.dart`（extension）、`keycase_state.dart`、`keycase_scope.dart` |
 | 偏好 | `lib/app/data/preferences_store.dart`（SharedPreferences 单键 JSON） |
 | 安全审计 | `lib/app/security/security_audit.dart` |
-| 原生能力 | `lib/app/platform/native_bridge.dart` ↔ `android/.../MainActivity.kt` + `VaultKeyStore.kt` |
+| 原生能力 | `lib/app/platform/native_bridge.dart` ↔ `android/.../MainActivity.kt` + `VaultKeyStore.kt`（FLAG_SECURE、Keystore、SAF 目录与导出文档） |
 | 生物识别 | `lib/app/platform/biometric_auth.dart`（local_auth） |
 | 图标 | `lib/app/icons/`（pack.json 索引、SVG 文本缓存、品牌匹配） |
 | 更新检查 | `lib/app/update/update_checker.dart` |

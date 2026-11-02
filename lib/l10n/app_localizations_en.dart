@@ -497,6 +497,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'KeyCase uploads nothing: no account, no sync, no analytics. Everything lives in the encrypted container on this device.';
 
   @override
+  String get settingsGithub => 'GitHub';
+
+  @override
+  String get settingsGithubDesc => 'github.com/LumiDesk/key-case';
+
+  @override
   String get settingsDanger => 'Danger zone';
 
   @override
@@ -540,6 +546,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trashTitle => 'Trash';
+
+  @override
+  String get trashEmptyCount => 'None';
 
   @override
   String get trashEmpty => 'Trash is empty';
@@ -734,6 +743,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorDeleteFailed => 'Delete failed';
 
   @override
+  String get errorOpenLinkFailed => 'Could not open link';
+
+  @override
   String get biometricUnlockReason =>
       'Verify your fingerprint to unlock KeyCase';
 
@@ -834,6 +846,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String itemsCount(int count) {
-    return '$count items';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
   }
 }

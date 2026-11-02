@@ -490,6 +490,12 @@ class AppLocalizationsZh extends AppLocalizations {
       'KeyCase 不上传任何数据：没有账号、没有云同步、没有统计。所有内容都保存在本机的加密容器里。';
 
   @override
+  String get settingsGithub => 'GitHub';
+
+  @override
+  String get settingsGithubDesc => 'github.com/LumiDesk/key-case';
+
+  @override
   String get settingsDanger => '危险操作';
 
   @override
@@ -530,6 +536,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get trashTitle => '回收站';
+
+  @override
+  String get trashEmptyCount => '暂无';
 
   @override
   String get trashEmpty => '回收站是空的';
@@ -714,6 +723,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorDeleteFailed => '删除失败';
+
+  @override
+  String get errorOpenLinkFailed => '无法打开链接';
 
   @override
   String get biometricUnlockReason => '验证指纹以解锁 KeyCase';
