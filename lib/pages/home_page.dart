@@ -72,6 +72,7 @@ class HomePage extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: KcCard(
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 36,

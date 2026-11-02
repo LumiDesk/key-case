@@ -295,7 +295,6 @@ class SettingsPage extends StatelessWidget {
                     KcSettingsRow(
                       icon: Icons.system_update_outlined,
                       title: l10n.settingsCheckUpdate,
-                      subtitle: l10n.settingsCheckUpdateDesc,
                       onTap: () => _checkUpdates(context),
                     ),
                     const KcRowDivider(),

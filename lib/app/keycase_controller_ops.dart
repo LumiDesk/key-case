@@ -187,6 +187,9 @@ extension KeyCaseControllerOps on KeyCaseController {
   }
 
   /// 用备份替换当前库。成功后原库会保留为 `vault.kcv.pre-import`。
+  ///
+  /// 同时接受旧 Kotlin 版的 `TKV1` 容器：解出条目后按同一个主密码新建一个
+  /// KCV1 保险库，用户升级时可以直接导入旧备份。
   Future<bool> importBackup({
     required Uint8List bytes,
     required String password,
@@ -194,6 +197,23 @@ extension KeyCaseControllerOps on KeyCaseController {
     if (_state.busy) return false;
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
+      final legacy = await tryDecodeLegacyVault(
+        bytes: bytes,
+        password: password,
+      );
+      if (legacy != null) {
+        final session = await _vault.create(password: password, data: legacy);
+        _emit(
+          _state.copyWith(
+            status: VaultStatus.unlocked,
+            data: session.data,
+            busy: false,
+            notice: KeyCaseNotice.backupImported,
+          ),
+        );
+        return true;
+      }
+
       final session = await _vault.replaceWithBackup(
         bytes: bytes,
         password: password,
@@ -207,6 +227,12 @@ extension KeyCaseControllerOps on KeyCaseController {
         ),
       );
       return true;
+    } on LegacyVaultException catch (error) {
+      _fail(
+        error.wrongPassword
+            ? KeyCaseError.backupWrongPassword
+            : KeyCaseError.backupFailed,
+      );
     } on VaultFormatException catch (error) {
       _fail(
         error.code == VaultErrorCode.wrongPassword

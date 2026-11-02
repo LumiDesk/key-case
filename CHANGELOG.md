@@ -4,6 +4,19 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-11-02
+
+### Fixed
+
+- Home empty-state card had lost its horizontal margins and stretched edge to edge.
+- Importing a backup created by the Kotlin app failed with "backup failed": legacy `TKV1`
+  containers are now detected and read directly, then converted to the new vault on import
+  (same master password as the backup).
+
+### Changed
+
+- "Check for updates" no longer shows the redundant "only contacts GitHub when tapped" line.
+
 ## [1.0.2] - 2026-11-02
 
 ### Fixed
