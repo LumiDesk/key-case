@@ -57,7 +57,5 @@ String base32Encode(Uint8List bytes) {
 
 /// 规范化用户输入的密钥：去空格、连字符、填充符并转大写。
 String normalizeBase32(String input) {
-  return input
-      .toUpperCase()
-      .replaceAll(RegExp(r'[\s\-=]'), '');
+  return input.toUpperCase().replaceAll(RegExp(r'[\s\-=]'), '');
 }

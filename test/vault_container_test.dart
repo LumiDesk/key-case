@@ -6,12 +6,14 @@ import 'package:keycase/app/models/models.dart';
 import 'package:keycase/app/vault/vault_container.dart';
 
 // 测试用低成本 KDF 参数：真实默认值在设备上要几百毫秒，单元测试不背这个成本。
-const KdfParams testKdf = KdfParams(memoryKib: 64, iterations: 1, parallelism: 1);
-
-VaultData emptyVault() => VaultData(
-  vaultId: '',
-  createdAt: DateTime.utc(2026, 1, 1),
+const KdfParams testKdf = KdfParams(
+  memoryKib: 64,
+  iterations: 1,
+  parallelism: 1,
 );
+
+VaultData emptyVault() =>
+    VaultData(vaultId: '', createdAt: DateTime.utc(2026, 1, 1));
 
 VaultItem item({String title = 'GitHub', String id = 'item-1'}) => VaultItem(
   id: id,

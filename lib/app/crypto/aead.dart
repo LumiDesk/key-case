@@ -43,10 +43,7 @@ Future<SealedBytes> sealBytes({
   final combined = Uint8List(box.cipherText.length + mac.length);
   combined.setAll(0, box.cipherText);
   combined.setAll(box.cipherText.length, mac);
-  return SealedBytes(
-    nonce: Uint8List.fromList(useNonce),
-    cipherText: combined,
-  );
+  return SealedBytes(nonce: Uint8List.fromList(useNonce), cipherText: combined);
 }
 
 /// 解密失败（口令错误、数据被篡改）统一抛 [AeadException]。

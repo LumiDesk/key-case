@@ -10,7 +10,11 @@ import 'package:keycase/app/crypto/random.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MaterialApp(home: Scaffold(body: Center(child: Text('bench')))));
+  runApp(
+    const MaterialApp(
+      home: Scaffold(body: Center(child: Text('bench'))),
+    ),
+  );
 
   await Future<void>.delayed(const Duration(seconds: 1));
 
@@ -36,7 +40,11 @@ Future<void> main() async {
   for (final size in <int>[1024, 64 * 1024, 4 * 1024 * 1024]) {
     final payload = randomBytes(size);
     final sealWatch = Stopwatch()..start();
-    final sealed = await sealBytes(key: key, plaintext: payload, aad: const <int>[]);
+    final sealed = await sealBytes(
+      key: key,
+      plaintext: payload,
+      aad: const <int>[],
+    );
     sealWatch.stop();
     final openWatch = Stopwatch()..start();
     await openBytes(key: key, sealed: sealed, aad: const <int>[]);

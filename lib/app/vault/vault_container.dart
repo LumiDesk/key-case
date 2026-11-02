@@ -9,11 +9,27 @@ import '../crypto/random.dart';
 import '../models/models.dart';
 import 'vault_migrations.dart';
 
-/// 容器格式错误、口令错误、数据损坏都归一成这个异常，UI 只需要一种提示。
+/// 失败原因分类。UI 依赖 code 选择文案，不解析 message（message 只用于日志）。
+enum VaultErrorCode {
+  wrongPassword,
+  corrupted,
+  unsupportedVersion,
+  notAVault,
+  locked,
+  tooLarge,
+  migration,
+  unknown,
+}
+
+/// 容器格式错误、口令错误、数据损坏都归一成这个异常。
 class VaultFormatException implements Exception {
-  const VaultFormatException(this.message);
+  const VaultFormatException(
+    this.message, {
+    this.code = VaultErrorCode.unknown,
+  });
 
   final String message;
+  final VaultErrorCode code;
 
   @override
   String toString() => message;
@@ -195,7 +211,10 @@ class VaultContainer {
     final parsed = _parse(bytes);
     final slot = parsed.header.slots.firstWhere(
       (slot) => slot.type == passwordSlotType,
-      orElse: () => throw const VaultFormatException('保险库缺少口令槽位'),
+      orElse: () => throw const VaultFormatException(
+        '保险库缺少口令槽位',
+        code: VaultErrorCode.corrupted,
+      ),
     );
 
     final passwordKey = await deriveArgon2idKey(
@@ -203,10 +222,7 @@ class VaultContainer {
       salt: slot.salt,
       params: parsed.header.kdf,
     );
-    final vaultKey = await _openSlot(
-      passwordKey: passwordKey,
-      slot: slot,
-    );
+    final vaultKey = await _openSlot(passwordKey: passwordKey, slot: slot);
 
     return _openPayload(
       header: parsed.header,
@@ -357,17 +373,26 @@ class VaultContainer {
         aad: payloadAad(header.vaultId),
       );
     } on AeadException {
-      throw const VaultFormatException('口令错误或保险库已损坏');
+      throw const VaultFormatException(
+        '口令错误或保险库已损坏',
+        code: VaultErrorCode.corrupted,
+      );
     }
     try {
       final inflated = GZipDecoder().decodeBytes(deflated);
       if (inflated.length > _maxPlaintextBytes) {
-        throw const VaultFormatException('保险库内容过大');
+        throw const VaultFormatException(
+          '保险库内容过大',
+          code: VaultErrorCode.tooLarge,
+        );
       }
       return Uint8List.fromList(inflated);
     } catch (error) {
       if (error is VaultFormatException) rethrow;
-      throw const VaultFormatException('保险库正文无法解压');
+      throw const VaultFormatException(
+        '保险库正文无法解压',
+        code: VaultErrorCode.corrupted,
+      );
     }
   }
 
@@ -396,21 +421,33 @@ class VaultContainer {
         aad: slotAad(slot.id, slot.type),
       );
     } on AeadException {
-      throw const VaultFormatException('主密码错误');
+      throw const VaultFormatException(
+        '主密码错误',
+        code: VaultErrorCode.wrongPassword,
+      );
     }
   }
 
   static ({VaultHeader header, Uint8List ciphertext}) _parse(Uint8List bytes) {
     if (bytes.length < fileHeaderSize) {
-      throw const VaultFormatException('文件太小，不是有效的保险库');
+      throw const VaultFormatException(
+        '文件太小，不是有效的保险库',
+        code: VaultErrorCode.notAVault,
+      );
     }
     final magicText = ascii.decode(bytes.sublist(0, 4), allowInvalid: true);
     if (magicText != magic) {
-      throw const VaultFormatException('不是有效的保险库文件');
+      throw const VaultFormatException(
+        '不是有效的保险库文件',
+        code: VaultErrorCode.notAVault,
+      );
     }
     final version = bytes[4];
     if (version != formatVersion) {
-      throw VaultFormatException('不支持的保险库版本：$version');
+      throw VaultFormatException(
+        '不支持的保险库版本：$version',
+        code: VaultErrorCode.unsupportedVersion,
+      );
     }
     final headerLength = ByteData.sublistView(bytes, 5, 9).getUint32(0);
     if (headerLength <= 0 || headerLength > _maxHeaderBytes) {
@@ -481,7 +518,9 @@ class VaultContainer {
       'payloadNonce': base64Encode(header.payloadNonce),
     };
     final headerBytes = utf8.encode(jsonEncode(headerJson));
-    final out = Uint8List(fileHeaderSize + headerBytes.length + ciphertext.length);
+    final out = Uint8List(
+      fileHeaderSize + headerBytes.length + ciphertext.length,
+    );
     out.setAll(0, ascii.encode(magic));
     out[4] = formatVersion;
     ByteData.sublistView(out, 5, 9).setUint32(0, headerBytes.length);

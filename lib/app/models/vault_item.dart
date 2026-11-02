@@ -112,7 +112,10 @@ class VaultItem {
       username: json['username'] as String? ?? '',
       password: json['password'] as String? ?? '',
       urls: rawUrls is List
-          ? rawUrls.whereType<String>().where((e) => e.trim().isNotEmpty).toList()
+          ? rawUrls
+                .whereType<String>()
+                .where((e) => e.trim().isNotEmpty)
+                .toList()
           : const <String>[],
       notes: json['notes'] as String? ?? '',
       totp: json['totp'] is Map

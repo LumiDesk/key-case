@@ -25,6 +25,7 @@ class AppPreferences {
     this.codeGrouping = CodeGrouping.auto,
     this.languageCode = '',
     this.biometricEnabled = false,
+    this.autoSnapshot = true,
   });
 
   final ThemeModePreference themeMode;
@@ -49,6 +50,9 @@ class AppPreferences {
   /// 仅表示用户是否启用过生物识别解锁；真正的密钥在 Android Keystore。
   final bool biometricEnabled;
 
+  /// 每次保存后写一份加密快照到应用私有目录（保留最近 10 份）。
+  final bool autoSnapshot;
+
   AppPreferences copyWith({
     ThemeModePreference? themeMode,
     ThemeColorMode? colorMode,
@@ -61,6 +65,7 @@ class AppPreferences {
     CodeGrouping? codeGrouping,
     String? languageCode,
     bool? biometricEnabled,
+    bool? autoSnapshot,
   }) {
     return AppPreferences(
       themeMode: themeMode ?? this.themeMode,
@@ -74,6 +79,7 @@ class AppPreferences {
       codeGrouping: codeGrouping ?? this.codeGrouping,
       languageCode: languageCode ?? this.languageCode,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      autoSnapshot: autoSnapshot ?? this.autoSnapshot,
     );
   }
 
@@ -89,6 +95,7 @@ class AppPreferences {
     'codeGrouping': codeGrouping.name,
     'languageCode': languageCode,
     'biometricEnabled': biometricEnabled,
+    'autoSnapshot': autoSnapshot,
   };
 
   factory AppPreferences.fromJson(Map<String, Object?> json) {
@@ -102,7 +109,8 @@ class AppPreferences {
         orElse: () => ThemeColorMode.preset,
       ),
       presetIndex: (json['presetIndex'] as num?)?.toInt() ?? 0,
-      customColorValue: (json['customColorValue'] as num?)?.toInt() ?? 0xFF2563EB,
+      customColorValue:
+          (json['customColorValue'] as num?)?.toInt() ?? 0xFF2563EB,
       showTokenCodes: json['showTokenCodes'] as bool? ?? true,
       showNextToken: json['showNextToken'] as bool? ?? false,
       secureScreen: json['secureScreen'] as bool? ?? false,
@@ -113,6 +121,7 @@ class AppPreferences {
       ),
       languageCode: json['languageCode'] as String? ?? '',
       biometricEnabled: json['biometricEnabled'] as bool? ?? false,
+      autoSnapshot: json['autoSnapshot'] as bool? ?? true,
     );
   }
 }

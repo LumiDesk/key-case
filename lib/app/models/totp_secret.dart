@@ -66,7 +66,10 @@ class TotpSecret {
   factory TotpSecret.fromJson(Map<String, Object?> json) {
     return TotpSecret(
       type: _otpTypeFrom(json['type']),
-      secret: (json['secret'] as String? ?? '').toUpperCase().replaceAll(' ', ''),
+      secret: (json['secret'] as String? ?? '').toUpperCase().replaceAll(
+        ' ',
+        '',
+      ),
       algorithm: _algorithmFrom(json['algorithm']),
       digits: (json['digits'] as num?)?.toInt() ?? 6,
       period: (json['period'] as num?)?.toInt() ?? 30,

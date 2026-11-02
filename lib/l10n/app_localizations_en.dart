@@ -52,8 +52,655 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionNext => 'Next';
 
   @override
+  String get actionAdd => 'Add';
+
+  @override
+  String get actionConfirm => 'Confirm';
+
+  @override
+  String get actionSearch => 'Search';
+
+  @override
+  String get actionSort => 'Sort';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionRestore => 'Restore';
+
+  @override
   String get copied => 'Copied';
 
   @override
   String get loading => 'Working…';
+
+  @override
+  String get createTitle => 'Create your vault';
+
+  @override
+  String get createSubtitle =>
+      'The master password stays in your head. Nobody can recover it for you.';
+
+  @override
+  String get masterPassword => 'Master password';
+
+  @override
+  String get confirmPassword => 'Confirm master password';
+
+  @override
+  String get passwordHint => 'At least 8 characters';
+
+  @override
+  String get createVault => 'Create vault';
+
+  @override
+  String get unlockTitle => 'Unlock KeyCase';
+
+  @override
+  String get unlockSubtitle => 'Enter your master password to continue';
+
+  @override
+  String get unlock => 'Unlock';
+
+  @override
+  String get useBiometric => 'Unlock with fingerprint';
+
+  @override
+  String get vaultLockedLabel => 'Locked';
+
+  @override
+  String get strengthWeak => 'Weak';
+
+  @override
+  String get strengthFair => 'Fair';
+
+  @override
+  String get strengthGood => 'Good';
+
+  @override
+  String get strengthStrong => 'Strong';
+
+  @override
+  String get homeTitle => 'Home';
+
+  @override
+  String get homeSubtitle => 'Local vault · this device only';
+
+  @override
+  String get homeOverview => 'Vault overview';
+
+  @override
+  String get statLogins => 'Logins';
+
+  @override
+  String get statTokens => 'Tokens';
+
+  @override
+  String get statSecurity => 'Issues';
+
+  @override
+  String get homeFavorites => 'Favorites';
+
+  @override
+  String get homeRecent => 'Recently updated';
+
+  @override
+  String homeSecurityAlert(int count) {
+    return '$count items need attention';
+  }
+
+  @override
+  String get homeAllGood => 'All security checks passed';
+
+  @override
+  String get homeEmptyTitle => 'No items yet';
+
+  @override
+  String get homeEmptyDesc =>
+      'Add your first login or scan a QR code for a token.';
+
+  @override
+  String get loginsTitle => 'Logins';
+
+  @override
+  String get loginsEmpty => 'No logins yet';
+
+  @override
+  String get loginsEmptyDesc => 'Tap the plus button to add an account.';
+
+  @override
+  String get tokensTitle => 'Tokens';
+
+  @override
+  String get tokensEmpty => 'No tokens yet';
+
+  @override
+  String get tokensEmptyDesc => 'Scan a QR code or enter a secret manually.';
+
+  @override
+  String get searchTitle => 'Search';
+
+  @override
+  String get searchHint => 'Search names, accounts, URLs';
+
+  @override
+  String get searchNoResults => 'No matches';
+
+  @override
+  String get searchNoResultsDesc => 'Try a different keyword.';
+
+  @override
+  String get sortByName => 'By name';
+
+  @override
+  String get sortByRecent => 'By recent';
+
+  @override
+  String get sortByFavorites => 'Favorites first';
+
+  @override
+  String get detailUsername => 'Account';
+
+  @override
+  String get detailPassword => 'Password';
+
+  @override
+  String get detailUrl => 'URL';
+
+  @override
+  String get detailNotes => 'Notes';
+
+  @override
+  String get detailCreated => 'Created';
+
+  @override
+  String get detailUpdated => 'Updated';
+
+  @override
+  String get detailTokenType => 'Type';
+
+  @override
+  String get detailTokenAlgorithm => 'Algorithm';
+
+  @override
+  String get detailTokenDigits => 'Digits';
+
+  @override
+  String get detailTokenPeriod => 'Period';
+
+  @override
+  String get detailTokenCounter => 'Counter';
+
+  @override
+  String get detailShowCode => 'Show code';
+
+  @override
+  String get detailHideCode => 'Hide code';
+
+  @override
+  String get detailNextCode => 'Next';
+
+  @override
+  String get detailCopyCode => 'Copy code';
+
+  @override
+  String get detailOpenUrl => 'Open URL';
+
+  @override
+  String get detailDelete => 'Move to trash';
+
+  @override
+  String get detailDeleteMessage =>
+      'The item goes to trash and can be restored.';
+
+  @override
+  String get detailFavorite => 'Favorite';
+
+  @override
+  String get detailUnfavorite => 'Remove favorite';
+
+  @override
+  String get editorNewLogin => 'New login';
+
+  @override
+  String get editorNewToken => 'New token';
+
+  @override
+  String get editorEditLogin => 'Edit login';
+
+  @override
+  String get editorEditToken => 'Edit token';
+
+  @override
+  String get editorTitle => 'Name';
+
+  @override
+  String get editorTitleHint => 'e.g. GitHub';
+
+  @override
+  String get editorUsername => 'Account';
+
+  @override
+  String get editorPassword => 'Password';
+
+  @override
+  String get editorUrl => 'URL';
+
+  @override
+  String get editorNotes => 'Notes';
+
+  @override
+  String get editorGenerate => 'Generate random password';
+
+  @override
+  String get editorTokenIssuer => 'Service';
+
+  @override
+  String get editorTokenAccount => 'Account';
+
+  @override
+  String get editorTokenSecret => 'Secret (Base32)';
+
+  @override
+  String get editorTokenType => 'Token type';
+
+  @override
+  String get editorAdvanced => 'Advanced';
+
+  @override
+  String get editorAlgorithm => 'Algorithm';
+
+  @override
+  String get editorDigits => 'Digits';
+
+  @override
+  String get editorPeriod => 'Period (s)';
+
+  @override
+  String get editorCounter => 'Counter';
+
+  @override
+  String get editorScanQr => 'Scan QR code';
+
+  @override
+  String get editorDiscardTitle => 'Discard changes?';
+
+  @override
+  String get editorDiscardMessage => 'Your edits have not been saved.';
+
+  @override
+  String get editorDiscard => 'Discard';
+
+  @override
+  String get editorUrlInvalid => 'Invalid URL';
+
+  @override
+  String get editorSecretInvalid => 'Not a valid Base32 secret';
+
+  @override
+  String get editorTitleRequired => 'Name is required';
+
+  @override
+  String get tokenTypeTotp => 'TOTP';
+
+  @override
+  String get tokenTypeHotp => 'HOTP';
+
+  @override
+  String get tokenTypeSteam => 'Steam';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get settingsTheme => 'Display mode';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get settingsAccent => 'Accent color';
+
+  @override
+  String get accentSystem => 'System';
+
+  @override
+  String get accentCustom => 'Custom';
+
+  @override
+  String get accentBlue => 'Blue';
+
+  @override
+  String get accentTeal => 'Teal';
+
+  @override
+  String get accentGreen => 'Green';
+
+  @override
+  String get accentAmber => 'Amber';
+
+  @override
+  String get accentRose => 'Rose';
+
+  @override
+  String get settingsSecurity => 'Security';
+
+  @override
+  String get settingsSecureScreen => 'Block screenshots';
+
+  @override
+  String get settingsSecureScreenDesc =>
+      'Disable system screenshots and recording';
+
+  @override
+  String get settingsAutoLock => 'Auto-lock';
+
+  @override
+  String get settingsAutoLockDesc => 'How long after leaving the app it locks';
+
+  @override
+  String get autoLockImmediate => 'Immediately';
+
+  @override
+  String get autoLock30 => '30 seconds';
+
+  @override
+  String get autoLock60 => '1 minute';
+
+  @override
+  String get autoLock300 => '5 minutes';
+
+  @override
+  String get autoLockNever => 'Never';
+
+  @override
+  String get settingsBiometric => 'Fingerprint unlock';
+
+  @override
+  String get settingsBiometricOn => 'Enabled';
+
+  @override
+  String get settingsBiometricOff => 'Disabled';
+
+  @override
+  String get settingsChangePassword => 'Change master password';
+
+  @override
+  String get settingsLockNow => 'Lock now';
+
+  @override
+  String get settingsTokens => 'Tokens';
+
+  @override
+  String get settingsShowCodes => 'Show codes';
+
+  @override
+  String get settingsShowCodesDesc => 'When off, digits are dots until you tap';
+
+  @override
+  String get settingsShowNext => 'Show next code';
+
+  @override
+  String get settingsShowNextDesc =>
+      'Show the upcoming code below the current one';
+
+  @override
+  String get settingsGrouping => 'Code grouping';
+
+  @override
+  String get groupingAuto => 'Auto';
+
+  @override
+  String get groupingThree => '3';
+
+  @override
+  String get groupingFour => '4';
+
+  @override
+  String get groupingNone => 'None';
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get settingsExport => 'Export encrypted backup';
+
+  @override
+  String get settingsExportDesc =>
+      'A .kcbak file encrypted with your master password';
+
+  @override
+  String get settingsImport => 'Import encrypted backup';
+
+  @override
+  String get settingsImportDesc => 'Replaces the current vault';
+
+  @override
+  String get settingsAutoSnapshot => 'Automatic snapshots';
+
+  @override
+  String get settingsAutoSnapshotDesc =>
+      'Keep the 10 most recent encrypted snapshots after each save';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String get settingsVersion => 'Version';
+
+  @override
+  String get settingsPrivacy => 'Privacy';
+
+  @override
+  String get settingsPrivacyBody =>
+      'KeyCase uploads nothing: no account, no sync, no analytics. Everything lives in the encrypted container on this device.';
+
+  @override
+  String get settingsDanger => 'Danger zone';
+
+  @override
+  String get settingsDeleteVault => 'Delete vault';
+
+  @override
+  String get settingsDeleteVaultDesc =>
+      'Permanently delete every password and token on this device';
+
+  @override
+  String get settingsDeleteVaultMessage =>
+      'This cannot be undone and there is no cloud copy. Export a backup first.';
+
+  @override
+  String get securityTitle => 'Security center';
+
+  @override
+  String get securityWeak => 'Weak passwords';
+
+  @override
+  String get securityReused => 'Reused passwords';
+
+  @override
+  String get securityStale => 'Outdated passwords';
+
+  @override
+  String get securityWeakDesc => 'Too short or too simple, easy to guess.';
+
+  @override
+  String get securityReusedDesc =>
+      'One password on several accounts: one leak exposes all of them.';
+
+  @override
+  String get securityStaleDesc => 'Not updated for more than a year.';
+
+  @override
+  String get securityAllGood => 'Nothing to fix';
+
+  @override
+  String get securityAllGoodDesc => 'Every login looks clean right now.';
+
+  @override
+  String get trashTitle => 'Trash';
+
+  @override
+  String get trashEmpty => 'Trash is empty';
+
+  @override
+  String get trashEmptyDesc => 'Deleted items wait here first.';
+
+  @override
+  String get trashPurge => 'Delete permanently';
+
+  @override
+  String get trashPurgeMessage =>
+      'Permanently deleted items cannot be recovered.';
+
+  @override
+  String get trashEmptyAll => 'Empty trash';
+
+  @override
+  String get trashEmptyAllMessage =>
+      'Every item in the trash will be deleted permanently.';
+
+  @override
+  String get changePasswordTitle => 'Change master password';
+
+  @override
+  String get currentPassword => 'Current master password';
+
+  @override
+  String get newPassword => 'New master password';
+
+  @override
+  String get confirmNewPassword => 'Confirm new master password';
+
+  @override
+  String get importBackupTitle => 'Import encrypted backup';
+
+  @override
+  String get importBackupPassword => 'Backup master password';
+
+  @override
+  String get importBackupAction => 'Import and replace';
+
+  @override
+  String get noticeVaultCreated => 'Vault created';
+
+  @override
+  String get noticeItemSaved => 'Saved';
+
+  @override
+  String get noticeItemDeleted => 'Moved to trash';
+
+  @override
+  String get noticeItemRestored => 'Restored';
+
+  @override
+  String get noticeItemPurged => 'Deleted permanently';
+
+  @override
+  String get noticeTrashEmptied => 'Trash emptied';
+
+  @override
+  String get noticePasswordChanged => 'Master password updated';
+
+  @override
+  String get noticeBackupExported => 'Backup exported';
+
+  @override
+  String get noticeBackupImported => 'Backup imported';
+
+  @override
+  String get noticeSnapshotSaved => 'Snapshot saved';
+
+  @override
+  String get noticeFavoriteUpdated => 'Favorite updated';
+
+  @override
+  String get noticeBiometricEnabled => 'Fingerprint unlock enabled';
+
+  @override
+  String get noticeBiometricDisabled => 'Fingerprint unlock disabled';
+
+  @override
+  String get errorPasswordTooShort =>
+      'Master password must be at least 8 characters';
+
+  @override
+  String get errorPasswordMismatch => 'The passwords do not match';
+
+  @override
+  String get errorPasswordIncorrect => 'Wrong master password';
+
+  @override
+  String get errorVaultCorrupted =>
+      'Vault is corrupted or from an unsupported version';
+
+  @override
+  String get errorVaultLocked => 'Vault is locked';
+
+  @override
+  String get errorVaultNotReadable => 'Cannot read the vault file';
+
+  @override
+  String get errorSaveFailed => 'Save failed, please retry';
+
+  @override
+  String get errorBackupFailed => 'Backup failed';
+
+  @override
+  String get errorBackupUnreadable => 'Cannot read the backup file';
+
+  @override
+  String get errorBackupWrongPassword => 'Wrong backup master password';
+
+  @override
+  String get errorBiometricUnavailable =>
+      'No biometrics available on this device';
+
+  @override
+  String get errorBiometricFailed => 'Fingerprint verification failed';
+
+  @override
+  String get errorBiometricEnrolledMissing =>
+      'Fingerprint unlock expired, use the master password';
+
+  @override
+  String get errorImportFailed => 'Import failed';
+
+  @override
+  String get errorDeleteFailed => 'Delete failed';
+
+  @override
+  String get biometricUnlockReason =>
+      'Verify your fingerprint to unlock KeyCase';
+
+  @override
+  String get biometricEnableReason =>
+      'Verify your fingerprint to enable quick unlock';
+
+  @override
+  String get deleteVaultAction => 'Delete vault';
+
+  @override
+  String get emptyTrashAction => 'Empty trash';
+
+  @override
+  String get backupExportedTo => 'Exported';
+
+  @override
+  String tokensHeaderProgress(int period) {
+    return 'Codes refresh every ${period}s';
+  }
 }

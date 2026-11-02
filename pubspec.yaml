@@ -30,6 +30,8 @@ dependencies:
   shared_preferences: ^2.5.6
   # 应用私有目录：保险库文件与图标包缓存。
   path_provider: ^2.1.6
+  # 保险库/备份的路径拼接，不手写分隔符。
+  path: ^1.9.0
   # 备份导出/导入使用系统文档选择器（SAF）。
   file_selector: ^1.1.0
   # 用户导入的 Aegis 图标包是 zip；只在导入路径解包。
