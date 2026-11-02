@@ -95,7 +95,12 @@ Future<void> _run(
   List<String> command, {
   bool expectCleanOutput = false,
 }) async {
-  final result = await Process.run(command.first, command.sublist(1));
+  // Windows 上 flutter/dart 是 .bat，必须交给 shell 解析，否则 Process.run 找不到文件。
+  final result = await Process.run(
+    command.first,
+    command.sublist(1),
+    runInShell: true,
+  );
   stdout.write(result.stdout);
   stderr.write(result.stderr);
   if (result.exitCode != 0) {

@@ -47,7 +47,12 @@ Future<void> main() async {
 
 Future<String?> _capture(List<String> command) async {
   try {
-    final result = await Process.run(command.first, command.sublist(1));
+    // Windows 上 flutter/java 可能是 .bat，交给 shell 解析。
+    final result = await Process.run(
+      command.first,
+      command.sublist(1),
+      runInShell: true,
+    );
     if (result.exitCode != 0) return null;
     return '${result.stdout}${result.stderr}';
   } on ProcessException {
