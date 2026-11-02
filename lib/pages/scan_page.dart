@@ -1,16 +1,12 @@
-import '../app/feedback.dart';
-import '../app/keycase_controller.dart';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../app/app_theme.dart';
+import '../app/feedback.dart';
 import '../app/import/otpauth_parser.dart';
+import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
-import '../app/models/models.dart';
-import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
-import 'sheets.dart';
 
 /// 扫码添加令牌。
 ///

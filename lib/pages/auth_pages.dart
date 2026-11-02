@@ -40,7 +40,6 @@ class _CreateVaultPageState extends State<CreateVaultPage> {
     final controller = KeyCaseScope.of(context);
     final state = controller.state;
     final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
     final score = masterPasswordScore(_password.text);
 
     return Scaffold(
@@ -98,14 +97,6 @@ class _CreateVaultPageState extends State<CreateVaultPage> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
                         : Text(l10n.createVault),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  l10n.createSubtitle,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.58),
                   ),
                 ),
               ],

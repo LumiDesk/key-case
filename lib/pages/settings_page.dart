@@ -1,12 +1,10 @@
-import '../app/feedback.dart';
-import '../app/keycase_controller.dart';
-
 import 'package:flutter/material.dart';
 
 import '../app/app_theme.dart';
 import '../app/app_version.dart';
+import '../app/feedback.dart';
+import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
-import '../app/keycase_state.dart';
 import '../app/messages.dart';
 import '../app/models/models.dart';
 import '../common_widgets.dart';

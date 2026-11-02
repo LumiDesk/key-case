@@ -37,10 +37,7 @@ void main() {
 
     test('拒绝非 otpauth 协议与坏密钥', () {
       expect(parseOtpauthUri('https://example.com'), isNull);
-      expect(
-        parseOtpauthUri('otpauth://totp/Test?secret=not*base32'),
-        isNull,
-      );
+      expect(parseOtpauthUri('otpauth://totp/Test?secret=not*base32'), isNull);
     });
 
     test('生成的条目带上标题与账号', () {

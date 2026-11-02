@@ -71,9 +71,7 @@ void main() {
     test('已删除条目与令牌不参与', () {
       final now2 = DateTime.utc(2026, 6, 1);
       final issues = auditVault(<VaultItem>[
-        login(id: 'gone', password: 'weak').copyWith(
-          deletedAt: now2,
-        ),
+        login(id: 'gone', password: 'weak').copyWith(deletedAt: now2),
         VaultItem(
           id: 'token',
           kind: ItemKind.totp,

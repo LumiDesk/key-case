@@ -12,11 +12,7 @@ String rfcSecret() =>
 
 void main() {
   group('TOTP（RFC 6238 测试向量）', () {
-    final secret = TotpSecret(
-      secret: rfcSecret(),
-      digits: 8,
-      period: 30,
-    );
+    final secret = TotpSecret(secret: rfcSecret(), digits: 8, period: 30);
 
     const vectors = <int, String>{
       59: '94287082',
@@ -30,10 +26,7 @@ void main() {
     vectors.forEach((seconds, expected) {
       test('T=$seconds', () {
         final counter = seconds ~/ 30;
-        expect(
-          generateOtpCode(secret: secret, counter: counter),
-          expected,
-        );
+        expect(generateOtpCode(secret: secret, counter: counter), expected);
       });
     });
 
@@ -79,10 +72,7 @@ void main() {
     });
 
     test('HOTP 没有倒计时', () {
-      final secret = TotpSecret(
-        type: OtpType.hotp,
-        secret: rfcSecret(),
-      );
+      final secret = TotpSecret(type: OtpType.hotp, secret: rfcSecret());
       expect(otpSecondsRemaining(secret, DateTime.now()), 0);
     });
   });
@@ -95,7 +85,10 @@ void main() {
       );
       final code = generateOtpCode(secret: secret, counter: 12345);
       expect(code.length, 5);
-      expect(RegExp(r'^[23456789BCDFGHJKMNPQRTVWXY]{5}$').hasMatch(code), isTrue);
+      expect(
+        RegExp(r'^[23456789BCDFGHJKMNPQRTVWXY]{5}$').hasMatch(code),
+        isTrue,
+      );
     });
   });
 
@@ -123,7 +116,10 @@ void main() {
 
   group('Base32', () {
     test('解码容忍小写、空格与填充', () {
-      expect(base32Decode('JBSWY3DP EHPK3PXP'), base32Decode('jbswy3dpehpk3pxp'));
+      expect(
+        base32Decode('JBSWY3DP EHPK3PXP'),
+        base32Decode('jbswy3dpehpk3pxp'),
+      );
       expect(base32Decode('MZXW6==='), utf8.encode('foo'));
     });
 

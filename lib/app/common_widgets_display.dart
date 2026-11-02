@@ -267,7 +267,7 @@ class KcDetailRow extends StatelessWidget {
                 ),
               ),
             ),
-            if (trailing != null) trailing!,
+            ?trailing,
             if (onCopy != null)
               IconButton(
                 onPressed: onCopy,

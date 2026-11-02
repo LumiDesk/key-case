@@ -4,13 +4,11 @@ import 'package:flutter/material.dart';
 import '../app/app_theme.dart';
 import '../app/keycase_scope.dart';
 import '../app/models/models.dart';
-import '../app/otp/otp.dart';
 import '../app/otp/otp_clock.dart';
 import '../app/vault/vault_query.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
 import 'item_tiles.dart';
-import 'scan_page.dart';
 import 'search_page.dart';
 
 /// 登录项列表。
@@ -236,7 +234,6 @@ class _TokenTickerBar extends StatelessWidget {
     return ValueListenableBuilder<int>(
       valueListenable: clock.seconds,
       builder: (context, seconds, _) {
-        final time = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
         final remaining = period - (seconds % period);
         final progress = remaining / period;
         final urgent = remaining <= 5;

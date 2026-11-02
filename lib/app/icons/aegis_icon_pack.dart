@@ -78,9 +78,8 @@ class AegisIconPack {
       if (byTitle != null) return byTitle;
     }
     for (final url in item.urls) {
-      final host = Uri.tryParse(
-        url.contains('://') ? url : 'https://$url',
-      )?.host;
+      final host = Uri.tryParse(url.contains('://') ? url : 'https://$url')
+          ?.host;
       if (host == null || host.isEmpty) continue;
       final parts = host.split('.');
       if (parts.length >= 2) {

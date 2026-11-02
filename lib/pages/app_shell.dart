@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../app/app_theme.dart';
 import '../app/keycase_scope.dart';
 import '../app/models/models.dart';
-import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
 import 'detail_page.dart';
 import 'editor_page.dart';
@@ -88,7 +86,6 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final controller = KeyCaseScope.of(context);
     final l10n = AppLocalizations.of(context);
-    final onTokenTab = _index == 2;
 
     return Scaffold(
       body: PageView(

@@ -71,9 +71,7 @@ void main() {
 
   testWidgets('隐藏态验证码不泄露数字', (tester) async {
     await tester.pumpWidget(
-      host(
-        KcCodeCapsule(code: '123 456', hidden: true, onTap: () {}),
-      ),
+      host(KcCodeCapsule(code: '123 456', hidden: true, onTap: () {})),
     );
     expect(find.text('123 456'), findsNothing);
     expect(find.textContaining('•'), findsOneWidget);

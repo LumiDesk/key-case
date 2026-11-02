@@ -6,7 +6,6 @@ library;
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'app/app_theme.dart';
 import 'app/icons/aegis_icon.dart';

@@ -196,7 +196,7 @@ class KcSectionLabel extends StatelessWidget {
               ),
             ),
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
