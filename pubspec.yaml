@@ -4,7 +4,7 @@ publish_to: 'none'
 
 # Android: build-name -> versionName, build-number -> versionCode。
 # versionCode 必须单调递增；发版脚本负责 +1，系统升级安装依赖它。
-version: 1.0.5+10
+version: 1.0.6+11
 environment:
   sdk: ^3.13.2
 
