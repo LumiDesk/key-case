@@ -1,2 +1,2 @@
-const String kAppVersion = '1.0.4';
-const int kAppBuildNumber = 9;
+const String kAppVersion = '1.0.5';
+const int kAppBuildNumber = 10;
