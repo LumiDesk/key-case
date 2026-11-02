@@ -36,8 +36,9 @@ jobs:
 
       # 签名材料按项目所有者要求入库在 signing/ 下；构建脚本直接读取，
       # 不要把密码写进工作流日志。
+      # 只出 arm64：所有现役 Android 手机都是 64 位，单 ABI 能把包从 70MB 级压到 20MB 级。
       - name: Build signed release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --target-platform android-arm64
 
       - name: Rename artifact
         run: |

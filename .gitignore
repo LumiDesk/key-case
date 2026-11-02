@@ -25,3 +25,5 @@ captures/
 !signing/keycase-release.jks
 
 .DS_Store
+
+dist/

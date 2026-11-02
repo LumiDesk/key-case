@@ -34,6 +34,17 @@ encrypted container on the device; the master password never leaves it.
 | Data | encrypted export/import, 10 rotating snapshots after each save, trash with restore |
 | Appearance | system/light/dark, five accent presets, custom color, Chinese/English |
 
+## Screenshots
+
+| | |
+|---|---|
+| ![Home light](docs/screenshots/home-light.png) | ![Home dark](docs/screenshots/home-dark.png) |
+| Home, light | Home, dark |
+| ![Logins](docs/screenshots/logins-dark.png) | ![Tokens](docs/screenshots/tokens-dark.png) |
+| Logins with A–Z groups and brand icons | Tokens with shared countdown |
+| ![Detail](docs/screenshots/detail-dark.png) | ![Settings](docs/screenshots/settings-dark.png) |
+| Token detail | Settings |
+
 ## Build
 
 Requirements: Flutter 3.47.2 (same as CI), Java 17, Android SDK.
