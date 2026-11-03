@@ -4,6 +4,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-11-03
+
 ### Changed
 
 - The login editor keeps a single random-password button in the password field instead of
