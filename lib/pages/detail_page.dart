@@ -144,6 +144,16 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             setState(() => _showPassword = !_showPassword),
                       ),
                     if (item.isToken) ...<Widget>[
+                      if (item.notes.trim().isNotEmpty) ...<Widget>[
+                        KcSectionLabel(l10n.detailNotes),
+                        KcCard(
+                          child: KcDetailRow(
+                            label: l10n.detailNotes,
+                            value: item.notes,
+                            onCopy: () => copyToClipboard(context, item.notes),
+                          ),
+                        ),
+                      ],
                       KcSectionLabel(l10n.editorAdvanced),
                       KcCard(
                         child: Column(

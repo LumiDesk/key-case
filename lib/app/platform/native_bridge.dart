@@ -95,7 +95,7 @@ class NativeBridge {
       final uri = result['uri'];
       final name = result['name'];
       if (uri == null || uri.isEmpty) return null;
-      return (uri: uri, name: name ?? '备份目录');
+      return (uri: uri, name: name ?? '');
     } on PlatformException catch (error) {
       AppLogger.warn('pickBackupFolder failed: ${error.message}');
       return null;

@@ -189,10 +189,10 @@ extension KeyCaseControllerOps on KeyCaseController {
   }
 
   /// 让用户挑一个备份文件；取消返回 null，读不出来时给出错误码。
-  Future<Uint8List?> pickBackupFile() async {
+  Future<Uint8List?> pickBackupFile({required String label}) async {
     beginExternalActivity();
     try {
-      return await _backups.pickImportFile();
+      return await _backups.pickImportFile(label: label);
     } catch (error) {
       AppLogger.error('pick backup failed', error);
       _fail(KeyCaseError.backupUnreadable);
@@ -290,11 +290,11 @@ extension KeyCaseControllerOps on KeyCaseController {
 /// 第三方数据导入：Aegis 保险库与 Google Authenticator 迁移链接。
 extension KeyCaseImportOps on KeyCaseController {
   /// 选一个 Aegis 导出文件（.json）；取消返回 null。
-  Future<Uint8List?> pickAegisFile() async {
+  Future<Uint8List?> pickAegisFile({required String label}) async {
     beginExternalActivity();
     try {
       return await _backups.pickDocument(
-        label: 'Aegis 导出文件',
+        label: label,
         extensions: const <String>['json', 'txt'],
       );
     } catch (error) {
@@ -305,13 +305,21 @@ extension KeyCaseImportOps on KeyCaseController {
   }
 
   /// 导入 Aegis 导出（合并进现有库，重复项跳过）。
-  Future<bool> importAegisBytes({required Uint8List bytes, String? password}) {
+  Future<bool> importAegisBytes({
+    required Uint8List bytes,
+    String? password,
+    String fallbackTitle = '未命名',
+  }) {
     return _enqueue(() async {
       final data = _state.data;
       if (data == null) return false;
       _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
       try {
-        final result = await importAegisVault(bytes, password: password);
+        final result = await importAegisVault(
+          bytes,
+          password: password,
+          fallbackTitle: fallbackTitle,
+        );
         final merged = mergeImportedItems(data, result.items);
         final sealed = await _vault.save(merged.data);
         if (!_state.isUnlocked) return false;

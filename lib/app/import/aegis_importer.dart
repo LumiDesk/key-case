@@ -55,14 +55,16 @@ const int _passwordSlotType = 1;
 Future<AegisImportResult> importAegisVault(
   Uint8List bytes, {
   String? password,
+  String fallbackTitle = '未命名',
 }) {
   // 顶层函数里的闭包只捕获参数，不会把调用方上下文一起带进 isolate。
-  return Isolate.run(() => _importAegis(bytes, password));
+  return Isolate.run(() => _importAegis(bytes, password, fallbackTitle));
 }
 
 Future<AegisImportResult> _importAegis(
   Uint8List bytes,
   String? password,
+  String fallbackTitle,
 ) async {
   if (bytes.length > _maxFileBytes) {
     throw const AegisImportException(AegisErrorCode.tooLarge);
@@ -111,7 +113,7 @@ Future<AegisImportResult> _importAegis(
     );
   }
 
-  return _parseDatabase(db);
+  return _parseDatabase(db, fallbackTitle);
 }
 
 Future<Map<String, Object?>> _decryptDatabase({
@@ -203,7 +205,10 @@ Future<Uint8List> _gcmDecrypt(
   );
 }
 
-AegisImportResult _parseDatabase(Map<String, Object?> db) {
+AegisImportResult _parseDatabase(
+  Map<String, Object?> db,
+  String fallbackTitle,
+) {
   final entries = db['entries'];
   if (entries is! List) {
     throw const AegisImportException(AegisErrorCode.notAegis);
@@ -223,6 +228,7 @@ AegisImportResult _parseDatabase(Map<String, Object?> db) {
       rawEntry.cast<String, Object?>(),
       now,
       'aegis-${now.microsecondsSinceEpoch}-${index++}',
+      fallbackTitle,
     );
     if (item == null) {
       skipped++;
@@ -233,7 +239,12 @@ AegisImportResult _parseDatabase(Map<String, Object?> db) {
   return AegisImportResult(items: items, skipped: skipped);
 }
 
-VaultItem? _convertEntry(Map<String, Object?> entry, DateTime now, String id) {
+VaultItem? _convertEntry(
+  Map<String, Object?> entry,
+  DateTime now,
+  String id,
+  String fallbackTitle,
+) {
   final info = entry['info'];
   if (info is! Map) return null;
   final infoMap = info.cast<String, Object?>();
@@ -257,7 +268,9 @@ VaultItem? _convertEntry(Map<String, Object?> entry, DateTime now, String id) {
   final name = (entry['name'] as String? ?? '').trim();
   final issuer = (entry['issuer'] as String? ?? '').trim();
   final notes = (entry['note'] as String? ?? '').trim();
-  final title = issuer.isNotEmpty ? issuer : (name.isNotEmpty ? name : '未命名');
+  final title = issuer.isNotEmpty
+      ? issuer
+      : (name.isNotEmpty ? name : fallbackTitle);
 
   return VaultItem.tokenItem(
     id: id,

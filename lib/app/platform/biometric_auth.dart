@@ -43,7 +43,7 @@ class BiometricAuth {
         authMessages: <AuthMessages>[
           AndroidAuthMessages(
             signInTitle: reason,
-            signInHint: '请验证指纹',
+            signInHint: reason,
             cancelButton: cancelLabel,
           ),
         ],

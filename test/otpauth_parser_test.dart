@@ -50,5 +50,26 @@ void main() {
       expect(item.username, 'talyra42');
       expect(item.totp?.secret, 'JBSWY3DPEHPK3PXP');
     });
+
+    test('Steam 二维码与导出链接对称', () {
+      final payload = parseOtpauthUri(
+        'otpauth://totp/Steam:alice?secret=MZXW6YTBOI'
+        '&issuer=Steam&encoder=steam&digits=8&period=60',
+      )!;
+      expect(payload.type, OtpType.steam);
+      expect(payload.digits, 5);
+      expect(payload.period, 30);
+      expect(payload.algorithm, OtpHashAlgorithm.sha1);
+
+      final uri = buildOtpauthUri(
+        payload.toSecret(),
+        issuer: 'Steam',
+        account: 'alice',
+      );
+      final reparsed = parseOtpauthUri(uri)!;
+      expect(reparsed.type, OtpType.steam);
+      expect(reparsed.digits, 5);
+      expect(reparsed.period, 30);
+    });
   });
 }

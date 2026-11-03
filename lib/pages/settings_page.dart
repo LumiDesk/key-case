@@ -100,11 +100,11 @@ class SettingsPage extends StatelessWidget {
                     KcMenuRow<String>(
                       icon: Icons.translate_rounded,
                       title: l10n.settingsLanguage,
-                      value: _languageLabel(preferences.languageCode),
+                      value: _languageLabel(preferences.languageCode, l10n),
                       values: const <String>['', 'zh', 'en'],
                       selected: preferences.languageCode,
                       idOf: (value) => value.isEmpty ? 'system' : value,
-                      labelOf: (value) => _languageLabel(value),
+                      labelOf: (value) => _languageLabel(value, l10n),
                       keyPrefix: 'settings_language',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(languageCode: value),
@@ -389,10 +389,10 @@ class SettingsPage extends StatelessWidget {
     };
   }
 
-  String _languageLabel(String code) => switch (code) {
-    'zh' => '中文',
-    'en' => 'English',
-    _ => 'System / 跟随系统',
+  String _languageLabel(String code, AppLocalizations l10n) => switch (code) {
+    'zh' => l10n.languageChinese,
+    'en' => l10n.languageEnglish,
+    _ => l10n.languageSystem,
   };
 
   String _autoLockLabel(int seconds, AppLocalizations l10n) =>
@@ -451,19 +451,18 @@ class SettingsPage extends StatelessWidget {
   }
 
   Future<void> _changePassword(BuildContext context) async {
-    final ok = await showDialog<bool>(
+    await showDialog<bool>(
       context: context,
       builder: (_) => const _ChangePasswordDialog(),
     );
-    if (ok != true || !context.mounted) return;
-    KcFeedbackScope.maybeOf(context)
-        ?.show(AppLocalizations.of(context).noticePasswordChanged);
   }
 
   Future<void> _importBackup(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final controller = KeyCaseScope.read(context);
-    final bytes = await controller.pickBackupFile();
+    final bytes = await controller.pickBackupFile(
+      label: l10n.importBackupTitle,
+    );
     if (bytes == null || !context.mounted) return;
     final password = await showKcTextInput(
       context: context,
@@ -479,7 +478,9 @@ class SettingsPage extends StatelessWidget {
   Future<void> _importAegis(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final controller = KeyCaseScope.read(context);
-    final bytes = await controller.pickAegisFile();
+    final bytes = await controller.pickAegisFile(
+      label: l10n.settingsImportAegis,
+    );
     if (bytes == null || !context.mounted) return;
     final password = await showKcTextInput(
       context: context,
@@ -491,6 +492,7 @@ class SettingsPage extends StatelessWidget {
     await controller.importAegisBytes(
       bytes: bytes,
       password: (password ?? '').isEmpty ? null : password,
+      fallbackTitle: l10n.aegisUnnamed,
     );
   }
 

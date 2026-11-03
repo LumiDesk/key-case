@@ -302,7 +302,8 @@ class FakeBackupService extends BackupService {
   Future<String?> exportToUser(Uint8List bytes) async => importPath;
 
   @override
-  Future<Uint8List?> pickImportFile() async => importBytes;
+  Future<Uint8List?> pickImportFile({required String label}) async =>
+      importBytes;
 
   @override
   Future<Uint8List?> pickDocument({

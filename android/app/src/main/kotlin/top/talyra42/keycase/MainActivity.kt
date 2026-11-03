@@ -182,7 +182,7 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (_: SecurityException) {
             // 个别 ROM 不给持久授权；本次仍可用，下次需要重新选择。
         }
-        val name = DocumentFile.fromTreeUri(this, uri)?.name ?: "备份目录"
+        val name = DocumentFile.fromTreeUri(this, uri)?.name ?: ""
         result?.success(mapOf("uri" to uri.toString(), "name" to name))
     }
 

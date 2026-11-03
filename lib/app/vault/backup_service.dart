@@ -70,8 +70,8 @@ class BackupService {
   }
 
   /// 让用户挑一个备份文件并读入内存；取消返回 null。
-  Future<Uint8List?> pickImportFile() => pickDocument(
-    label: 'KeyCase 加密备份',
+  Future<Uint8List?> pickImportFile({required String label}) => pickDocument(
+    label: label,
     extensions: const <String>[fileExtension, 'kcv', 'bin'],
   );
 

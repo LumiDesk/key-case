@@ -3,11 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../app/app_theme.dart';
+import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
 import '../app/messages.dart';
 import '../app/security/security_audit.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
+import 'sheets.dart';
 
 /// 首次启动：创建保险库。
 class CreateVaultPage extends StatefulWidget {
@@ -101,6 +103,8 @@ class _CreateVaultPageState extends State<CreateVaultPage> {
                         : Text(l10n.createVault),
                   ),
                 ),
+                const SizedBox(height: 8),
+                _RecoveryActions(mode: _AuthTitle.create),
               ],
             ),
           ),
@@ -256,6 +260,8 @@ class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
                       ),
                     ),
                   ],
+                  const SizedBox(height: 8),
+                  const _RecoveryActions(mode: _AuthTitle.unlock),
                 ],
               ),
             ),
@@ -267,6 +273,70 @@ class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
 }
 
 enum _AuthTitle { create, unlock }
+
+/// 锁定/创建页的恢复入口：导入加密备份；已存在库时允许删除重来。
+class _RecoveryActions extends StatelessWidget {
+  const _RecoveryActions({required this.mode});
+
+  final _AuthTitle mode;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      children: <Widget>[
+        TextButton.icon(
+          onPressed: () => _restoreFromBackup(context),
+          icon: const Icon(Icons.settings_backup_restore_rounded, size: 18),
+          label: Text(l10n.restoreFromBackup),
+        ),
+        if (mode == _AuthTitle.unlock)
+          TextButton(
+            onPressed: () => _deleteVault(context),
+            style: TextButton.styleFrom(
+              foregroundColor: kcSemantic(context, kcDanger),
+            ),
+            child: Text(l10n.deleteVaultAction),
+          ),
+      ],
+    );
+  }
+}
+
+Future<void> _restoreFromBackup(BuildContext context) async {
+  final l10n = AppLocalizations.of(context);
+  final controller = KeyCaseScope.read(context);
+  final bytes = await controller.pickBackupFile(label: l10n.importBackupTitle);
+  if (bytes == null || !context.mounted) return;
+  final confirmed = await showKcConfirm(
+    context: context,
+    title: l10n.restoreFromBackup,
+    message: l10n.restoreBackupMessage,
+    confirmLabel: l10n.restoreFromBackup,
+  );
+  if (!confirmed || !context.mounted) return;
+  final password = await showKcTextInput(
+    context: context,
+    title: l10n.importBackupTitle,
+    hint: l10n.importBackupPassword,
+    obscure: true,
+  );
+  if (password == null || password.isEmpty || !context.mounted) return;
+  await controller.importBackup(bytes: bytes, password: password);
+}
+
+Future<void> _deleteVault(BuildContext context) async {
+  final l10n = AppLocalizations.of(context);
+  final controller = KeyCaseScope.read(context);
+  final confirmed = await showKcConfirm(
+    context: context,
+    title: l10n.settingsDeleteVault,
+    message: l10n.settingsDeleteVaultMessage,
+    confirmLabel: l10n.deleteVaultAction,
+    destructive: true,
+  );
+  if (confirmed) await controller.deleteVault();
+}
 
 class _AuthHero extends StatelessWidget {
   const _AuthHero({required this.icon, required this.titleKey});

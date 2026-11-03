@@ -279,6 +279,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorUrl => 'URL';
 
   @override
+  String get editorUrls => 'URLs (one per line)';
+
+  @override
   String get editorNotes => 'Notes';
 
   @override
@@ -356,6 +359,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Language';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get languageChinese => 'Chinese';
+
+  @override
+  String get languageEnglish => 'English';
 
   @override
   String get themeSystem => 'System';
@@ -600,6 +612,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBackupPassword => 'Backup master password';
 
   @override
+  String get restoreFromBackup => 'Restore from encrypted backup';
+
+  @override
+  String get restoreBackupMessage =>
+      'This replaces the current vault and disables fingerprint unlock. Continue?';
+
+  @override
   String get importBackupAction => 'Import and replace';
 
   @override
@@ -646,6 +665,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorAegisInvalid => 'Not a valid Aegis export';
+
+  @override
+  String get aegisUnnamed => 'Unnamed item';
 
   @override
   String get errorMigrationInvalid => 'Not a valid Google migration link';

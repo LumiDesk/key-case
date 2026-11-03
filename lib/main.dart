@@ -166,7 +166,7 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
     return lookupAppLocalizations(
       AppLocalizations.supportedLocales.contains(locale)
           ? locale
-          : const Locale('zh'),
+          : const Locale('en'),
     );
   }
 

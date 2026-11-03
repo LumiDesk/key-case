@@ -626,6 +626,12 @@ abstract class AppLocalizations {
   /// **'网址'**
   String get editorUrl;
 
+  /// No description provided for @editorUrls.
+  ///
+  /// In zh, this message translates to:
+  /// **'网址（每行一个）'**
+  String get editorUrls;
+
   /// No description provided for @editorNotes.
   ///
   /// In zh, this message translates to:
@@ -781,6 +787,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'语言'**
   String get settingsLanguage;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统'**
+  String get languageSystem;
+
+  /// No description provided for @languageChinese.
+  ///
+  /// In zh, this message translates to:
+  /// **'中文'**
+  String get languageChinese;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In zh, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
 
   /// No description provided for @themeSystem.
   ///
@@ -1244,6 +1268,18 @@ abstract class AppLocalizations {
   /// **'备份的主密码'**
   String get importBackupPassword;
 
+  /// No description provided for @restoreFromBackup.
+  ///
+  /// In zh, this message translates to:
+  /// **'从加密备份恢复'**
+  String get restoreFromBackup;
+
+  /// No description provided for @restoreBackupMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'将用备份替换当前保险库，并关闭指纹解锁。继续？'**
+  String get restoreBackupMessage;
+
   /// No description provided for @importBackupAction.
   ///
   /// In zh, this message translates to:
@@ -1327,6 +1363,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'不是有效的 Aegis 导出文件'**
   String get errorAegisInvalid;
+
+  /// No description provided for @aegisUnnamed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未命名条目'**
+  String get aegisUnnamed;
 
   /// No description provided for @errorMigrationInvalid.
   ///

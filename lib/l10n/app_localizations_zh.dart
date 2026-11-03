@@ -276,6 +276,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editorUrl => '网址';
 
   @override
+  String get editorUrls => '网址（每行一个）';
+
+  @override
   String get editorNotes => '备注';
 
   @override
@@ -352,6 +355,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsLanguage => '语言';
+
+  @override
+  String get languageSystem => '跟随系统';
+
+  @override
+  String get languageChinese => '中文';
+
+  @override
+  String get languageEnglish => 'English';
 
   @override
   String get themeSystem => '跟随系统';
@@ -586,6 +598,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importBackupPassword => '备份的主密码';
 
   @override
+  String get restoreFromBackup => '从加密备份恢复';
+
+  @override
+  String get restoreBackupMessage => '将用备份替换当前保险库，并关闭指纹解锁。继续？';
+
+  @override
   String get importBackupAction => '导入并替换';
 
   @override
@@ -630,6 +648,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get errorAegisInvalid => '不是有效的 Aegis 导出文件';
+
+  @override
+  String get aegisUnnamed => '未命名条目';
 
   @override
   String get errorMigrationInvalid => '不是有效的 Google 迁移链接';
