@@ -38,6 +38,8 @@
 ## UI 与技术选型
 
 - **状态管理用 `ChangeNotifier` + `InheritedNotifier`**，不引入 Provider / Riverpod / Bloc。
+- **锁定用全屏解锁路由覆盖当前页面，不销毁导航栈。** 解锁后回到锁定前的页面和 Tab；
+  vault key 与保险库数据仍立即清空，页面里未保存的编辑草稿作为界面状态留在锁屏下方。
 - **锚点菜单用外部库 `anchored_menu`**，应用只把设计令牌桥接到 `AnchoredMenuThemeData`；
   不维护本地菜单实现。
 - **图标包随 APK 打包**（Aegis Simple Icons，3467 个 SVG，约 5.3 MB）。目录声明不递归，
@@ -50,5 +52,5 @@
 
 - 唯一的网络行为是用户点击「检查更新」时请求 GitHub Release；没有后台轮询，也不上传数据。
 - 自动快照需要用户先选一个 SAF 目录；没有目录时不会写任何文件。
-- Release APK 只构建 `arm64`，体积约 20 MB。
+- Release APK 只构建 `arm64`，体积约 40 MB。
 - 主密码无法恢复；改密码或换设备前先导出加密备份。
