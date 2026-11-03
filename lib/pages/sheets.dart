@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../app/app_theme.dart';
 import '../app/feedback.dart';
+import '../app/keycase_scope.dart';
 import '../l10n/app_localizations.dart';
 
 /// 弹层统一入口。
@@ -32,6 +35,36 @@ Future<T?> showKcSheet<T>({
           bottom: MediaQuery.viewInsetsOf(sheetContext).bottom,
         ),
         child: builder(sheetContext),
+      );
+    },
+  );
+}
+
+/// 信息对话框：与确认框共用表面色、圆角和按钮位置。
+Future<void> showKcInfo({
+  required BuildContext context,
+  required String title,
+  required String message,
+  String? closeLabel,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      final theme = Theme.of(dialogContext);
+      return AlertDialog(
+        backgroundColor: kcElevatedSurfaceColor(theme.brightness),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kcRadiusXl),
+        ),
+        title: Text(title, style: theme.textTheme.titleLarge),
+        content: Text(message, style: theme.textTheme.bodyMedium),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(closeLabel ?? l10n.actionClose),
+          ),
+        ],
       );
     },
   );
@@ -150,6 +183,8 @@ class _TextInputSheetState extends State<_TextInputSheet> {
             controller: _controller,
             autofocus: true,
             obscureText: widget.obscure,
+            enableSuggestions: !widget.obscure,
+            autocorrect: !widget.obscure,
             maxLines: widget.maxLines,
             keyboardType: widget.keyboardType,
             decoration: InputDecoration(hintText: widget.hint),
@@ -179,13 +214,34 @@ class _TextInputSheetState extends State<_TextInputSheet> {
 }
 
 /// 复制到剪贴板并给出轻反馈。全应用统一走这里。
+///
+/// 默认 60 秒后清除，但只在剪贴板仍然是自己写入的内容时清除，
+/// 避免覆盖用户后来复制的其他内容。
 Future<void> copyToClipboard(
   BuildContext context,
   String value, {
   bool feedback = true,
+  Duration clearAfter = const Duration(seconds: 60),
 }) async {
+  final autoClear =
+      KeyCaseScope.maybeRead(context)?.preferences.clipboardAutoClear ?? true;
   await Clipboard.setData(ClipboardData(text: value));
+  if (autoClear && value.isNotEmpty && clearAfter > Duration.zero) {
+    unawaited(_clearClipboardLater(value, clearAfter));
+  }
   if (!context.mounted || !feedback) return;
   final messenger = KcFeedbackScope.maybeOf(context);
   messenger?.show(AppLocalizations.of(context).copied);
+}
+
+Future<void> _clearClipboardLater(String value, Duration delay) async {
+  await Future<void>.delayed(delay);
+  try {
+    final current = await Clipboard.getData(Clipboard.kTextPlain);
+    if (current?.text == value) {
+      await Clipboard.setData(const ClipboardData(text: ''));
+    }
+  } catch (_) {
+    // 后台读取剪贴板可能被系统拒绝；此时宁可不覆盖，也不误清用户内容。
+  }
 }

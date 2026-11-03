@@ -20,7 +20,8 @@ class AppPreferences {
     this.customColorValue = 0xFF2563EB,
     this.showTokenCodes = true,
     this.showNextToken = false,
-    this.secureScreen = false,
+    this.secureScreen = true,
+    this.clipboardAutoClear = true,
     this.autoLockSeconds = 0,
     this.codeGrouping = CodeGrouping.auto,
     this.languageCode = '',
@@ -42,6 +43,9 @@ class AppPreferences {
 
   /// 防止截屏/录屏（FLAG_SECURE）。
   final bool secureScreen;
+
+  /// 复制密码/验证码后是否在 60 秒后自动清除剪贴板。
+  final bool clipboardAutoClear;
 
   /// 进入后台后多久锁定：0 = 立即，负数 = 从不。
   final int autoLockSeconds;
@@ -71,6 +75,7 @@ class AppPreferences {
     bool? showTokenCodes,
     bool? showNextToken,
     bool? secureScreen,
+    bool? clipboardAutoClear,
     int? autoLockSeconds,
     CodeGrouping? codeGrouping,
     String? languageCode,
@@ -88,6 +93,7 @@ class AppPreferences {
       showTokenCodes: showTokenCodes ?? this.showTokenCodes,
       showNextToken: showNextToken ?? this.showNextToken,
       secureScreen: secureScreen ?? this.secureScreen,
+      clipboardAutoClear: clipboardAutoClear ?? this.clipboardAutoClear,
       autoLockSeconds: autoLockSeconds ?? this.autoLockSeconds,
       codeGrouping: codeGrouping ?? this.codeGrouping,
       languageCode: languageCode ?? this.languageCode,
@@ -107,6 +113,7 @@ class AppPreferences {
     'showTokenCodes': showTokenCodes,
     'showNextToken': showNextToken,
     'secureScreen': secureScreen,
+    'clipboardAutoClear': clipboardAutoClear,
     'autoLockSeconds': autoLockSeconds,
     'codeGrouping': codeGrouping.name,
     'languageCode': languageCode,
@@ -132,7 +139,8 @@ class AppPreferences {
           (json['customColorValue'] as num?)?.toInt() ?? 0xFF2563EB,
       showTokenCodes: json['showTokenCodes'] as bool? ?? true,
       showNextToken: json['showNextToken'] as bool? ?? false,
-      secureScreen: json['secureScreen'] as bool? ?? false,
+      secureScreen: json['secureScreen'] as bool? ?? true,
+      clipboardAutoClear: json['clipboardAutoClear'] as bool? ?? true,
       autoLockSeconds: (json['autoLockSeconds'] as num?)?.toInt() ?? 0,
       codeGrouping: CodeGrouping.values.firstWhere(
         (value) => value.name == json['codeGrouping'],

@@ -63,12 +63,26 @@ class _SearchPageState extends State<SearchPage> {
                   decoration: InputDecoration(
                     hintText: l10n.searchHint,
                     prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                    suffixIcon: _query.text.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: l10n.actionCancel,
+                            onPressed: () {
+                              _query.clear();
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.close_rounded, size: 18),
+                          ),
                   ),
                 ),
               ),
               Expanded(
                 child: _query.text.trim().isEmpty
-                    ? const SizedBox.shrink()
+                    ? KcEmptyState(
+                        icon: Icons.search_rounded,
+                        title: l10n.searchTitle,
+                        description: l10n.searchHint,
+                      )
                     : results.isEmpty
                     ? KcEmptyState(
                         icon: Icons.search_off_rounded,

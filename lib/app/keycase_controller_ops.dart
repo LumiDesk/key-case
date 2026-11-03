@@ -6,7 +6,7 @@ part of 'keycase_controller.dart';
 /// 但同一 library 的 extension 可以访问私有成员，体积与职责都保持清晰。
 extension KeyCaseControllerOps on KeyCaseController {
   /// 新增或更新条目。标题/时间戳由这里统一维护，UI 不用关心。
-  Future<void> saveItem(VaultItem item) async {
+  Future<void> saveItem(VaultItem item) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final now = DateTime.now().toUtc();
@@ -23,11 +23,12 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemSaved,
+      snapshot: true,
     );
-  }
+  });
 
   /// 软删除：进回收站，可恢复。
-  Future<void> deleteItem(String itemId) async {
+  Future<void> deleteItem(String itemId) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final now = DateTime.now().toUtc();
@@ -41,10 +42,11 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemDeleted,
+      snapshot: true,
     );
-  }
+  });
 
-  Future<void> restoreItem(String itemId) async {
+  Future<void> restoreItem(String itemId) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final now = DateTime.now().toUtc();
@@ -58,64 +60,76 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemRestored,
+      snapshot: true,
     );
-  }
+  });
 
   /// 永久删除单条（不进回收站）。
-  Future<void> purgeItem(String itemId) async {
+  Future<void> purgeItem(String itemId) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final items = data.items.where((item) => item.id != itemId).toList();
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemPurged,
+      snapshot: true,
     );
-  }
+  });
 
-  Future<void> emptyTrash() async {
+  Future<void> emptyTrash() => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final items = data.items.where((item) => !item.isDeleted).toList();
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.trashEmptied,
+      snapshot: true,
     );
-  }
+  });
 
-  Future<void> toggleFavorite(String itemId) async {
+  Future<void> toggleFavorite(String itemId) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
-    final now = DateTime.now().toUtc();
+    final item = data.itemById(itemId);
+    if (item == null) return;
     final items = data.items
         .map(
-          (item) => item.id == itemId
-              ? item.copyWith(favorite: !item.favorite, updatedAt: now)
-              : item,
+          (existing) => existing.id == itemId
+              ? existing.copyWith(favorite: !item.favorite)
+              : existing,
         )
         .toList();
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.favoriteUpdated,
     );
-  }
+  });
 
   /// HOTP 的「下一个」：计数器 +1 后落库，旧的码立即失效。
-  Future<void> advanceHotp(String itemId) async {
+  Future<void> advanceHotp(String itemId) => _enqueue(() async {
     final data = _state.data;
     if (data == null) return;
     final item = data.itemById(itemId);
-    final secret = item?.totp;
-    if (item == null || secret == null) return;
+    final token = item?.token;
+    if (item == null || token == null) return;
     final now = DateTime.now().toUtc();
-    final updated = item.copyWith(
-      totp: secret.copyWith(counter: secret.counter + 1),
+    final updated = VaultItem.tokenItem(
+      id: item.id,
+      title: item.title,
+      token: token.copyWith(
+        secret: token.secret.copyWith(counter: token.secret.counter + 1),
+      ),
+      favorite: item.favorite,
+      icon: item.icon,
+      createdAt: item.createdAt,
       updatedAt: now,
+      deletedAt: item.deletedAt,
     );
     final items = data.items
         .map((existing) => existing.id == itemId ? updated : existing)
         .toList();
     await _persist(data.copyWith(items: items));
-  }
+  });
 
   Future<bool> changeMasterPassword({
     required String currentPassword,
@@ -130,25 +144,27 @@ extension KeyCaseControllerOps on KeyCaseController {
       _fail(KeyCaseError.passwordMismatch);
       return false;
     }
-    if (_state.busy) return false;
-
-    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
-    try {
-      await _vault.changePassword(
-        currentPassword: currentPassword,
-        newPassword: newPassword,
-      );
-      _emit(
-        _state.copyWith(busy: false, notice: KeyCaseNotice.passwordChanged),
-      );
-      return true;
-    } on VaultFormatException catch (error) {
-      _fail(_mapVaultError(error));
-    } catch (error) {
-      AppLogger.error('change password failed', error);
-      _fail(KeyCaseError.saveFailed);
-    }
-    return false;
+    return _enqueue(() async {
+      final base = _state.data;
+      _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+      try {
+        await _vault.changePassword(
+          currentPassword: currentPassword,
+          newPassword: newPassword,
+        );
+        if (!_state.isUnlocked || !identical(_state.data, base)) return false;
+        _emit(
+          _state.copyWith(busy: false, notice: KeyCaseNotice.passwordChanged),
+        );
+        return true;
+      } on VaultFormatException catch (error) {
+        _fail(_mapVaultError(error));
+      } catch (error) {
+        AppLogger.error('change password failed', error);
+        _fail(KeyCaseError.saveFailed);
+      }
+      return false;
+    });
   }
 
   /// 导出当前库到用户选择的位置（系统文档选择器）。
@@ -175,10 +191,10 @@ extension KeyCaseControllerOps on KeyCaseController {
   }
 
   /// 让用户挑一个备份文件；取消返回 null，读不出来时给出错误码。
-  Future<Uint8List?> pickBackupFile() async {
+  Future<Uint8List?> pickBackupFile({required String label}) async {
     beginExternalActivity();
     try {
-      return await _backups.pickImportFile();
+      return await _backups.pickImportFile(label: label);
     } catch (error) {
       AppLogger.error('pick backup failed', error);
       _fail(KeyCaseError.backupUnreadable);
@@ -192,38 +208,46 @@ extension KeyCaseControllerOps on KeyCaseController {
   Future<bool> importBackup({
     required Uint8List bytes,
     required String password,
-  }) async {
-    if (_state.busy) return false;
-    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
-    try {
-      final session = await _vault.replaceWithBackup(
-        bytes: bytes,
-        password: password,
-      );
-      _emit(
-        _state.copyWith(
-          status: VaultStatus.unlocked,
-          data: session.data,
-          busy: false,
-          notice: KeyCaseNotice.backupImported,
-        ),
-      );
-      return true;
-    } on VaultFormatException catch (error) {
-      _fail(
-        error.code == VaultErrorCode.wrongPassword
-            ? KeyCaseError.backupWrongPassword
-            : KeyCaseError.backupFailed,
-      );
-    } catch (error) {
-      AppLogger.error('import backup failed', error);
-      _fail(KeyCaseError.backupFailed);
-    }
-    return false;
+  }) {
+    return _enqueue(() async {
+      _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+      try {
+        final session = await _vault.replaceWithBackup(
+          bytes: bytes,
+          password: password,
+        );
+        // 新库的 vaultId 与旧包裹密钥不匹配，主动解除登记。
+        await _native.clearVaultKey();
+        if (_preferences.biometricEnabled) {
+          await updatePreferences(
+            _preferences.copyWith(biometricEnabled: false),
+          );
+        }
+        _emit(
+          _state.copyWith(
+            status: VaultStatus.unlocked,
+            data: session.data,
+            busy: false,
+            notice: KeyCaseNotice.backupImported,
+          ),
+        );
+        return true;
+      } on VaultFormatException catch (error) {
+        _fail(
+          error.code == VaultErrorCode.wrongPassword
+              ? KeyCaseError.backupWrongPassword
+              : KeyCaseError.backupFailed,
+        );
+      } catch (error) {
+        AppLogger.error('import backup failed', error);
+        _fail(KeyCaseError.backupFailed);
+      }
+      return false;
+    });
   }
 
   /// 删除本机保险库（不可恢复），同时清掉生物识别包裹密钥。
-  Future<void> deleteVault() async {
+  Future<void> deleteVault() => _enqueue(() async {
     try {
       await _vault.deleteAll();
       await _native.clearVaultKey();
@@ -233,12 +257,19 @@ extension KeyCaseControllerOps on KeyCaseController {
       AppLogger.error('delete vault failed', error);
       _fail(KeyCaseError.deleteFailed);
     }
-  }
+  });
 
-  Future<void> _persist(VaultData next, {KeyCaseNotice? notice}) async {
+  Future<void> _persist(
+    VaultData next, {
+    KeyCaseNotice? notice,
+    bool snapshot = false,
+  }) async {
+    final base = _state.data;
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final bytes = await _vault.save(next);
+      // 保存期间可能锁定/解锁过；基于旧数据的写入不能覆盖新会话。
+      if (!_state.isUnlocked || !identical(_state.data, base)) return;
       _emit(
         _state.copyWith(
           data: next,
@@ -247,7 +278,9 @@ extension KeyCaseControllerOps on KeyCaseController {
           clearNotice: notice == null,
         ),
       );
-      await _snapshotBytesQuietly(bytes);
+      if (snapshot) {
+        await _snapshotBytesQuietly(bytes);
+      }
     } on VaultFormatException catch (error) {
       _fail(_mapVaultError(error));
     } catch (error) {
@@ -260,11 +293,11 @@ extension KeyCaseControllerOps on KeyCaseController {
 /// 第三方数据导入：Aegis 保险库与 Google Authenticator 迁移链接。
 extension KeyCaseImportOps on KeyCaseController {
   /// 选一个 Aegis 导出文件（.json）；取消返回 null。
-  Future<Uint8List?> pickAegisFile() async {
+  Future<Uint8List?> pickAegisFile({required String label}) async {
     beginExternalActivity();
     try {
       return await _backups.pickDocument(
-        label: 'Aegis 导出文件',
+        label: label,
         extensions: const <String>['json', 'txt'],
       );
     } catch (error) {
@@ -278,65 +311,79 @@ extension KeyCaseImportOps on KeyCaseController {
   Future<bool> importAegisBytes({
     required Uint8List bytes,
     String? password,
-  }) async {
-    final data = _state.data;
-    if (data == null) return false;
-    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
-    try {
-      final result = await importAegisVault(bytes, password: password);
-      final merged = mergeImportedItems(data, result.items);
-      final sealed = await _vault.save(merged.data);
-      _emit(
-        _state.copyWith(
-          data: merged.data,
-          busy: false,
-          notice: KeyCaseNotice.imported,
-          lastImportCount: merged.imported,
-        ),
-      );
-      await _snapshotBytesQuietly(sealed);
-      return true;
-    } on AegisImportException catch (error) {
-      _fail(_mapAegisError(error));
-    } catch (error) {
-      AppLogger.error('import aegis failed', error);
-      _fail(KeyCaseError.importFailed);
-    }
-    return false;
+    String fallbackTitle = '未命名',
+  }) {
+    return _enqueue(() async {
+      final data = _state.data;
+      if (data == null) return false;
+      _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+      try {
+        final result = await importAegisVault(
+          bytes,
+          password: password,
+          fallbackTitle: fallbackTitle,
+        );
+        final merged = mergeImportedItems(data, result.items);
+        final sealed = await _vault.save(merged.data);
+        if (!_state.isUnlocked || !identical(_state.data, data)) return false;
+        _emit(
+          _state.copyWith(
+            data: merged.data,
+            busy: false,
+            notice: KeyCaseNotice.imported,
+            lastImportCount: merged.imported,
+          ),
+        );
+        await _snapshotBytesQuietly(sealed);
+        return true;
+      } on AegisImportException catch (error) {
+        _fail(_mapAegisError(error));
+      } catch (error) {
+        AppLogger.error('import aegis failed', error);
+        _fail(KeyCaseError.importFailed);
+      }
+      return false;
+    });
   }
 
   /// 导入 Google Authenticator 迁移链接（`otpauth-migration://...`）。
-  Future<bool> importGoogleMigrationLink(String link) async {
-    final data = _state.data;
-    if (data == null) return false;
-    _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
-    try {
-      final entries = parseGoogleMigration(link);
-      final now = DateTime.now().toUtc();
-      final imported = <VaultItem>[
-        for (var i = 0; i < entries.length; i++)
-          entries[i].toItem(now, 'migration-${now.microsecondsSinceEpoch}-$i'),
-      ];
-      final merged = mergeImportedItems(data, imported);
-      final sealed = await _vault.save(merged.data);
-      _emit(
-        _state.copyWith(
-          data: merged.data,
-          busy: false,
-          notice: KeyCaseNotice.migrationImported,
-          lastImportCount: merged.imported,
-        ),
-      );
-      await _snapshotBytesQuietly(sealed);
-      return true;
-    } on GoogleMigrationException catch (error) {
-      AppLogger.warn('google migration invalid: $error');
-      _fail(KeyCaseError.migrationInvalid);
-    } catch (error) {
-      AppLogger.error('import google migration failed', error);
-      _fail(KeyCaseError.importFailed);
-    }
-    return false;
+  Future<bool> importGoogleMigrationLink(String link) {
+    return _enqueue(() async {
+      final data = _state.data;
+      if (data == null) return false;
+      _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
+      try {
+        final entries = parseGoogleMigration(link);
+        final now = DateTime.now().toUtc();
+        final imported = <VaultItem>[
+          for (var i = 0; i < entries.length; i++)
+            entries[i].toItem(
+              now,
+              'migration-${now.microsecondsSinceEpoch}-$i',
+            ),
+        ];
+        final merged = mergeImportedItems(data, imported);
+        final sealed = await _vault.save(merged.data);
+        if (!_state.isUnlocked || !identical(_state.data, data)) return false;
+        _emit(
+          _state.copyWith(
+            data: merged.data,
+            busy: false,
+            notice: KeyCaseNotice.migrationImported,
+            lastImportCount: merged.imported,
+          ),
+        );
+        await _snapshotBytesQuietly(sealed);
+        return true;
+      } on GoogleMigrationException catch (error) {
+        AppLogger.warn('google migration invalid: $error');
+        _fail(KeyCaseError.migrationInvalid);
+      } catch (error) {
+        AppLogger.error('import google migration failed', error);
+        _fail(KeyCaseError.importFailed);
+      }
+      return false;
+    });
   }
 
   KeyCaseError _mapAegisError(AegisImportException error) {

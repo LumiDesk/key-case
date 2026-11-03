@@ -7,13 +7,11 @@ import '../app/feedback.dart';
 import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
 import '../app/logging/app_logger.dart';
-import '../app/messages.dart';
 import '../app/models/models.dart';
-import '../app/password_strength.dart';
-import '../app/security/security_audit.dart';
 import '../app/util/date_format.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
+import 'change_password_dialog.dart';
 import 'color_picker_sheet.dart';
 import 'sheets.dart';
 
@@ -100,11 +98,11 @@ class SettingsPage extends StatelessWidget {
                     KcMenuRow<String>(
                       icon: Icons.translate_rounded,
                       title: l10n.settingsLanguage,
-                      value: _languageLabel(preferences.languageCode),
+                      value: _languageLabel(preferences.languageCode, l10n),
                       values: const <String>['', 'zh', 'en'],
                       selected: preferences.languageCode,
                       idOf: (value) => value.isEmpty ? 'system' : value,
-                      labelOf: (value) => _languageLabel(value),
+                      labelOf: (value) => _languageLabel(value, l10n),
                       keyPrefix: 'settings_language',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(languageCode: value),
@@ -123,6 +121,16 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
+                    KcSwitchRow(
+                      icon: Icons.content_paste_off_outlined,
+                      title: l10n.settingsClipboardClear,
+                      subtitle: l10n.settingsClipboardClearDesc,
+                      value: preferences.clipboardAutoClear,
+                      onChanged: (value) => controller.updatePreferences(
+                        preferences.copyWith(clipboardAutoClear: value),
+                      ),
+                    ),
+                    const KcRowDivider(),
                     KcMenuRow<int>(
                       icon: Icons.timer_outlined,
                       title: l10n.settingsAutoLock,
@@ -137,24 +145,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
-                    KcSwitchRow(
-                      icon: Icons.fingerprint_rounded,
-                      title: l10n.settingsBiometric,
-                      subtitle: state.biometricEnrolled
-                          ? l10n.settingsBiometricOn
-                          : l10n.settingsBiometricOff,
-                      value: state.biometricEnrolled,
-                      onChanged: (value) async {
-                        if (value) {
-                          await controller.enableBiometrics(
-                            reason: l10n.biometricEnableReason,
-                            cancelLabel: l10n.actionCancel,
-                          );
-                        } else {
-                          await controller.disableBiometrics();
-                        }
-                      },
-                    ),
+                    _BiometricRow(controller: controller),
                     const KcRowDivider(),
                     KcSettingsRow(
                       icon: Icons.shield_outlined,
@@ -301,10 +292,34 @@ class SettingsPage extends StatelessWidget {
                       subtitle: '$kAppVersion+$kAppBuildNumber',
                     ),
                     const KcRowDivider(),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: KeyCaseScope.of(context)
+                          .updateCheckInProgress,
+                      builder: (context, checking, _) => KcSettingsRow(
+                        icon: Icons.system_update_outlined,
+                        title: l10n.settingsCheckUpdate,
+                        trailing: checking
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : null,
+                        onTap: checking ? null : () => _checkUpdates(context),
+                      ),
+                    ),
+                    const KcRowDivider(),
                     KcSettingsRow(
-                      icon: Icons.system_update_outlined,
-                      title: l10n.settingsCheckUpdate,
-                      onTap: () => _checkUpdates(context),
+                      icon: Icons.article_outlined,
+                      title: l10n.settingsLicenses,
+                      subtitle: l10n.settingsLicensesDesc,
+                      onTap: () => showLicensePage(
+                        context: context,
+                        applicationName: 'KeyCase',
+                        applicationVersion: '$kAppVersion+$kAppBuildNumber',
+                      ),
                     ),
                     const KcRowDivider(),
                     KcSettingsRow(
@@ -379,10 +394,10 @@ class SettingsPage extends StatelessWidget {
     };
   }
 
-  String _languageLabel(String code) => switch (code) {
-    'zh' => '中文',
-    'en' => 'English',
-    _ => 'System / 跟随系统',
+  String _languageLabel(String code, AppLocalizations l10n) => switch (code) {
+    'zh' => l10n.languageChinese,
+    'en' => l10n.languageEnglish,
+    _ => l10n.languageSystem,
   };
 
   String _autoLockLabel(int seconds, AppLocalizations l10n) =>
@@ -441,19 +456,18 @@ class SettingsPage extends StatelessWidget {
   }
 
   Future<void> _changePassword(BuildContext context) async {
-    final ok = await showDialog<bool>(
+    await showDialog<bool>(
       context: context,
-      builder: (_) => const _ChangePasswordDialog(),
+      builder: (_) => const ChangePasswordDialog(),
     );
-    if (ok != true || !context.mounted) return;
-    KcFeedbackScope.maybeOf(context)
-        ?.show(AppLocalizations.of(context).noticePasswordChanged);
   }
 
   Future<void> _importBackup(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final controller = KeyCaseScope.read(context);
-    final bytes = await controller.pickBackupFile();
+    final bytes = await controller.pickBackupFile(
+      label: l10n.importBackupTitle,
+    );
     if (bytes == null || !context.mounted) return;
     final password = await showKcTextInput(
       context: context,
@@ -469,7 +483,9 @@ class SettingsPage extends StatelessWidget {
   Future<void> _importAegis(BuildContext context) async {
     final l10n = AppLocalizations.of(context);
     final controller = KeyCaseScope.read(context);
-    final bytes = await controller.pickAegisFile();
+    final bytes = await controller.pickAegisFile(
+      label: l10n.settingsImportAegis,
+    );
     if (bytes == null || !context.mounted) return;
     final password = await showKcTextInput(
       context: context,
@@ -481,6 +497,7 @@ class SettingsPage extends StatelessWidget {
     await controller.importAegisBytes(
       bytes: bytes,
       password: (password ?? '').isEmpty ? null : password,
+      fallbackTitle: l10n.aegisUnnamed,
     );
   }
 
@@ -529,8 +546,22 @@ class SettingsPage extends StatelessWidget {
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               final uri = Uri.tryParse(info.releaseUrl);
-              if (uri != null) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              if (uri == null) return;
+              try {
+                final launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+                if (!launched && context.mounted) {
+                  KcFeedbackScope.maybeOf(context)
+                      ?.show(l10n.errorOpenLinkFailed);
+                }
+              } catch (error) {
+                AppLogger.warn('open release failed: $error');
+                if (context.mounted) {
+                  KcFeedbackScope.maybeOf(context)
+                      ?.show(l10n.errorOpenLinkFailed);
+                }
               }
             },
             child: Text(l10n.updateOpenRelease),
@@ -542,18 +573,10 @@ class SettingsPage extends StatelessWidget {
 
   void _showPrivacy(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    showDialog<void>(
+    showKcInfo(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.settingsPrivacy),
-        content: Text(l10n.settingsPrivacyBody),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.actionClose),
-          ),
-        ],
-      ),
+      title: l10n.settingsPrivacy,
+      message: l10n.settingsPrivacyBody,
     );
   }
 
@@ -592,114 +615,60 @@ class SettingsPage extends StatelessWidget {
   }
 }
 
-/// 修改主密码对话框：三字段 + 强度条，与创建页保持同一套视觉。
-class _ChangePasswordDialog extends StatefulWidget {
-  const _ChangePasswordDialog();
+/// 指纹开关：设备不支持/未录入时禁用，避免用户点开一个必然失败的系统弹窗。
+class _BiometricRow extends StatefulWidget {
+  const _BiometricRow({required this.controller});
+
+  final KeyCaseController controller;
 
   @override
-  State<_ChangePasswordDialog> createState() => _ChangePasswordDialogState();
+  State<_BiometricRow> createState() => _BiometricRowState();
 }
 
-class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
-  final TextEditingController _current = TextEditingController();
-  final TextEditingController _next = TextEditingController();
-  final TextEditingController _confirm = TextEditingController();
-  String? _error;
-  bool _busy = false;
-
-  @override
-  void dispose() {
-    _current.dispose();
-    _next.dispose();
-    _confirm.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final l10n = AppLocalizations.of(context);
-    final controller = KeyCaseScope.read(context);
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    final ok = await controller.changeMasterPassword(
-      currentPassword: _current.text,
-      newPassword: _next.text,
-      confirmPassword: _confirm.text,
-    );
-    if (!mounted) return;
-    if (!ok) {
-      final error = controller.state.error;
-      setState(() {
-        _busy = false;
-        _error = error == null
-            ? l10n.errorPasswordIncorrect
-            : errorText(l10n, error);
-      });
-      return;
-    }
-    Navigator.of(context).pop(true);
-  }
+class _BiometricRowState extends State<_BiometricRow> {
+  late final Future<bool> _available = widget.controller.canUseBiometrics();
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return AlertDialog(
-      title: Text(l10n.changePasswordTitle),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            KcLabeledField(
-              label: l10n.currentPassword,
-              controller: _current,
-              obscure: true,
-            ),
-            const SizedBox(height: 12),
-            KcLabeledField(
-              label: l10n.newPassword,
-              controller: _next,
-              obscure: true,
-              onChanged: (_) => setState(() {}),
-            ),
-            const SizedBox(height: 8),
-            KcPasswordStrengthBar(score: masterPasswordScore(_next.text)),
-            const SizedBox(height: 12),
-            KcLabeledField(
-              label: l10n.confirmNewPassword,
-              controller: _confirm,
-              obscure: true,
-            ),
-            if (_error != null) ...<Widget>[
-              const SizedBox(height: 10),
-              Text(
-                _error!,
-                style: TextStyle(
-                  color: kcSemantic(context, kcDanger),
-                  fontSize: 12,
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.of(context).pop(false),
-          child: Text(l10n.actionCancel),
-        ),
-        FilledButton(
-          onPressed: _busy ? null : _submit,
-          child: _busy
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(l10n.actionSave),
-        ),
-      ],
+    final enrolled = KeyCaseScope.of(context).state.biometricEnrolled;
+    return FutureBuilder<bool>(
+      future: _available,
+      builder: (context, snapshot) {
+        final checking = snapshot.connectionState != ConnectionState.done;
+        final available = snapshot.data ?? false;
+        final unavailable = !checking && !available;
+        final subtitle = checking
+            ? l10n.settingsBiometricOff
+            : unavailable
+            ? l10n.errorBiometricUnavailable
+            : enrolled
+            ? l10n.settingsBiometricOn
+            : l10n.settingsBiometricOff;
+        return KcSwitchRow(
+          icon: Icons.fingerprint_rounded,
+          title: l10n.settingsBiometric,
+          subtitle: subtitle,
+          value: enrolled,
+          // 已登记但硬件后来不可用时，仍允许关闭，避免留下无法撤销的开关。
+          onChanged: checking
+              ? null
+              : available
+              ? (value) async {
+                  if (value) {
+                    await widget.controller.enableBiometrics(
+                      reason: l10n.biometricEnableReason,
+                      cancelLabel: l10n.actionCancel,
+                    );
+                  } else {
+                    await widget.controller.disableBiometrics();
+                  }
+                }
+              : enrolled
+              ? (_) => widget.controller.disableBiometrics()
+              : null,
+        );
+      },
     );
   }
 }

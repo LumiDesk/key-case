@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// No description provided for @appName.
-  ///
-  /// In zh, this message translates to:
-  /// **'KeyCase'**
-  String get appName;
-
   /// No description provided for @navHome.
   ///
   /// In zh, this message translates to:
@@ -170,12 +164,6 @@ abstract class AppLocalizations {
   /// **'返回'**
   String get actionBack;
 
-  /// No description provided for @actionRetry.
-  ///
-  /// In zh, this message translates to:
-  /// **'重试'**
-  String get actionRetry;
-
   /// No description provided for @actionNext.
   ///
   /// In zh, this message translates to:
@@ -188,12 +176,6 @@ abstract class AppLocalizations {
   /// **'添加'**
   String get actionAdd;
 
-  /// No description provided for @actionConfirm.
-  ///
-  /// In zh, this message translates to:
-  /// **'确认'**
-  String get actionConfirm;
-
   /// No description provided for @actionSearch.
   ///
   /// In zh, this message translates to:
@@ -205,12 +187,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'排序'**
   String get actionSort;
-
-  /// No description provided for @actionDone.
-  ///
-  /// In zh, this message translates to:
-  /// **'完成'**
-  String get actionDone;
 
   /// No description provided for @actionRestore.
   ///
@@ -626,6 +602,12 @@ abstract class AppLocalizations {
   /// **'网址'**
   String get editorUrl;
 
+  /// No description provided for @editorUrls.
+  ///
+  /// In zh, this message translates to:
+  /// **'网址（每行一个）'**
+  String get editorUrls;
+
   /// No description provided for @editorNotes.
   ///
   /// In zh, this message translates to:
@@ -697,6 +679,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'扫描二维码'**
   String get editorScanQr;
+
+  /// No description provided for @scanCameraUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'相机不可用，请检查权限后重试'**
+  String get scanCameraUnavailable;
 
   /// No description provided for @editorDiscardTitle.
   ///
@@ -775,6 +763,24 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'语言'**
   String get settingsLanguage;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In zh, this message translates to:
+  /// **'跟随系统'**
+  String get languageSystem;
+
+  /// No description provided for @languageChinese.
+  ///
+  /// In zh, this message translates to:
+  /// **'中文'**
+  String get languageChinese;
+
+  /// No description provided for @languageEnglish.
+  ///
+  /// In zh, this message translates to:
+  /// **'English'**
+  String get languageEnglish;
 
   /// No description provided for @themeSystem.
   ///
@@ -859,6 +865,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'禁止系统截图与录屏'**
   String get settingsSecureScreenDesc;
+
+  /// No description provided for @settingsClipboardClear.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制后自动清除'**
+  String get settingsClipboardClear;
+
+  /// No description provided for @settingsClipboardClearDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'60 秒后清除密码与验证码'**
+  String get settingsClipboardClearDesc;
 
   /// No description provided for @settingsAutoLock.
   ///
@@ -1046,6 +1064,18 @@ abstract class AppLocalizations {
   /// **'隐私说明'**
   String get settingsPrivacy;
 
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In zh, this message translates to:
+  /// **'开源许可证'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsLicensesDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'Flutter 与第三方组件'**
+  String get settingsLicensesDesc;
+
   /// No description provided for @settingsPrivacyBody.
   ///
   /// In zh, this message translates to:
@@ -1226,11 +1256,17 @@ abstract class AppLocalizations {
   /// **'备份的主密码'**
   String get importBackupPassword;
 
-  /// No description provided for @importBackupAction.
+  /// No description provided for @restoreFromBackup.
   ///
   /// In zh, this message translates to:
-  /// **'导入并替换'**
-  String get importBackupAction;
+  /// **'从加密备份恢复'**
+  String get restoreFromBackup;
+
+  /// No description provided for @restoreBackupMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'将用备份替换当前保险库，并关闭指纹解锁。继续？'**
+  String get restoreBackupMessage;
 
   /// No description provided for @settingsImportAegis.
   ///
@@ -1310,6 +1346,12 @@ abstract class AppLocalizations {
   /// **'不是有效的 Aegis 导出文件'**
   String get errorAegisInvalid;
 
+  /// No description provided for @aegisUnnamed.
+  ///
+  /// In zh, this message translates to:
+  /// **'未命名条目'**
+  String get aegisUnnamed;
+
   /// No description provided for @errorMigrationInvalid.
   ///
   /// In zh, this message translates to:
@@ -1339,6 +1381,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'使用自定义图片'**
   String get iconCustom;
+
+  /// No description provided for @errorImagePickFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法读取图片'**
+  String get errorImagePickFailed;
 
   /// No description provided for @iconRemove.
   ///

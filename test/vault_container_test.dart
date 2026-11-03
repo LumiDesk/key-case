@@ -15,16 +15,18 @@ const KdfParams testKdf = KdfParams(
 VaultData emptyVault() =>
     VaultData(vaultId: '', createdAt: DateTime.utc(2026, 1, 1));
 
-VaultItem item({String title = 'GitHub', String id = 'item-1'}) => VaultItem(
-  id: id,
-  kind: ItemKind.login,
-  title: title,
-  username: 'user@example.com',
-  password: 'p@ssw0rd',
-  urls: const <String>['https://github.com'],
-  createdAt: DateTime.utc(2026, 1, 1),
-  updatedAt: DateTime.utc(2026, 1, 2),
-);
+VaultItem item({String title = 'GitHub', String id = 'item-1'}) =>
+    VaultItem.loginItem(
+      id: id,
+      title: title,
+      login: const LoginData(
+        username: 'user@example.com',
+        password: 'p@ssw0rd',
+        urls: <String>['https://github.com'],
+      ),
+      createdAt: DateTime.utc(2026, 1, 1),
+      updatedAt: DateTime.utc(2026, 1, 2),
+    );
 
 void main() {
   group('VaultContainer', () {
@@ -144,10 +146,17 @@ void main() {
     });
 
     test('条目 JSON 往返保持字段', () {
-      final original = item().copyWith(
-        totp: const TotpSecret(secret: 'JBSWY3DPEHPK3PXP', digits: 8),
+      final original = VaultItem.tokenItem(
+        id: 'token-1',
+        title: 'GitHub',
+        token: const TokenData(
+          secret: TotpSecret(secret: 'JBSWY3DPEHPK3PXP', digits: 8),
+          account: 'user@example.com',
+          notes: '备注',
+        ),
         favorite: true,
-        notes: '备注',
+        createdAt: DateTime.utc(2026, 1, 1),
+        updatedAt: DateTime.utc(2026, 1, 2),
       );
       final restored = VaultItem.fromJson(original.toJson());
       expect(restored.title, original.title);

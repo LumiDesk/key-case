@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,14 +11,34 @@ import 'app/icons/aegis_icon_pack.dart';
 import 'app/keycase_controller.dart';
 import 'app/keycase_scope.dart';
 import 'app/keycase_state.dart';
+import 'app/logging/app_logger.dart';
 import 'app/messages.dart';
 import 'app/models/models.dart';
 import 'l10n/app_localizations.dart';
 import 'pages/app_shell.dart';
 import 'pages/auth_pages.dart';
 
+/// 按 Flutter 的标准 locale 解析规则选择应用文案。
+///
+/// 设备常给出 `zh_CN`，而 ARB 只有 `zh`；不能用 `supportedLocales.contains`
+/// 直接判断，否则会错误回退到英文。
+AppLocalizations resolveAppLocalizations(Locale locale) {
+  final resolved = basicLocaleListResolution(<Locale>[
+    locale,
+  ], AppLocalizations.supportedLocales);
+  return lookupAppLocalizations(resolved);
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    AppLogger.error('flutter error', details.exception);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.error('uncaught error', error);
+    return true;
+  };
   final controller = KeyCaseController();
   await controller.bootstrap();
   // 图标包只读一次；没读完之前列表先用首字母头像。
@@ -153,11 +174,7 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
     final locale = language.isEmpty
         ? WidgetsBinding.instance.platformDispatcher.locale
         : Locale(language);
-    return lookupAppLocalizations(
-      AppLocalizations.supportedLocales.contains(locale)
-          ? locale
-          : const Locale('zh'),
-    );
+    return resolveAppLocalizations(locale);
   }
 
   @override

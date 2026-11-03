@@ -1,4 +1,4 @@
-part of '../common_widgets.dart';
+﻿part of '../common_widgets.dart';
 
 // 页面骨架域：KcPage / KcCard / KcHeader / KcSectionLabel / KcEmptyState。
 
@@ -88,8 +88,8 @@ class KcHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: padding,
-      child: SizedBox(
-        height: kcHeaderHeight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kcHeaderHeight),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -146,8 +146,8 @@ class KcSubHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-      child: SizedBox(
-        height: kcHeaderHeight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kcHeaderHeight),
         child: Row(
           children: <Widget>[
             IconButton(
@@ -259,23 +259,6 @@ class KcEmptyState extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// 顶部细进度条：用在「正在保存/解锁」这类不定长操作上。
-class KcTopProgress extends StatelessWidget {
-  const KcTopProgress({super.key, required this.visible});
-
-  final bool visible;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      child: visible
-          ? const LinearProgressIndicator(minHeight: 2)
-          : const SizedBox(height: 2),
     );
   }
 }

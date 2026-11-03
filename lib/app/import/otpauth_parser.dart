@@ -34,12 +34,10 @@ class OtpauthPayload {
     counter: counter,
   );
 
-  VaultItem toItem(DateTime now) => VaultItem(
+  VaultItem toItem(DateTime now) => VaultItem.tokenItem(
     id: now.microsecondsSinceEpoch.toString(),
-    kind: ItemKind.totp,
     title: displayTitle,
-    username: account.trim(),
-    totp: toSecret(),
+    token: TokenData(secret: toSecret(), account: account.trim()),
     createdAt: now,
     updatedAt: now,
   );
@@ -58,14 +56,19 @@ OtpauthPayload? parseOtpauthUri(String raw) {
   }
   if (uri.scheme.toLowerCase() != 'otpauth') return null;
 
-  final type = switch (uri.host.toLowerCase()) {
+  final hostType = switch (uri.host.toLowerCase()) {
     'hotp' => OtpType.hotp,
     'totp' => OtpType.totp,
+    'steam' => OtpType.steam,
     _ => null,
   };
-  if (type == null) return null;
-
   final params = uri.queryParameters;
+  final isSteam =
+      hostType == OtpType.steam ||
+      (params['encoder'] ?? '').toLowerCase() == 'steam' ||
+      (params['issuer'] ?? '').toLowerCase() == 'steam';
+  final type = isSteam ? OtpType.steam : hostType;
+  if (type == null) return null;
   final secret = (params['secret'] ?? '').toUpperCase().replaceAll(' ', '');
   if (secret.isEmpty) return null;
   if (!RegExp(r'^[A-Z2-7]+=*$').hasMatch(secret)) return null;
@@ -81,14 +84,21 @@ OtpauthPayload? parseOtpauthUri(String raw) {
     account = label.substring(separator + 1).trim();
   }
 
-  final algorithm = switch ((params['algorithm'] ?? 'SHA1').toUpperCase()) {
-    'SHA256' => OtpHashAlgorithm.sha256,
-    'SHA512' => OtpHashAlgorithm.sha512,
-    _ => OtpHashAlgorithm.sha1,
-  };
-  final digits =
-      int.tryParse(params['digits'] ?? '') ?? (type == OtpType.steam ? 5 : 6);
-  final period = int.tryParse(params['period'] ?? '') ?? 30;
+  final algorithm = type == OtpType.steam
+      ? OtpHashAlgorithm.sha1
+      : switch ((params['algorithm'] ?? 'SHA1').toUpperCase()) {
+          'SHA256' => OtpHashAlgorithm.sha256,
+          'SHA512' => OtpHashAlgorithm.sha512,
+          _ => OtpHashAlgorithm.sha1,
+        };
+  final rawDigits = int.tryParse(params['digits'] ?? '');
+  final digits = type == OtpType.steam ? 5 : (rawDigits == 8 ? 8 : 6);
+  final rawPeriod = int.tryParse(params['period'] ?? '');
+  final period = type == OtpType.steam
+      ? 30
+      : (rawPeriod != null && rawPeriod >= 1 && rawPeriod <= 300
+            ? rawPeriod
+            : 30);
   final counter = int.tryParse(params['counter'] ?? '') ?? 0;
 
   return OtpauthPayload(
@@ -97,8 +107,8 @@ OtpauthPayload? parseOtpauthUri(String raw) {
     issuer: issuer,
     account: account,
     algorithm: algorithm,
-    digits: digits.clamp(4, 10),
-    period: period <= 0 ? 30 : period,
+    digits: digits,
+    period: period,
     counter: counter < 0 ? 0 : counter,
   );
 }

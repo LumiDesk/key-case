@@ -8,11 +8,10 @@ import 'package:flutter/foundation.dart';
 /// 既费电又难对齐。行内只监听 [seconds]，验证码按时间片边界自然刷新。
 class OtpClock {
   OtpClock() {
-    _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
-    _tick();
+    _start();
   }
 
-  late final Timer _ticker;
+  Timer? _ticker;
 
   /// 当前 Unix 秒。同一秒内不会重复通知。
   final ValueNotifier<int> seconds = ValueNotifier<int>(
@@ -23,6 +22,12 @@ class OtpClock {
   DateTime get now =>
       DateTime.fromMillisecondsSinceEpoch(seconds.value * 1000, isUtc: false);
 
+  void _start() {
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    _tick();
+  }
+
   void _tick() {
     final next = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     if (next != seconds.value) {
@@ -30,8 +35,20 @@ class OtpClock {
     }
   }
 
+  /// 应用进入后台/锁屏时暂停；恢复时补一次 tick，避免倒计时停在旧值。
+  void pause() {
+    _ticker?.cancel();
+    _ticker = null;
+  }
+
+  void resume() {
+    if (_ticker != null) return;
+    _start();
+  }
+
   void dispose() {
-    _ticker.cancel();
+    _ticker?.cancel();
+    _ticker = null;
     seconds.dispose();
   }
 }

@@ -33,7 +33,12 @@ void main() {
         .widgetList<TextField>(find.byType(TextField))
         .map((field) => field.controller!.text)
         .toList();
-    expect(fields, <String>['GitHub', 'alice@example.com', 'JBSWY3DPEHPK3PXP']);
+    expect(fields, <String>[
+      'GitHub',
+      'alice@example.com',
+      'JBSWY3DPEHPK3PXP',
+      '',
+    ]);
     // 打开编辑页只是草稿，还没有写进保险库。
     expect(test.controller.state.data!.items, isEmpty);
 
@@ -92,6 +97,27 @@ void main() {
     expect(find.text('放弃修改？'), findsOneWidget);
     await disposeTestController(tester, test.controller);
   });
+
+  testWidgets('系统返回键同样触发放弃确认', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+
+    await pumpKcPage(
+      tester,
+      controller: test.controller,
+      page: _EditorLauncher(draft: scannedToken()),
+    );
+
+    await tester.enterText(find.byType(TextField).first, 'GitHub Work');
+    await tester.pump();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+
+    expect(find.text('放弃修改？'), findsOneWidget);
+    expect(find.byType(ItemEditorPage), findsOneWidget);
+    await disposeTestController(tester, test.controller);
+  });
   testWidgets('登录项只在密码框右侧保留一个随机密码按钮', (tester) async {
     final test = makeController();
     await test.controller.bootstrap();
@@ -108,6 +134,34 @@ void main() {
     expect(find.byTooltip('生成随机密码'), findsOneWidget);
     expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
     expect(find.byIcon(Icons.autorenew_rounded), findsNothing);
+    await disposeTestController(tester, test.controller);
+  });
+
+  testWidgets('多网址草稿按每行一个预填', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+    final draft = VaultItem.loginItem(
+      id: 'login-multi',
+      title: 'Multi',
+      login: const LoginData(
+        urls: <String>['https://a.example', 'https://b.example'],
+      ),
+      createdAt: DateTime.utc(2026, 1, 1),
+      updatedAt: DateTime.utc(2026, 1, 1),
+    );
+
+    await pumpKcPage(
+      tester,
+      controller: test.controller,
+      page: _EditorLauncher(draft: draft),
+    );
+
+    final texts = tester
+        .widgetList<TextField>(find.byType(TextField))
+        .map((field) => field.controller!.text)
+        .toList();
+    expect(texts, contains('https://a.example\nhttps://b.example'));
     await disposeTestController(tester, test.controller);
   });
 }

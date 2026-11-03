@@ -28,7 +28,7 @@ class BackupService {
     required String dirUri,
     required Uint8List bytes,
   }) async {
-    final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
+    final stamp = DateFormat('yyyyMMdd-HHmmss-SSS').format(DateTime.now());
     final name = 'keycase-$stamp.$fileExtension';
     final ok = await _bridge.writeBackupFile(
       dirUri: dirUri,
@@ -38,7 +38,7 @@ class BackupService {
     if (!ok) {
       throw const FileSystemException('无法写入备份目录');
     }
-    final files = await _bridge.listBackupFiles(dirUri);
+    final files = _backupNames(await _bridge.listBackupFiles(dirUri));
     if (files.length > keepSnapshots) {
       await _bridge.deleteBackupFiles(
         dirUri: dirUri,
@@ -51,6 +51,16 @@ class BackupService {
   Future<List<String>> listSnapshots(String dirUri) =>
       _bridge.listBackupFiles(dirUri);
 
+  /// 只把 `keycase-*.kcbak` 当作快照，避免误删用户放进同目录的其他文件。
+  List<String> _backupNames(List<String> names) {
+    return names
+        .where(
+          (name) =>
+              name.startsWith('keycase-') && name.endsWith('.$fileExtension'),
+        )
+        .toList(growable: false);
+  }
+
   /// 让用户选一个位置导出当前库；取消返回 null。
   Future<String?> exportToUser(Uint8List bytes) async {
     final stamp = DateFormat('yyyyMMdd-HHmmss').format(DateTime.now());
@@ -60,8 +70,8 @@ class BackupService {
   }
 
   /// 让用户挑一个备份文件并读入内存；取消返回 null。
-  Future<Uint8List?> pickImportFile() => pickDocument(
-    label: 'KeyCase 加密备份',
+  Future<Uint8List?> pickImportFile({required String label}) => pickDocument(
+    label: label,
     extensions: const <String>[fileExtension, 'kcv', 'bin'],
   );
 

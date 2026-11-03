@@ -55,6 +55,9 @@ class KeyCaseController extends ChangeNotifier {
   OtpClock? _clock;
   OtpClock get clock => _clock ??= OtpClock();
 
+  /// 检查更新是唯一会联网的动作；设置页用它显示行内加载态。
+  final ValueNotifier<bool> updateCheckInProgress = ValueNotifier<bool>(false);
+
   KeyCaseState _state = const KeyCaseState();
   AppPreferences _preferences = const AppPreferences();
 
@@ -62,22 +65,46 @@ class KeyCaseController extends ChangeNotifier {
   bool _externalActivityOpen = false;
   bool _disposed = false;
 
+  /// 供异步扩展在回调落地前判断生命周期。
+  bool get isDisposed => _disposed;
+  DateTime? _lastAutoSnapshotAt;
+
+  /// 串行化所有会修改保险库的操作。每个操作在队列里读取“执行时”的状态，
+  /// 避免快速连点/并发导入时用旧快照覆盖新结果。
+  Future<void> _opTail = Future<void>.value();
+
+  Future<T> _enqueue<T>(Future<T> Function() action) {
+    final result = _opTail.then((_) => action());
+    _opTail = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
+  }
+
   KeyCaseState get state => _state;
 
   AppPreferences get preferences => _preferences;
 
   /// 启动：读偏好、判断本机有没有库。
   Future<void> bootstrap() async {
-    _preferences = await _preferencesStore.load();
-    await _native.setSecureScreen(_preferences.secureScreen);
-    final exists = await _vault.exists();
-    _emit(
-      _state.copyWith(
-        status: exists ? VaultStatus.locked : VaultStatus.missing,
-        biometricEnrolled: _preferences.biometricEnabled,
-        clearError: true,
-      ),
-    );
+    try {
+      _preferences = await _preferencesStore.load();
+      await _native.setSecureScreen(_preferences.secureScreen);
+      final exists = await _vault.exists();
+      _emit(
+        _state.copyWith(
+          status: exists ? VaultStatus.locked : VaultStatus.missing,
+          biometricEnrolled: _preferences.biometricEnabled,
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      AppLogger.error('bootstrap failed', error);
+      _emit(
+        const KeyCaseState(
+          status: VaultStatus.locked,
+          error: KeyCaseError.vaultNotReadable,
+        ),
+      );
+    }
   }
 
   Future<bool> createVault({
@@ -128,6 +155,7 @@ class KeyCaseController extends ChangeNotifier {
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final session = await _vault.unlock(password);
+      _clock?.resume();
       _emit(
         _state.copyWith(
           status: VaultStatus.unlocked,
@@ -187,6 +215,7 @@ class KeyCaseController extends ChangeNotifier {
         return false;
       }
       final session = await _vault.unlockWithVaultKey(vaultKey);
+      _clock?.resume();
       _emit(
         _state.copyWith(
           status: VaultStatus.unlocked,
@@ -203,6 +232,9 @@ class KeyCaseController extends ChangeNotifier {
     }
     return false;
   }
+
+  /// 设置页用来决定指纹开关是否可操作；真正的启用路径仍会再校验一次。
+  Future<bool> canUseBiometrics() => _biometrics.isAvailable();
 
   Future<bool> enableBiometrics({
     required String reason,
@@ -265,6 +297,7 @@ class KeyCaseController extends ChangeNotifier {
 
   void lock() {
     if (!_state.isUnlocked) return;
+    _clock?.pause();
     _vault.lock();
     _emit(
       _state.copyWith(
@@ -284,6 +317,7 @@ class KeyCaseController extends ChangeNotifier {
   }
 
   void handleAppPaused() {
+    _clock?.pause();
     _pausedAt = DateTime.now();
     if (_externalActivityOpen) return;
     if (_preferences.autoLockSeconds == 0) {
@@ -292,6 +326,7 @@ class KeyCaseController extends ChangeNotifier {
   }
 
   void handleAppResumed() {
+    _clock?.resume();
     final pausedAt = _pausedAt;
     _pausedAt = null;
     final wasExternal = _externalActivityOpen;
@@ -352,8 +387,14 @@ class KeyCaseController extends ChangeNotifier {
     if (!_preferences.autoSnapshot) return;
     final dirUri = _preferences.backupTreeUri;
     if (dirUri.isEmpty) return;
+    final now = DateTime.now();
+    final last = _lastAutoSnapshotAt;
+    if (last != null && now.difference(last) < const Duration(minutes: 1)) {
+      return;
+    }
     try {
       await _backups.writeSnapshot(dirUri: dirUri, bytes: bytes);
+      _lastAutoSnapshotAt = now;
       await updatePreferences(
         _preferences.copyWith(
           lastBackupAt: DateTime.now().millisecondsSinceEpoch,
@@ -374,6 +415,7 @@ class KeyCaseController extends ChangeNotifier {
     if (_disposed) return;
     _disposed = true;
     _clock?.dispose();
+    updateCheckInProgress.dispose();
     _vault.lock();
     super.dispose();
   }

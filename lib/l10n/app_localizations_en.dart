@@ -10,9 +10,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'KeyCase';
-
-  @override
   String get navHome => 'Home';
 
   @override
@@ -46,25 +43,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBack => 'Back';
 
   @override
-  String get actionRetry => 'Retry';
-
-  @override
   String get actionNext => 'Next';
 
   @override
   String get actionAdd => 'Add';
 
   @override
-  String get actionConfirm => 'Confirm';
-
-  @override
   String get actionSearch => 'Search';
 
   @override
   String get actionSort => 'Sort';
-
-  @override
-  String get actionDone => 'Done';
 
   @override
   String get actionRestore => 'Restore';
@@ -279,6 +267,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorUrl => 'URL';
 
   @override
+  String get editorUrls => 'URLs (one per line)';
+
+  @override
   String get editorNotes => 'Notes';
 
   @override
@@ -313,6 +304,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editorScanQr => 'Scan QR code';
+
+  @override
+  String get scanCameraUnavailable =>
+      'Camera unavailable. Check permissions and try again.';
 
   @override
   String get editorDiscardTitle => 'Discard changes?';
@@ -352,6 +347,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLanguage => 'Language';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get languageChinese => 'Chinese';
+
+  @override
+  String get languageEnglish => 'English';
 
   @override
   String get themeSystem => 'System';
@@ -395,6 +399,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSecureScreenDesc =>
       'Disable system screenshots and recording';
+
+  @override
+  String get settingsClipboardClear => 'Clear clipboard after copy';
+
+  @override
+  String get settingsClipboardClearDesc =>
+      'Clears passwords and codes after 60 seconds';
 
   @override
   String get settingsAutoLock => 'Auto-lock';
@@ -493,6 +504,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacy => 'Privacy';
 
   @override
+  String get settingsLicenses => 'Open source licenses';
+
+  @override
+  String get settingsLicensesDesc => 'Flutter and bundled components';
+
+  @override
   String get settingsPrivacyBody =>
       'KeyCase uploads nothing: no account, no sync, no analytics. Everything lives in the encrypted container on this device.';
 
@@ -589,7 +606,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importBackupPassword => 'Backup master password';
 
   @override
-  String get importBackupAction => 'Import and replace';
+  String get restoreFromBackup => 'Restore from encrypted backup';
+
+  @override
+  String get restoreBackupMessage =>
+      'This replaces the current vault and disables fingerprint unlock. Continue?';
 
   @override
   String get settingsImportAegis => 'Import from Aegis';
@@ -637,6 +658,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorAegisInvalid => 'Not a valid Aegis export';
 
   @override
+  String get aegisUnnamed => 'Unnamed item';
+
+  @override
   String get errorMigrationInvalid => 'Not a valid Google migration link';
 
   @override
@@ -650,6 +674,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iconCustom => 'Use a custom image';
+
+  @override
+  String get errorImagePickFailed => 'Could not read the image';
 
   @override
   String get iconRemove => 'Back to automatic';

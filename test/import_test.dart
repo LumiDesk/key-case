@@ -154,11 +154,10 @@ void main() {
   group('导入合并', () {
     final now = DateTime.utc(2026, 1, 1);
 
-    VaultItem token(String secret, String title) => VaultItem(
+    VaultItem token(String secret, String title) => VaultItem.tokenItem(
       id: 'id-$secret',
-      kind: ItemKind.totp,
       title: title,
-      totp: TotpSecret(secret: secret),
+      token: TokenData(secret: TotpSecret(secret: secret)),
       createdAt: now,
       updatedAt: now,
     );

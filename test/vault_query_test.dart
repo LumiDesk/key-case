@@ -13,13 +13,10 @@ VaultItem item({
   String? deletedAt,
 }) {
   final now = DateTime.utc(2026, 1, updatedDay);
-  return VaultItem(
+  return VaultItem.loginItem(
     id: id,
-    kind: ItemKind.login,
     title: title,
-    username: username,
-    notes: notes,
-    urls: urls,
+    login: LoginData(username: username, notes: notes, urls: urls),
     favorite: favorite,
     createdAt: now,
     updatedAt: now,
@@ -55,6 +52,17 @@ void main() {
         <String>['a', 'b', 'c'],
       );
     });
+
+    test('同名时用 id 保持稳定顺序', () {
+      final same = <VaultItem>[
+        item(id: 'b', title: 'Same'),
+        item(id: 'a', title: 'Same'),
+      ];
+      expect(sortItems(same, ItemSort.name).map((e) => e.id).toList(), <String>[
+        'a',
+        'b',
+      ]);
+    });
   });
 
   group('首字母分组', () {
@@ -71,6 +79,10 @@ void main() {
         '#',
       ]);
       expect(groups.last.items, hasLength(2));
+    });
+
+    test('emoji 首字母不拆代理对', () {
+      expect(initialOf('😀 test'), '#');
     });
   });
 

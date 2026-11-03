@@ -29,102 +29,111 @@ Future<void> prepareDemoIfNeeded(KeyCaseController controller) async {
 Future<void> _seedItems(KeyCaseController controller) async {
   final now = DateTime.now().toUtc();
   final items = <VaultItem>[
-    VaultItem(
+    VaultItem.loginItem(
       id: 'demo-github',
-      kind: ItemKind.login,
       title: 'GitHub',
-      username: 'talyra42',
-      password: 'Tr0ub4dor&3-correct-horse',
-      urls: const <String>['https://github.com'],
-      notes: '主账号，开启了两步验证',
+      login: const LoginData(
+        username: 'talyra42',
+        password: 'Tr0ub4dor&3-correct-horse',
+        urls: <String>['https://github.com'],
+        notes: '主账号，开启了两步验证',
+      ),
       favorite: true,
       createdAt: now.subtract(const Duration(days: 120)),
       updatedAt: now.subtract(const Duration(days: 20)),
     ),
-    VaultItem(
+    VaultItem.loginItem(
       id: 'demo-google',
-      kind: ItemKind.login,
       title: 'Google',
-      username: 'talyra42@gmail.com',
-      password: 'password123',
-      urls: const <String>['https://accounts.google.com'],
+      login: const LoginData(
+        username: 'talyra42@gmail.com',
+        password: 'password123',
+        urls: <String>['https://accounts.google.com'],
+      ),
       createdAt: now.subtract(const Duration(days: 400)),
       updatedAt: now.subtract(const Duration(days: 400)),
     ),
-    VaultItem(
+    VaultItem.loginItem(
       id: 'demo-bank',
-      kind: ItemKind.login,
       title: '招商银行',
-      username: '6225 **** **** 1234',
-      password: 'password123',
+      login: const LoginData(
+        username: '6225 **** **** 1234',
+        password: 'password123',
+      ),
       createdAt: now.subtract(const Duration(days: 30)),
       updatedAt: now.subtract(const Duration(days: 30)),
     ),
-    VaultItem(
+    VaultItem.loginItem(
       id: 'demo-aws',
-      kind: ItemKind.login,
       title: 'AWS Console',
-      username: 'ops@example.com',
-      password: 'G8#vQ2!mR7@xL4',
-      urls: const <String>['https://console.aws.amazon.com'],
+      login: const LoginData(
+        username: 'ops@example.com',
+        password: 'G8#vQ2!mR7@xL4',
+        urls: <String>['https://console.aws.amazon.com'],
+      ),
       createdAt: now.subtract(const Duration(days: 60)),
       updatedAt: now.subtract(const Duration(days: 5)),
     ),
-    VaultItem(
+    VaultItem.tokenItem(
       id: 'demo-totp-github',
-      kind: ItemKind.totp,
       title: 'GitHub',
-      username: 'talyra42',
-      totp: const TotpSecret(secret: 'JBSWY3DPEHPK3PXP'),
+      token: const TokenData(
+        secret: TotpSecret(secret: 'JBSWY3DPEHPK3PXP'),
+        account: 'talyra42',
+      ),
       favorite: true,
       createdAt: now.subtract(const Duration(days: 90)),
       updatedAt: now.subtract(const Duration(days: 3)),
     ),
-    VaultItem(
+    VaultItem.tokenItem(
       id: 'demo-totp-cloudflare',
-      kind: ItemKind.totp,
       title: 'Cloudflare',
-      username: 'ops@example.com',
-      totp: const TotpSecret(
-        secret: 'KRSXG5CTMVRXEZLUKN2XAZLSKNSWG4TFOQ',
-        digits: 6,
-        period: 30,
+      token: const TokenData(
+        secret: TotpSecret(
+          secret: 'KRSXG5CTMVRXEZLUKN2XAZLSKNSWG4TFOQ',
+          digits: 6,
+          period: 30,
+        ),
+        account: 'ops@example.com',
       ),
       createdAt: now.subtract(const Duration(days: 45)),
       updatedAt: now.subtract(const Duration(days: 2)),
     ),
-    VaultItem(
+    VaultItem.tokenItem(
       id: 'demo-hotp',
-      kind: ItemKind.totp,
       title: 'Legacy HOTP',
-      username: 'example',
-      totp: const TotpSecret(
-        type: OtpType.hotp,
-        secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',
-        counter: 4,
+      token: const TokenData(
+        secret: TotpSecret(
+          type: OtpType.hotp,
+          secret: 'GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ',
+          counter: 4,
+        ),
+        account: 'example',
       ),
       createdAt: now.subtract(const Duration(days: 200)),
       updatedAt: now.subtract(const Duration(days: 200)),
     ),
-    VaultItem(
+    VaultItem.tokenItem(
       id: 'demo-steam',
-      kind: ItemKind.totp,
       title: 'Steam',
-      username: 'talyra42',
-      totp: const TotpSecret(
-        type: OtpType.steam,
-        secret: 'MZXW6YTBOI======',
-        digits: 5,
+      token: const TokenData(
+        secret: TotpSecret(
+          type: OtpType.steam,
+          secret: 'MZXW6YTBOI======',
+          digits: 5,
+        ),
+        account: 'talyra42',
       ),
       createdAt: now.subtract(const Duration(days: 15)),
       updatedAt: now.subtract(const Duration(days: 1)),
     ),
-    VaultItem(
+    VaultItem.loginItem(
       id: 'demo-trashed',
-      kind: ItemKind.login,
       title: '旧测试账号',
-      username: 'old@example.com',
-      password: 'OldPassword1',
+      login: const LoginData(
+        username: 'old@example.com',
+        password: 'OldPassword1',
+      ),
       createdAt: now.subtract(const Duration(days: 300)),
       updatedAt: now.subtract(const Duration(days: 10)),
       deletedAt: now.subtract(const Duration(days: 2)),

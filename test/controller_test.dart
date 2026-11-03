@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -9,6 +10,7 @@ import 'package:keycase/app/platform/biometric_auth.dart';
 import 'package:keycase/app/vault/vault_container.dart';
 
 import 'support/controller_factory.dart';
+import 'support/fakes.dart';
 import 'support/hosts.dart';
 
 void main() {
@@ -97,6 +99,22 @@ void main() {
       expect(test.controller.state.data, isNull);
       expect(test.vault.session, isNull);
     });
+
+    test('偏好读取失败时进入可恢复的锁定状态', () async {
+      final controller = KeyCaseController(
+        vault: FakeVaultRepository(),
+        preferencesStore: _FailingPreferencesStore(),
+        nativeBridge: FakeNativeBridge(),
+        biometrics: FakeBiometricAuth(),
+        backups: FakeBackupService(),
+      );
+
+      await controller.bootstrap();
+
+      expect(controller.state.status, VaultStatus.locked);
+      expect(controller.state.error, KeyCaseError.vaultNotReadable);
+      controller.dispose();
+    });
   });
 
   group('自动锁定', () {
@@ -175,15 +193,7 @@ void main() {
       final test = makeController();
       await test.controller.bootstrap();
       await test.controller.unlock('pw');
-      await test.controller.saveItem(
-        testToken(type: OtpType.hotp).copyWith(
-          totp: const TotpSecret(
-            type: OtpType.hotp,
-            secret: 'JBSWY3DPEHPK3PXP',
-            counter: 3,
-          ),
-        ),
-      );
+      await test.controller.saveItem(testToken(type: OtpType.hotp, counter: 3));
 
       await test.controller.advanceHotp('token-1');
 
@@ -264,6 +274,21 @@ void main() {
       expect(test.biometrics.lastCancelLabel, 'Cancel');
     });
 
+    test('设备不支持时拒绝启用且不写偏好', () async {
+      final test = makeController();
+      await test.controller.bootstrap();
+      await test.controller.unlock('pw');
+      test.biometrics.available = false;
+
+      final ok = await test.controller.enableBiometrics(reason: 'enable');
+
+      expect(ok, isFalse);
+      expect(test.controller.state.error, KeyCaseError.biometricUnavailable);
+      expect(test.controller.state.biometricEnrolled, isFalse);
+      expect(test.preferences.value.biometricEnabled, isFalse);
+      expect(test.native.vaultKey, isNull);
+    });
+
     test('用户取消时静默回退且不显示错误', () async {
       final test = makeController(
         preferences: const AppPreferences(biometricEnabled: true),
@@ -341,6 +366,8 @@ void main() {
         isTrue,
       );
       expect(test.controller.state.notice, KeyCaseNotice.backupImported);
+      expect(test.native.clearVaultKeyCount, 1);
+      expect(test.preferences.value.biometricEnabled, isFalse);
     });
 
     test('选择备份目录会打开自动快照', () async {
@@ -391,5 +418,115 @@ void main() {
       expect(ok, isTrue);
       expect(test.controller.state.notice, KeyCaseNotice.imported);
     });
+
+    test('收藏不触发自动快照，内容修改才触发', () async {
+      final test = makeController(
+        preferences: const AppPreferences(
+          autoSnapshot: true,
+          backupTreeUri: 'content://backup',
+        ),
+      );
+      await test.controller.bootstrap();
+      await test.controller.unlock('pw');
+
+      await test.controller.saveItem(testLogin(id: 'new', title: 'New'));
+      expect(test.backups.snapshotCount, 1);
+
+      await test.controller.toggleFavorite('login-1');
+      expect(test.backups.snapshotCount, 1);
+    });
   });
+
+  group('并发与锁定', () {
+    test('连续两次收藏最终回到未收藏', () async {
+      final harness = _gatedHarness();
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final first = harness.controller.toggleFavorite('login-1');
+      final second = harness.controller.toggleFavorite('login-1');
+      harness.vault.gate.complete();
+      await Future.wait(<Future<void>>[first, second]);
+
+      final item = harness.controller.state.data!.itemById('login-1')!;
+      expect(item.favorite, isFalse);
+      harness.controller.dispose();
+    });
+
+    test('连续两次 HOTP 计数器加二', () async {
+      final harness = _gatedHarness(
+        items: <VaultItem>[testToken(type: OtpType.hotp, counter: 0)],
+      );
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final first = harness.controller.advanceHotp('token-1');
+      final second = harness.controller.advanceHotp('token-1');
+      harness.vault.gate.complete();
+      await Future.wait(<Future<void>>[first, second]);
+
+      expect(
+        harness.controller.state.data!.itemById('token-1')!.totp!.counter,
+        2,
+      );
+      harness.controller.dispose();
+    });
+
+    test('保存中锁定后不把明文写回状态', () async {
+      final harness = _gatedHarness();
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final saving = harness.controller.saveItem(
+        testLogin(id: 'new', title: 'Saving'),
+      );
+      await Future<void>.delayed(Duration.zero);
+      harness.controller.lock();
+      harness.vault.gate.complete();
+      await saving;
+
+      expect(harness.controller.state.status, VaultStatus.locked);
+      expect(harness.controller.state.data, isNull);
+      harness.controller.dispose();
+    });
+  });
+}
+
+({KeyCaseController controller, _GatedVault vault}) _gatedHarness({
+  List<VaultItem>? items,
+}) {
+  final vault = _GatedVault(
+    data: testVault(items: items ?? <VaultItem>[testLogin()]),
+  );
+  final controller = KeyCaseController(
+    vault: vault,
+    preferencesStore: FakePreferencesStore(),
+    nativeBridge: FakeNativeBridge(),
+    biometrics: FakeBiometricAuth(),
+    backups: FakeBackupService(),
+  );
+  return (controller: controller, vault: vault);
+}
+
+class _GatedVault extends FakeVaultRepository {
+  _GatedVault({required super.data});
+
+  final Completer<void> gate = Completer<void>();
+  bool block = false;
+
+  @override
+  Future<Uint8List> save(VaultData data) async {
+    if (block) await gate.future;
+    return super.save(data);
+  }
+}
+
+class _FailingPreferencesStore extends FakePreferencesStore {
+  @override
+  Future<AppPreferences> load() async {
+    throw StateError('preferences unavailable');
+  }
 }

@@ -127,33 +127,33 @@ class _KcTokenTileState extends State<KcTokenTile> {
     final l10n = AppLocalizations.of(context);
     return TapRegion(
       onTapOutside: (_) => _hideCode(),
-      child: ValueListenableBuilder<int>(
-        valueListenable: widget.clock.seconds,
-        builder: (context, seconds, _) {
-          final time = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
-          final counter = otpCounterAt(secret, time);
-          final code = generateOtpCode(secret: secret, counter: counter);
-          final remaining = otpSecondsRemaining(secret, time);
-          final formatted = formatOtpCode(
-            code,
-            widget.grouping,
-            steam: secret.type == OtpType.steam,
-          );
-          final visible = widget.showCode || _isRevealed;
-          final next = secret.isCounterBased ? null : nextOtpCode(secret, time);
-
-          return _ItemRow(
-            item: widget.item,
-            onTap: widget.onTap,
-            onLongPress: widget.onLongPress,
-            trailing: Row(
+      child: _ItemRow(
+        item: widget.item,
+        onTap: widget.onTap,
+        onLongPress: widget.onLongPress,
+        trailing: ValueListenableBuilder<int>(
+          valueListenable: widget.clock.seconds,
+          builder: (context, seconds, _) {
+            final time = DateTime.fromMillisecondsSinceEpoch(seconds * 1000);
+            final counter = otpCounterAt(secret, time);
+            final code = generateOtpCode(secret: secret, counter: counter);
+            final remaining = otpSecondsRemaining(secret, time);
+            final visible = widget.showCode || _isRevealed;
+            final next = secret.isCounterBased
+                ? null
+                : nextOtpCode(secret, time);
+            return Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
                     KcCodeCapsule(
-                      code: formatted,
+                      code: formatOtpCode(
+                        code,
+                        widget.grouping,
+                        steam: secret.type == OtpType.steam,
+                      ),
                       hidden: !visible,
                       onTap: () => _handleCodeTap(code, visible),
                     ),
@@ -181,16 +181,16 @@ class _KcTokenTileState extends State<KcTokenTile> {
                 const SizedBox(width: 10),
                 if (secret.isCounterBased)
                   IconButton(
-                    tooltip: l10n.actionNext,
+                    tooltip: l10n.detailTokenCounter,
                     onPressed: widget.onTap,
-                    icon: const Icon(Icons.skip_next_rounded, size: 20),
+                    icon: const Icon(Icons.numbers_rounded, size: 20),
                   )
                 else
                   KcCountdownRing(remaining: remaining, period: secret.period),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

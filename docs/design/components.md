@@ -45,16 +45,18 @@
 | `KcCodeCapsule` | 验证码胶囊（可隐藏；点击由令牌行决定揭开/复制） |
 | `KcCountdownRing` | 倒计时环，最后 5 秒转警示色 |
 | `KcDetailRow` | 详情行：标签 + 值 + 复制/尾随操作 |
+| `KcInlineError` | 表单/页面内联错误（图标 + 文本 + 语义色） |
 
 ## 3. 表单与动作（`lib/app/common_widgets_forms.dart`、`common_widgets_navigation.dart`）
 
 | 组件 | 用途 |
 |---|---|
 | `KcSettingsRow` | 设置行：图标 + 标题/副标题 + 尾随控件或 chevron |
-| `KcSwitchRow` | 开关行（整行可点） |
+| `KcSwitchRow` | 开关行（整行可点；`onChanged` 为 null 时禁用） |
 | `KcRowDivider` | 卡片内分隔线（缩进到图标下方） |
 | `KcMenuRow<T>` | 静态单选行：设置页样式或 `dense` 紧凑样式，内部统一锚点菜单 |
-| `KcLabeledField` | 带外置标签的输入框 |
+| `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错 |
+| `KcValueRow` | 卡片内「标签 + 当前值 + chevron」，用于需要自定义弹层的字段 |
 | `KcPasswordStrengthBar` | 主密码强度条（`lib/app/password_strength.dart`） |
 | `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组；每个动作有独立 heroTag |
 
@@ -69,7 +71,8 @@
 | `showKcSheet<T>` | 统一底部弹层（圆角、拖拽把手、安全区、最大宽度） |
 | `showKcConfirm` | 二次确认，`destructive: true` 用于危险操作 |
 | `showKcTextInput` | 单行/多行文本输入，取消返回 `null` |
-| `copyToClipboard` | 复制 + 轻反馈，全应用统一入口 |
+| `showKcInfo` | 信息对话框（隐私/说明），与确认框共用表面与圆角 |
+| `copyToClipboard` | 复制 + 轻反馈；默认 60 秒后清除仍匹配的内容 |
 
 排序、设置项、令牌参数等 2–8 项静态单选直接使用 `KcMenuRow<T>`；视觉令牌在
 `buildKeyCaseTheme()` 里通过 `AnchoredMenuThemeData` 桥接，页面不覆写颜色与圆角。

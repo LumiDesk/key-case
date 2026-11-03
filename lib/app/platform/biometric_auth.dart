@@ -36,14 +36,16 @@ class BiometricAuth {
   Future<BiometricResult> authenticate({
     required String reason,
     String cancelLabel = '取消',
+    String title = 'KeyCase',
   }) async {
     try {
       final approved = await _authentication.authenticate(
         localizedReason: reason,
         authMessages: <AuthMessages>[
           AndroidAuthMessages(
-            signInTitle: reason,
-            signInHint: '请验证指纹',
+            signInTitle: title,
+            // Android 会把 hint 显示成第二行说明；留空只保留 reason 一行提示。
+            signInHint: '',
             cancelButton: cancelLabel,
           ),
         ],

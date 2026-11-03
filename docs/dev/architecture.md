@@ -15,8 +15,8 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
 | 加密原语 | `lib/app/crypto/`（Argon2id、AES-GCM、Base32、安全随机） |
 | 令牌计算 | `lib/app/otp/otp.dart`、`otp_clock.dart`（全应用唯一 ticker） |
 | 第三方导入 | `lib/app/import/`（otpauth、Aegis、Google 迁移、合并去重） |
-| 模型 | `lib/app/models/`，`models.dart` 是稳定 barrel |
-| 状态 | `keycase_controller.dart` + `keycase_controller_ops.dart`（extension）、`keycase_state.dart`、`keycase_scope.dart` |
+| 模型 | `lib/app/models/`，`models.dart` 是稳定 barrel；v2 用互斥的 `LoginData` / `TokenData` |
+| 状态 | `keycase_controller.dart` + `keycase_controller_ops.dart`（extension）、`keycase_state.dart`、`keycase_scope.dart`；Controller 内串行写队列 |
 | 偏好 | `lib/app/data/preferences_store.dart`（SharedPreferences 单键 JSON） |
 | 安全审计 | `lib/app/security/security_audit.dart` |
 | 原生能力 | `lib/app/platform/native_bridge.dart` ↔ `android/.../MainActivity.kt` + `VaultKeyStore.kt`（FLAG_SECURE、Keystore、SAF 目录与导出文档） |
@@ -34,10 +34,12 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
 1. 启动：`bootstrap()` 读偏好 → 判断 `vault.kcv` 是否存在 → `missing` / `locked`。
 2. 解锁：`VaultRepository.unlock` 在 isolate 里跑 Argon2id + AES-GCM，返回 `UnlockedVault`
    （header + vault key + `VaultData`）。
-3. 修改：页面调用 Controller 的操作 → 构造新的 `VaultData` → `VaultRepository.save`
-   （写队列串行、临时文件 + rename）→ 更新内存状态 → 可选自动快照。
-4. 锁定：清零 vault key、清空内存里的保险库数据，并用全屏解锁路由盖住当前页面；
-   解锁后回到锁定前的页面。后台/超时由 `handleAppPaused` / `handleAppResumed` 驱动。
+3. 修改：页面调用 Controller 的写方法 → 操作队列串行执行 → 基于执行时的最新 `VaultData`
+   构造新状态 → `VaultRepository.save`（会话 epoch 校验、临时文件 + rename）→ 更新内存状态
+   → 可选自动快照（仅内容型修改）。
+4. 锁定：Repository 递增 epoch、清零 vault key；Controller 清空内存数据，并用全屏解锁路由
+   盖住当前页面；在途写操作发现 epoch 变化后丢弃，不会复活会话。解锁后回到锁定前的页面。
+   后台/超时由 `handleAppPaused` / `handleAppResumed` 驱动。
 
 ## 分层边界
 

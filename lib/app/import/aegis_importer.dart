@@ -6,6 +6,7 @@ import 'package:pointycastle/key_derivators/api.dart';
 import 'package:pointycastle/key_derivators/scrypt.dart';
 
 import '../crypto/aead.dart';
+import '../crypto/base32.dart';
 import '../models/models.dart';
 
 /// Aegis 导出文件解析失败。code 供 UI 选择文案。
@@ -54,14 +55,16 @@ const int _passwordSlotType = 1;
 Future<AegisImportResult> importAegisVault(
   Uint8List bytes, {
   String? password,
+  String fallbackTitle = '未命名',
 }) {
   // 顶层函数里的闭包只捕获参数，不会把调用方上下文一起带进 isolate。
-  return Isolate.run(() => _importAegis(bytes, password));
+  return Isolate.run(() => _importAegis(bytes, password, fallbackTitle));
 }
 
 Future<AegisImportResult> _importAegis(
   Uint8List bytes,
   String? password,
+  String fallbackTitle,
 ) async {
   if (bytes.length > _maxFileBytes) {
     throw const AegisImportException(AegisErrorCode.tooLarge);
@@ -110,7 +113,7 @@ Future<AegisImportResult> _importAegis(
     );
   }
 
-  return _parseDatabase(db);
+  return _parseDatabase(db, fallbackTitle);
 }
 
 Future<Map<String, Object?>> _decryptDatabase({
@@ -202,7 +205,10 @@ Future<Uint8List> _gcmDecrypt(
   );
 }
 
-AegisImportResult _parseDatabase(Map<String, Object?> db) {
+AegisImportResult _parseDatabase(
+  Map<String, Object?> db,
+  String fallbackTitle,
+) {
   final entries = db['entries'];
   if (entries is! List) {
     throw const AegisImportException(AegisErrorCode.notAegis);
@@ -222,6 +228,7 @@ AegisImportResult _parseDatabase(Map<String, Object?> db) {
       rawEntry.cast<String, Object?>(),
       now,
       'aegis-${now.microsecondsSinceEpoch}-${index++}',
+      fallbackTitle,
     );
     if (item == null) {
       skipped++;
@@ -232,7 +239,12 @@ AegisImportResult _parseDatabase(Map<String, Object?> db) {
   return AegisImportResult(items: items, skipped: skipped);
 }
 
-VaultItem? _convertEntry(Map<String, Object?> entry, DateTime now, String id) {
+VaultItem? _convertEntry(
+  Map<String, Object?> entry,
+  DateTime now,
+  String id,
+  String fallbackTitle,
+) {
   final info = entry['info'];
   if (info is! Map) return null;
   final infoMap = info.cast<String, Object?>();
@@ -256,25 +268,28 @@ VaultItem? _convertEntry(Map<String, Object?> entry, DateTime now, String id) {
   final name = (entry['name'] as String? ?? '').trim();
   final issuer = (entry['issuer'] as String? ?? '').trim();
   final notes = (entry['note'] as String? ?? '').trim();
-  final title = issuer.isNotEmpty ? issuer : (name.isNotEmpty ? name : '未命名');
+  final title = issuer.isNotEmpty
+      ? issuer
+      : (name.isNotEmpty ? name : fallbackTitle);
 
-  return VaultItem(
+  return VaultItem.tokenItem(
     id: id,
-    kind: ItemKind.totp,
     title: title,
-    username: name,
-    notes: notes,
-    favorite: entry['favorite'] == true,
-    totp: TotpSecret(
-      type: otpType,
-      secret: secret.toUpperCase().replaceAll(' ', ''),
-      algorithm: algorithm,
-      digits: (digits != null && digits >= 1 && digits <= 8)
-          ? digits
-          : (otpType == OtpType.steam ? 5 : 6),
-      period: (period != null && period >= 1 && period <= 300) ? period : 30,
-      counter: counter < 0 ? 0 : counter,
+    token: TokenData(
+      secret: TotpSecret(
+        type: otpType,
+        secret: normalizeBase32(secret),
+        algorithm: otpType == OtpType.steam ? OtpHashAlgorithm.sha1 : algorithm,
+        digits: otpType == OtpType.steam ? 5 : ((digits ?? 6) == 8 ? 8 : 6),
+        period: otpType == OtpType.steam
+            ? 30
+            : ((period != null && period >= 1 && period <= 300) ? period : 30),
+        counter: counter < 0 ? 0 : counter,
+      ),
+      account: name,
+      notes: notes,
     ),
+    favorite: entry['favorite'] == true,
     createdAt: now,
     updatedAt: now,
   );

@@ -1,4 +1,4 @@
-import '../app/keycase_controller.dart';
+﻿import '../app/keycase_controller.dart';
 
 import 'dart:async';
 
@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app/app_theme.dart';
+import '../app/feedback.dart';
 import '../app/keycase_scope.dart';
+import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
 import '../app/otp/otp.dart';
 import '../app/security/security_audit.dart';
@@ -142,6 +144,16 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                             setState(() => _showPassword = !_showPassword),
                       ),
                     if (item.isToken) ...<Widget>[
+                      if (item.notes.trim().isNotEmpty) ...<Widget>[
+                        KcSectionLabel(l10n.detailNotes),
+                        KcCard(
+                          child: KcDetailRow(
+                            label: l10n.detailNotes,
+                            value: item.notes,
+                            onCopy: () => copyToClipboard(context, item.notes),
+                          ),
+                        ),
+                      ],
                       KcSectionLabel(l10n.editorAdvanced),
                       KcCard(
                         child: Column(
@@ -335,7 +347,6 @@ class _LoginPanel extends StatelessWidget {
                 ? null
                 : () => copyToClipboard(context, item.notes),
           ),
-          if (item.urls.isEmpty && item.notes.isEmpty) const SizedBox.shrink(),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
@@ -357,10 +368,22 @@ class _LoginPanel extends StatelessWidget {
   Future<void> _openUrl(BuildContext context, String raw) async {
     final normalized = normalizeUrl(raw);
     if (normalized == null) return;
-    await launchUrl(
-      Uri.parse(normalized),
-      mode: LaunchMode.externalApplication,
-    );
+    try {
+      final launched = await launchUrl(
+        Uri.parse(normalized),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && context.mounted) {
+        KcFeedbackScope.maybeOf(context)
+            ?.show(AppLocalizations.of(context).errorOpenLinkFailed);
+      }
+    } catch (error) {
+      AppLogger.warn('open url failed: $error');
+      if (context.mounted) {
+        KcFeedbackScope.maybeOf(context)
+            ?.show(AppLocalizations.of(context).errorOpenLinkFailed);
+      }
+    }
   }
 }
 

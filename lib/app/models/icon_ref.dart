@@ -35,18 +35,28 @@ class IconRef {
 
   bool get isCustom => kind == kindCustom && data.isNotEmpty;
 
-  /// 解码后的图片字节（带缓存，避免列表每帧重复解码 base64）。
+  /// 解码后的图片字节（带 LRU 缓存，避免列表每帧重复解码 base64）。
   Uint8List? get imageBytes {
     if (!isCustom) return null;
-    return _decodeCache.putIfAbsent(data, () {
-      try {
-        return base64Decode(data);
-      } on FormatException {
-        return Uint8List(0);
-      }
-    });
+    final cached = _decodeCache.remove(data);
+    if (cached != null) {
+      _decodeCache[data] = cached;
+      return cached;
+    }
+    Uint8List decoded;
+    try {
+      decoded = base64Decode(data);
+    } on FormatException {
+      decoded = Uint8List(0);
+    }
+    _decodeCache[data] = decoded;
+    if (_decodeCache.length > _maxDecodeCache) {
+      _decodeCache.remove(_decodeCache.keys.first);
+    }
+    return decoded;
   }
 
+  static const int _maxDecodeCache = 64;
   static final Map<String, Uint8List> _decodeCache = <String, Uint8List>{};
 
   Map<String, Object?> toJson() => <String, Object?>{

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -41,23 +42,10 @@ class AegisIconPack {
     if (loaded.value) return;
     try {
       final raw = await rootBundle.loadString(packAsset);
-      final decoded = jsonDecode(raw);
-      if (decoded is! Map<String, dynamic>) return;
-      final icons = (decoded['icons'] as List?) ?? const <dynamic>[];
-      for (final entry in icons) {
-        if (entry is! Map) continue;
-        final name = entry['name'] as String? ?? '';
-        final filename = entry['filename'] as String? ?? '';
-        if (name.isEmpty || filename.isEmpty) continue;
-        _fileByName[name] = filename;
-        final issuers = (entry['issuer'] as List?) ?? const <dynamic>[];
-        for (final issuer in issuers) {
-          final key = normalizeIconKey('$issuer');
-          if (key.isNotEmpty) {
-            _nameByIssuer.putIfAbsent(key, () => name);
-          }
-        }
-      }
+      // 667 KB JSON 在主 isolate 解析会造成可见卡顿；放到后台 isolate。
+      final parsed = await Isolate.run(() => _parsePack(raw));
+      _fileByName.addAll(parsed.files);
+      _nameByIssuer.addAll(parsed.issuers);
       loaded.value = true;
     } catch (error) {
       // 图标包缺失不影响主流程：所有条目回落到首字母头像。
@@ -94,13 +82,13 @@ class AegisIconPack {
   }
 
   String? _match(String text) {
-    final cached = _matchCache.containsKey(text);
-    if (cached) return _matchCache[text];
-    final key = normalizeIconKey(text);
-    if (key.isEmpty) {
-      _matchCache[text] = null;
-      return null;
+    final cached = _matchCache.remove(text);
+    if (cached != null) {
+      _matchCache[text] = cached;
+      return cached;
     }
+    final key = normalizeIconKey(text);
+    if (key.isEmpty) return null;
     var result = _nameByIssuer[key];
     if (result == null) {
       // 标题里可能带后缀（GitHub Enterprise）或前缀（AWS Console）：
@@ -125,9 +113,18 @@ class AegisIconPack {
         }
       }
     }
-    _matchCache[text] = result;
+    if (result != null) _storeMatch(text, result);
     return result;
   }
+
+  void _storeMatch(String text, String value) {
+    _matchCache[text] = value;
+    if (_matchCache.length > _maxMatchCache) {
+      _matchCache.remove(_matchCache.keys.first);
+    }
+  }
+
+  static const int _maxMatchCache = 256;
 
   /// 读取 SVG 文本（按图标名缓存 Future）。
   Future<String?> svgFor(String name) {
@@ -145,4 +142,31 @@ class AegisIconPack {
 
   /// 供图标选择器使用的全部图标名（已排序）。
   List<String> get allNames => _fileByName.keys.toList()..sort();
+}
+
+({Map<String, String> files, Map<String, String> issuers}) _parsePack(
+  String raw,
+) {
+  final files = <String, String>{};
+  final issuersByName = <String, String>{};
+  final decoded = jsonDecode(raw);
+  if (decoded is! Map<String, dynamic>) {
+    return (files: files, issuers: issuersByName);
+  }
+  final icons = (decoded['icons'] as List?) ?? const <dynamic>[];
+  for (final entry in icons) {
+    if (entry is! Map) continue;
+    final name = entry['name'] as String? ?? '';
+    final filename = entry['filename'] as String? ?? '';
+    if (name.isEmpty || filename.isEmpty) continue;
+    files[name] = filename;
+    final issuers = (entry['issuer'] as List?) ?? const <dynamic>[];
+    for (final issuer in issuers) {
+      final key = normalizeIconKey('$issuer');
+      if (key.isNotEmpty) {
+        issuersByName.putIfAbsent(key, () => name);
+      }
+    }
+  }
+  return (files: files, issuers: issuersByName);
 }

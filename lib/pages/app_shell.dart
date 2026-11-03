@@ -164,7 +164,7 @@ class _AppShellState extends State<AppShell> {
                       builder: (_) => const SecurityPage(),
                     ),
                   ),
-                  onBrowseLogins: () => _goTo(1),
+                  onBrowseLogins: () => _openEditor(),
                 ),
                 LoginsPage(onOpenItem: _openItem, onAdd: _openEditor),
                 TokensPage(

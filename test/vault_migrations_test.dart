@@ -40,5 +40,23 @@ void main() {
         throwsA(isA<VaultFormatException>()),
       );
     });
+
+    test('拒绝旧版 v1 结构', () {
+      expect(
+        () => VaultMigrations.decode(<String, Object?>{
+          'schemaVersion': 1,
+          'vaultId': 'vault',
+          'createdAt': DateTime.utc(2026, 1, 1).toIso8601String(),
+          'items': <Object?>[],
+        }),
+        throwsA(
+          isA<VaultFormatException>().having(
+            (error) => error.code,
+            'code',
+            VaultErrorCode.unsupportedVersion,
+          ),
+        ),
+      );
+    });
   });
 }

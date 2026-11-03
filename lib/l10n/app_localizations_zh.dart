@@ -10,9 +10,6 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appName => 'KeyCase';
-
-  @override
   String get navHome => '首页';
 
   @override
@@ -46,25 +43,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionBack => '返回';
 
   @override
-  String get actionRetry => '重试';
-
-  @override
   String get actionNext => '下一个';
 
   @override
   String get actionAdd => '添加';
 
   @override
-  String get actionConfirm => '确认';
-
-  @override
   String get actionSearch => '搜索';
 
   @override
   String get actionSort => '排序';
-
-  @override
-  String get actionDone => '完成';
 
   @override
   String get actionRestore => '恢复';
@@ -276,6 +264,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editorUrl => '网址';
 
   @override
+  String get editorUrls => '网址（每行一个）';
+
+  @override
   String get editorNotes => '备注';
 
   @override
@@ -310,6 +301,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get editorScanQr => '扫描二维码';
+
+  @override
+  String get scanCameraUnavailable => '相机不可用，请检查权限后重试';
 
   @override
   String get editorDiscardTitle => '放弃修改？';
@@ -349,6 +343,15 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsLanguage => '语言';
+
+  @override
+  String get languageSystem => '跟随系统';
+
+  @override
+  String get languageChinese => '中文';
+
+  @override
+  String get languageEnglish => 'English';
 
   @override
   String get themeSystem => '跟随系统';
@@ -391,6 +394,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSecureScreenDesc => '禁止系统截图与录屏';
+
+  @override
+  String get settingsClipboardClear => '复制后自动清除';
+
+  @override
+  String get settingsClipboardClearDesc => '60 秒后清除密码与验证码';
 
   @override
   String get settingsAutoLock => '自动锁定';
@@ -486,6 +495,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPrivacy => '隐私说明';
 
   @override
+  String get settingsLicenses => '开源许可证';
+
+  @override
+  String get settingsLicensesDesc => 'Flutter 与第三方组件';
+
+  @override
   String get settingsPrivacyBody =>
       'KeyCase 不上传任何数据：没有账号、没有云同步、没有统计。所有内容都保存在本机的加密容器里。';
 
@@ -577,7 +592,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get importBackupPassword => '备份的主密码';
 
   @override
-  String get importBackupAction => '导入并替换';
+  String get restoreFromBackup => '从加密备份恢复';
+
+  @override
+  String get restoreBackupMessage => '将用备份替换当前保险库，并关闭指纹解锁。继续？';
 
   @override
   String get settingsImportAegis => '从 Aegis 导入';
@@ -623,6 +641,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get errorAegisInvalid => '不是有效的 Aegis 导出文件';
 
   @override
+  String get aegisUnnamed => '未命名条目';
+
+  @override
   String get errorMigrationInvalid => '不是有效的 Google 迁移链接';
 
   @override
@@ -636,6 +657,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get iconCustom => '使用自定义图片';
+
+  @override
+  String get errorImagePickFailed => '无法读取图片';
 
   @override
   String get iconRemove => '恢复自动匹配';

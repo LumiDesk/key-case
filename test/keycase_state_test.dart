@@ -10,9 +10,8 @@ void main() {
         vaultId: 'vault-id',
         createdAt: DateTime.utc(2026),
         items: <VaultItem>[
-          VaultItem(
+          VaultItem.loginItem(
             id: 'item',
-            kind: ItemKind.login,
             title: 'Example',
             createdAt: DateTime.utc(2026),
             updatedAt: DateTime.utc(2026),

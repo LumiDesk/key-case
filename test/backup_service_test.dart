@@ -27,6 +27,26 @@ void main() {
     expect(native.backupFiles, hasLength(10));
   });
 
+  test('轮转只删除 kcbak 快照，不动同目录其它文件', () async {
+    final native = FakeNativeBridge()
+      ..backupFiles = <String>[
+        'notes.txt',
+        for (var i = 10; i >= 1; i--)
+          'keycase-20260101-${i.toString().padLeft(6, '0')}.kcbak',
+      ];
+    final service = BackupService(bridge: native);
+
+    await service.writeSnapshot(
+      dirUri: 'content://backup',
+      bytes: Uint8List.fromList(<int>[1]),
+    );
+
+    expect(native.deletedNames, hasLength(1));
+    expect(native.deletedNames.single, endsWith('.kcbak'));
+    expect(native.backupFiles, contains('notes.txt'));
+    expect(native.backupFiles, hasLength(11)); // 10 份快照 + notes.txt
+  });
+
   test('写入失败抛出 FileSystemException', () async {
     final native = FakeNativeBridge()..backupWriteResult = false;
     final service = BackupService(bridge: native);

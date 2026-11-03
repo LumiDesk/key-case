@@ -23,6 +23,11 @@ class KdfParams {
   final int iterations;
   final int parallelism;
 
+  static const int minMemoryKib = 64;
+  static const int maxMemoryKib = 256 * 1024;
+  static const int maxIterations = 10;
+  static const int maxParallelism = 8;
+
   Map<String, Object?> toJson() => <String, Object?>{
     'algorithm': 'argon2id',
     'memoryKib': memoryKib,
@@ -31,10 +36,21 @@ class KdfParams {
   };
 
   factory KdfParams.fromJson(Map<String, Object?> json) {
+    final memoryKib = (json['memoryKib'] as num?)?.toInt() ?? 65536;
+    final iterations = (json['iterations'] as num?)?.toInt() ?? 3;
+    final parallelism = (json['parallelism'] as num?)?.toInt() ?? 2;
+    if (memoryKib < minMemoryKib ||
+        memoryKib > maxMemoryKib ||
+        iterations < 1 ||
+        iterations > maxIterations ||
+        parallelism < 1 ||
+        parallelism > maxParallelism) {
+      throw const FormatException('KDF 参数超出允许范围');
+    }
     return KdfParams(
-      memoryKib: (json['memoryKib'] as num?)?.toInt() ?? 32768,
-      iterations: (json['iterations'] as num?)?.toInt() ?? 3,
-      parallelism: (json['parallelism'] as num?)?.toInt() ?? 2,
+      memoryKib: memoryKib,
+      iterations: iterations,
+      parallelism: parallelism,
     );
   }
 }

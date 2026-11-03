@@ -265,6 +265,7 @@ class FakeBiometricAuth extends BiometricAuth {
   Future<BiometricResult> authenticate({
     required String reason,
     String cancelLabel = '取消',
+    String title = 'KeyCase',
   }) async {
     authenticateCalls++;
     lastReason = reason;
@@ -279,6 +280,7 @@ class FakeBackupService extends BackupService {
   Uint8List? importBytes;
   bool snapshotFails = false;
   String lastSnapshotDir = '';
+  int snapshotCount = 0;
 
   @override
   Future<({String uri, String name})?> pickFolder() async => folder;
@@ -289,6 +291,7 @@ class FakeBackupService extends BackupService {
     required Uint8List bytes,
   }) async {
     lastSnapshotDir = dirUri;
+    snapshotCount++;
     if (snapshotFails) throw const FileSystemException('无法写入备份目录');
     return 'keycase-test.kcbak';
   }
@@ -300,7 +303,8 @@ class FakeBackupService extends BackupService {
   Future<String?> exportToUser(Uint8List bytes) async => importPath;
 
   @override
-  Future<Uint8List?> pickImportFile() async => importBytes;
+  Future<Uint8List?> pickImportFile({required String label}) async =>
+      importBytes;
 
   @override
   Future<Uint8List?> pickDocument({

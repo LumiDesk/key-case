@@ -9,7 +9,6 @@ const Color kcCanvasDark = Color(0xFF101318);
 const Color kcSurfaceLight = Color(0xFFFFFFFF);
 const Color kcCardSurfaceDark = Color(0xFF1A1F27);
 const Color kcSurfaceRaisedDark = Color(0xFF232A35);
-const Color kcSurfaceAltLight = Color(0xFFF5F8FC);
 const Color kcInk = Color(0xFF151922);
 const Color kcLine = Color(0xFFE1E8F1);
 
@@ -40,8 +39,6 @@ const List<Color> kcAccentPresets = <Color>[
   Color(0xFFD97706),
   Color(0xFFDB2777),
 ];
-
-const List<String> kcAccentPresetNames = <String>['蓝', '青', '绿', '琥珀', '玫红'];
 
 Color kcContentSurfaceColor(Brightness brightness) =>
     brightness == Brightness.dark ? kcCardSurfaceDark : kcSurfaceLight;
