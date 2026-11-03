@@ -34,8 +34,8 @@
   `KeyCase/` 子目录），保留最近 10 份；只在内容型修改后写，1 分钟内最多一次；轮转只处理
   `keycase-*.kcbak`。主动导出通过原生 `ACTION_CREATE_DOCUMENT` 选择目标 URI 后直接写入。
 - **版本策略**：容器 `formatVersion` 保持 1，payload 当前 `schemaVersion 2`；升级前先读
-  `schemaVersion`，比当前新的库提示升级应用，旧于 v2 的库/备份直接拒绝。未来只追加迁移段，
-  不回改历史段。
+  `schemaVersion`，比当前新的库提示升级应用，与当前 `schemaVersion` 不一致的库/备份拒绝读取。
+  未来只追加迁移段，不回改历史段。
 - **容器读入有边界**：头部 1 MiB、正文 64 MiB，gzip 解压有输出上限；导入文件上限 64 MB。
   Aegis 导入对 scrypt 参数设上限，避免恶意文件把内存打满。
 

@@ -125,10 +125,10 @@ tool/                          # 本地基准等非产品入口
 
 ### 数据与备份
 
-- 容器格式：`KCV1` + `formatVersion 1` + payload `schemaVersion 2`；条目只用互斥的
-  `login` / `totp` 嵌套对象，不再有顶层 `username/password/urls/notes/totp`。
+- 容器格式：`KCV1` + `formatVersion 1` + payload `schemaVersion 2`；条目字段只存在于互斥的
+  `login` / `totp` 嵌套对象中。
 - 结构变更：提升 `VaultData.currentSchemaVersion`，在 `VaultMigrations` 追加“升到 N+1”的段，
-  永不回改历史段，并补迁移测试；当前只支持 v2，旧版库/备份直接拒绝。
+  永不回改历史段，并补迁移测试；当前只接受 `currentSchemaVersion`，版本不匹配时拒绝读取。
 - 模型字段变更同步 `toJson` / `fromJson` 与往返测试。
 - 备份只有一种形态：同一加密容器的副本（`.kcbak`）。自动快照保留最近 10 份，只写用户选定的 SAF 目录。
 

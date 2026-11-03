@@ -66,8 +66,7 @@ copy from another vault is cleared on the next read. The system
 authentication-bound; the master password is always available as fallback.
 
 The automatic snapshots and manual exports are the same encrypted container,
-not a plaintext export. `schemaVersion 1` vaults and backups are not readable by
-the current app.
+not a plaintext export.
 
 ## Supported versions
 

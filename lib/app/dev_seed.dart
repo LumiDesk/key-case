@@ -101,7 +101,7 @@ Future<void> _seedItems(KeyCaseController controller) async {
     ),
     VaultItem.tokenItem(
       id: 'demo-hotp',
-      title: 'Legacy HOTP',
+      title: 'HOTP Demo',
       token: const TokenData(
         secret: TotpSecret(
           type: OtpType.hotp,

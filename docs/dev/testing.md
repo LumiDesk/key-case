@@ -6,7 +6,7 @@
 |---|---|---|
 | 纯函数 | OTP、Base32、otpauth（含 Steam）、导入合并、安全审计、排序/搜索、网址、密码生成、日期、版本比较、KDF 边界 | `test/*_test.dart` |
 | 模型 | v2 `login`/`totp` 互斥、往返、非法组合、TOTP 值域 | `test/models_test.dart`、`test/vault_migrations_test.dart` |
-| 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、会话 epoch、锁定与删除、拒绝旧版库 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
+| 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、会话 epoch、锁定与删除、schemaVersion 校验 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
 | 状态与操作 | Controller 启动、创建/解锁/锁定、自动锁定、条目增删改、回收站、HOTP、偏好、生物识别、备份、导入、并发队列、锁定竞态 | `test/controller_test.dart` |
 | 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面 | `test/*_page_test.dart`、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
 | 布局 | 360dp + 2x 字号无溢出 | `test/layout_test.dart` |
@@ -40,7 +40,7 @@ flutter test --coverage
 - 搜索：点结果进入详情；返回后搜索词仍在。
 - 图标选择器：搜索品牌、滚动到列表末尾、选择自定义图片。
 - 语言切换后：回收站相对时间、指纹取消按钮、导入提示跟随语言。
-- 恢复入口：解锁页「从加密备份恢复」可选文件、输入备份密码并替换；成功后指纹关闭、可重新开启；错误密码/损坏文件/旧版备份分别提示。
+- 恢复入口：解锁页「从加密备份恢复」可选文件、输入备份密码并替换；成功后指纹关闭、可重新开启；错误密码/损坏文件/版本不匹配的备份分别提示。
 - Steam：扫描 `encoder=steam` 或被标记为 Steam 的 otpauth 二维码，进入编辑器后类型为 Steam、算法固定 SHA1、5 位、30 秒；保存后码为 5 位字母。
 - 剪贴板：复制密码后 60 秒清空；复制别的内容后 60 秒不被清掉；设置里可关闭。
 - 锁定竞态：保存瞬间按 Home/锁屏，回来必须要求解锁，且没有数据回写或会话复活。

@@ -18,8 +18,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ### Changed
 
-- The vault payload is now `schemaVersion 2`: login and token fields are stored in separate,
-  mutually exclusive objects. `schemaVersion 1` vaults and backups are no longer readable.
+- The vault payload is `schemaVersion 2`: login and token fields are stored in separate,
+  mutually exclusive objects.
 - Unlocking the vault after a backup restore disables fingerprint unlock until it is enabled again.
 - Automatic snapshots are written only after content changes, at most once per minute, and only
   files named `keycase-*.kcbak` are rotated.

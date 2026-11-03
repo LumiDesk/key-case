@@ -175,8 +175,8 @@ device.
 
 Current release: **1.1.0**.
 
-Only Android is supported. The vault payload is `schemaVersion 2`; `schemaVersion 1`
-vaults and backups are no longer readable. The `android/` directory is the sole delivery target;
+Only Android is supported. The vault payload is `schemaVersion 2`. The
+`android/` directory is the sole delivery target;
 there is no web or desktop build. See [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 
 ## Documentation

@@ -3,7 +3,7 @@ import 'vault_container.dart';
 
 /// payload 结构版本守卫。
 ///
-/// 当前只支持 [VaultData.currentSchemaVersion]；旧版本保险库/备份不再兼容。
+/// 当前只接受 [VaultData.currentSchemaVersion]；其他版本由本守卫拒绝。
 /// 未来新增结构时在这里追加 N -> N+1，不回改历史段。
 class VaultMigrations {
   const VaultMigrations._();
@@ -24,7 +24,7 @@ class VaultMigrations {
     }
     if (version < VaultData.currentSchemaVersion) {
       throw const VaultFormatException(
-        '该保险库由旧版 KeyCase 创建，当前版本不再支持',
+        '该保险库结构版本不受支持',
         code: VaultErrorCode.unsupportedVersion,
       );
     }
