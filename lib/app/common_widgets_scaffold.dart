@@ -88,8 +88,8 @@ class KcHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: padding,
-      child: SizedBox(
-        height: kcHeaderHeight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kcHeaderHeight),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -146,8 +146,8 @@ class KcSubHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
-      child: SizedBox(
-        height: kcHeaderHeight,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: kcHeaderHeight),
         child: Row(
           children: <Widget>[
             IconButton(

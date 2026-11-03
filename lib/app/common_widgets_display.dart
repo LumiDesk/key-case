@@ -107,24 +107,39 @@ class KcCodeCapsule extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final color = failed
         ? kcSemantic(context, kcDanger)
         : theme.colorScheme.onSurface;
-    return Material(
-      color: theme.colorScheme.primary.withValues(alpha: 0.08),
-      borderRadius: BorderRadius.circular(kcRadiusSm),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(kcRadiusSm),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          child: Text(
-            hidden ? hiddenOtpCode(code) : code,
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0.6,
-              fontFeatures: const <FontFeature>[FontFeature.tabularFigures()],
+    return Semantics(
+      button: true,
+      label: hidden ? l10n.detailShowCode : l10n.actionCopy,
+      child: ExcludeSemantics(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 44),
+          child: Material(
+            color: theme.colorScheme.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(kcRadiusSm),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(kcRadiusSm),
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                child: Text(
+                  hidden ? hiddenOtpCode(code) : code,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.6,
+                    fontFeatures: const <FontFeature>[
+                      FontFeature.tabularFigures(),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -156,23 +171,28 @@ class KcCountdownRing extends StatelessWidget {
     final color = urgent
         ? kcSemantic(context, kcDanger)
         : theme.colorScheme.primary;
-    return SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _RingPainter(
-          progress: progress,
-          color: color,
-          trackColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
-          stroke: stroke,
-        ),
-        child: Center(
-          child: Text(
-            '$remaining',
-            style: theme.textTheme.labelSmall?.copyWith(
+    return Semantics(
+      label: '$remaining s',
+      child: ExcludeSemantics(
+        child: SizedBox(
+          width: size,
+          height: size,
+          child: CustomPaint(
+            painter: _RingPainter(
+              progress: progress,
               color: color,
-              fontWeight: FontWeight.w700,
-              fontSize: size * 0.34,
+              trackColor: theme.colorScheme.onSurface.withValues(alpha: 0.12),
+              stroke: stroke,
+            ),
+            child: Center(
+              child: Text(
+                '$remaining',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: size * 0.34,
+                ),
+              ),
             ),
           ),
         ),
@@ -223,6 +243,31 @@ class _RingPainter extends CustomPainter {
       oldDelegate.progress != progress ||
       oldDelegate.color != color ||
       oldDelegate.trackColor != trackColor;
+}
+
+/// 表单内联错误：与所有页面共用同一套图标、字号与语义色。
+class KcInlineError extends StatelessWidget {
+  const KcInlineError(this.text, {super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = kcSemantic(context, kcDanger);
+    return Row(
+      children: <Widget>[
+        Icon(Icons.error_outline_rounded, size: 16, color: color),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context).textTheme.bodySmall
+                ?.copyWith(color: color),
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 /// 详情页的一行：图标 + 标签 + 值 + 复制。

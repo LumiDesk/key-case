@@ -6,6 +6,7 @@ import '../app/app_theme.dart';
 import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
 import '../app/messages.dart';
+import '../app/password_strength.dart';
 import '../app/security/security_audit.dart';
 import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
@@ -77,7 +78,7 @@ class _CreateVaultPageState extends State<CreateVaultPage> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                _StrengthBar(score: score),
+                KcPasswordStrengthBar(score: score),
                 const SizedBox(height: 16),
                 KcLabeledField(
                   label: l10n.confirmPassword,
@@ -87,7 +88,7 @@ class _CreateVaultPageState extends State<CreateVaultPage> {
                 ),
                 if (state.error != null) ...<Widget>[
                   const SizedBox(height: 12),
-                  _AuthError(text: errorText(l10n, state.error!)),
+                  KcInlineError(errorText(l10n, state.error!)),
                 ],
                 const SizedBox(height: 22),
                 SizedBox(
@@ -225,7 +226,7 @@ class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
                   ),
                   if (state.error != null) ...<Widget>[
                     const SizedBox(height: 12),
-                    _AuthError(text: errorText(l10n, state.error!)),
+                    KcInlineError(errorText(l10n, state.error!)),
                   ],
                   const SizedBox(height: 22),
                   SizedBox(
@@ -374,80 +375,6 @@ class _AuthHero extends StatelessWidget {
           subtitle,
           textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AuthError extends StatelessWidget {
-  const _AuthError({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = kcSemantic(context, kcDanger);
-    return Row(
-      children: <Widget>[
-        Icon(Icons.error_outline_rounded, size: 16, color: color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: color),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 主密码强度：四段小条 + 文字。
-class _StrengthBar extends StatelessWidget {
-  const _StrengthBar({required this.score});
-
-  final int score;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final color = switch (score) {
-      <= 1 => kcSemantic(context, kcDanger),
-      2 => kcSemantic(context, kcWarning),
-      _ => kcSemantic(context, kcSuccess),
-    };
-    final label = switch (score) {
-      <= 1 => l10n.strengthWeak,
-      2 => l10n.strengthFair,
-      3 => l10n.strengthGood,
-      _ => l10n.strengthStrong,
-    };
-    return Row(
-      children: <Widget>[
-        for (var i = 0; i < 4; i++) ...<Widget>[
-          Expanded(
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              height: 4,
-              decoration: BoxDecoration(
-                color: i < score
-                    ? color
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          if (i < 3) const SizedBox(width: 4),
-        ],
-        const SizedBox(width: 10),
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),

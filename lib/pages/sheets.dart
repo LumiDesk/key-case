@@ -40,6 +40,36 @@ Future<T?> showKcSheet<T>({
   );
 }
 
+/// 信息对话框：与确认框共用表面色、圆角和按钮位置。
+Future<void> showKcInfo({
+  required BuildContext context,
+  required String title,
+  required String message,
+  String? closeLabel,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  await showDialog<void>(
+    context: context,
+    builder: (dialogContext) {
+      final theme = Theme.of(dialogContext);
+      return AlertDialog(
+        backgroundColor: kcElevatedSurfaceColor(theme.brightness),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kcRadiusXl),
+        ),
+        title: Text(title, style: theme.textTheme.titleLarge),
+        content: Text(message, style: theme.textTheme.bodyMedium),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(closeLabel ?? l10n.actionClose),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 /// 二次确认。破坏性操作传 `destructive: true`，按钮会变成警示色。
 Future<bool> showKcConfirm({
   required BuildContext context,

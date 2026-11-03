@@ -568,18 +568,10 @@ class SettingsPage extends StatelessWidget {
 
   void _showPrivacy(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    showDialog<void>(
+    showKcInfo(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(l10n.settingsPrivacy),
-        content: Text(l10n.settingsPrivacyBody),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(l10n.actionClose),
-          ),
-        ],
-      ),
+      title: l10n.settingsPrivacy,
+      message: l10n.settingsPrivacyBody,
     );
   }
 
@@ -699,13 +691,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
             ),
             if (_error != null) ...<Widget>[
               const SizedBox(height: 10),
-              Text(
-                _error!,
-                style: TextStyle(
-                  color: kcSemantic(context, kcDanger),
-                  fontSize: 12,
-                ),
-              ),
+              KcInlineError(_error!),
             ],
           ],
         ),

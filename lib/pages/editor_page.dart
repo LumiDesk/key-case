@@ -2,7 +2,6 @@ import '../app/keycase_controller.dart';
 
 import 'package:flutter/material.dart';
 
-import '../app/app_theme.dart';
 import '../app/crypto/base32.dart';
 import '../app/keycase_scope.dart';
 import '../app/models/models.dart';
@@ -280,7 +279,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                     padding: const EdgeInsets.fromLTRB(14, 8, 14, 32),
                     children: <Widget>[
                       if (_error != null) ...<Widget>[
-                        _InlineError(text: _error!),
+                        KcInlineError(_error!),
                         const SizedBox(height: 12),
                       ],
                       KcLabeledField(
@@ -457,7 +456,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                               ],
                               if (_type == OtpType.hotp) ...<Widget>[
                                 const KcRowDivider(indent: 0),
-                                _ChoiceRow(
+                                KcValueRow(
                                   label: l10n.editorCounter,
                                   value: '$_counter',
                                   onTap: () async {
@@ -533,76 +532,6 @@ class _EditorIconRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _ChoiceRow extends StatelessWidget {
-  const _ChoiceRow({
-    required this.label,
-    required this.value,
-    required this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-        child: Row(
-          children: <Widget>[
-            Text(
-              label,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              value,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(
-              Icons.chevron_right_rounded,
-              size: 18,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.35),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InlineError extends StatelessWidget {
-  const _InlineError({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = kcSemantic(context, kcDanger);
-    return Row(
-      children: <Widget>[
-        Icon(Icons.error_outline_rounded, size: 16, color: color),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: color),
-          ),
-        ),
-      ],
     );
   }
 }
