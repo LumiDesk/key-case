@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -9,6 +10,7 @@ import 'package:keycase/app/platform/biometric_auth.dart';
 import 'package:keycase/app/vault/vault_container.dart';
 
 import 'support/controller_factory.dart';
+import 'support/fakes.dart';
 import 'support/hosts.dart';
 
 void main() {
@@ -384,4 +386,90 @@ void main() {
       expect(test.controller.state.notice, KeyCaseNotice.imported);
     });
   });
+
+  group('并发与锁定', () {
+    test('连续两次收藏最终回到未收藏', () async {
+      final harness = _gatedHarness();
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final first = harness.controller.toggleFavorite('login-1');
+      final second = harness.controller.toggleFavorite('login-1');
+      harness.vault.gate.complete();
+      await Future.wait(<Future<void>>[first, second]);
+
+      final item = harness.controller.state.data!.itemById('login-1')!;
+      expect(item.favorite, isFalse);
+      harness.controller.dispose();
+    });
+
+    test('连续两次 HOTP 计数器加二', () async {
+      final harness = _gatedHarness(
+        items: <VaultItem>[testToken(type: OtpType.hotp, counter: 0)],
+      );
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final first = harness.controller.advanceHotp('token-1');
+      final second = harness.controller.advanceHotp('token-1');
+      harness.vault.gate.complete();
+      await Future.wait(<Future<void>>[first, second]);
+
+      expect(
+        harness.controller.state.data!.itemById('token-1')!.totp!.counter,
+        2,
+      );
+      harness.controller.dispose();
+    });
+
+    test('保存中锁定后不把明文写回状态', () async {
+      final harness = _gatedHarness();
+      await harness.controller.bootstrap();
+      await harness.controller.unlock('pw');
+      harness.vault.block = true;
+
+      final saving = harness.controller.saveItem(
+        testLogin(id: 'new', title: 'Saving'),
+      );
+      await Future<void>.delayed(Duration.zero);
+      harness.controller.lock();
+      harness.vault.gate.complete();
+      await saving;
+
+      expect(harness.controller.state.status, VaultStatus.locked);
+      expect(harness.controller.state.data, isNull);
+      harness.controller.dispose();
+    });
+  });
+}
+
+({KeyCaseController controller, _GatedVault vault}) _gatedHarness({
+  List<VaultItem>? items,
+}) {
+  final vault = _GatedVault(
+    data: testVault(items: items ?? <VaultItem>[testLogin()]),
+  );
+  final controller = KeyCaseController(
+    vault: vault,
+    preferencesStore: FakePreferencesStore(),
+    nativeBridge: FakeNativeBridge(),
+    biometrics: FakeBiometricAuth(),
+    backups: FakeBackupService(),
+  );
+  return (controller: controller, vault: vault);
+}
+
+class _GatedVault extends FakeVaultRepository {
+  _GatedVault({required super.data});
+
+  final Completer<void> gate = Completer<void>();
+  bool block = false;
+
+  @override
+  Future<Uint8List> save(VaultData data) async {
+    if (block) await gate.future;
+    return super.save(data);
+  }
 }

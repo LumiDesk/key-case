@@ -62,6 +62,16 @@ class KeyCaseController extends ChangeNotifier {
   bool _externalActivityOpen = false;
   bool _disposed = false;
 
+  /// 串行化所有会修改保险库的操作。每个操作在队列里读取“执行时”的状态，
+  /// 避免快速连点/并发导入时用旧快照覆盖新结果。
+  Future<void> _opTail = Future<void>.value();
+
+  Future<T> _enqueue<T>(Future<T> Function() action) {
+    final result = _opTail.then((_) => action());
+    _opTail = result.then<void>((_) {}, onError: (Object _) {});
+    return result;
+  }
+
   KeyCaseState get state => _state;
 
   AppPreferences get preferences => _preferences;

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -200,6 +201,37 @@ void main() {
     expect(reread.data.schemaVersion, 2);
     expect(reread.data.items, hasLength(2));
   });
+
+  test('保存过程中锁定：不写回、不复活会话', () async {
+    final gated = _GatedRepository(directory: directory);
+    await gated.create(password: 'password', data: dataWithItem('Before'));
+    gated.block = true;
+
+    final saving = gated.save(
+      gated.currentData!.copyWith(items: dataWithItem('After').items),
+    );
+    await Future<void>.delayed(Duration.zero);
+    gated.lock();
+    gated.gate.complete();
+
+    await expectLater(saving, throwsA(isA<VaultFormatException>()));
+    expect(gated.isUnlocked, isFalse);
+    expect(gated.session, isNull);
+  });
+}
+
+class _GatedRepository extends VaultRepository {
+  _GatedRepository({required Directory directory})
+    : super(directory: directory, kdfParams: testKdf);
+
+  final Completer<void> gate = Completer<void>();
+  bool block = false;
+
+  @override
+  Future<Uint8List> sealSession(UnlockedVault session) async {
+    if (block) await gate.future;
+    return super.sealSession(session);
+  }
 }
 
 /// 按 v1 的格式手工组装一个 KCV1 容器，用来验证迁移写回。

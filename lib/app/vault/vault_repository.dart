@@ -24,12 +24,21 @@ class VaultRepository {
   static const String fileName = 'vault.kcv';
   static const String preImportFileName = 'vault.kcv.pre-import';
 
+  static const VaultFormatException _lockedError = VaultFormatException(
+    '保险库未解锁',
+    code: VaultErrorCode.locked,
+  );
+
   final Directory? _directoryOverride;
 
   /// 运行时使用默认 Argon2id 参数；测试可注入低成本参数避免拖慢用例。
   final KdfParams _kdfParams;
   Directory? _cachedDirectory;
   UnlockedVault? _session;
+
+  /// 会话代数：锁定/换库后递增。在途写操作发现代数变化就丢弃结果，
+  /// 绝不在锁定后复活 session，也不把旧密钥写进新库。
+  int _epoch = 0;
 
   /// 串行化所有写操作，避免两次保存交错。
   Future<void> _writeTail = Future<void>.value();
@@ -64,17 +73,27 @@ class VaultRepository {
       ),
     );
     await _writeAtomic(created.bytes);
+    _epoch++;
     _session?.close();
     _session = created.session;
     return created.session;
   }
 
   Future<UnlockedVault> unlock(String password) async {
+    final epoch = _epoch;
     final bytes = await (await _vaultFile()).readAsBytes();
     final unlocked = await Isolate.run(
       () => VaultContainer.unlock(password: password, bytes: bytes),
     );
-    await _persistMigratedIfNeeded(unlocked);
+    if (epoch != _epoch) {
+      unlocked.close();
+      throw _lockedError;
+    }
+    await _persistMigratedIfNeeded(unlocked, epoch);
+    if (epoch != _epoch) {
+      unlocked.close();
+      throw _lockedError;
+    }
     _session?.close();
     _session = unlocked;
     return unlocked;
@@ -82,23 +101,38 @@ class VaultRepository {
 
   /// 生物识别路径：vault key 由 Android Keystore 解出后直接解密正文。
   Future<UnlockedVault> unlockWithVaultKey(Uint8List vaultKey) async {
+    final epoch = _epoch;
     final bytes = await (await _vaultFile()).readAsBytes();
     final unlocked = await Isolate.run(
       () => VaultContainer.unlockWithVaultKey(bytes: bytes, vaultKey: vaultKey),
     );
-    await _persistMigratedIfNeeded(unlocked);
+    if (epoch != _epoch) {
+      unlocked.close();
+      throw _lockedError;
+    }
+    await _persistMigratedIfNeeded(unlocked, epoch);
+    if (epoch != _epoch) {
+      unlocked.close();
+      throw _lockedError;
+    }
     _session?.close();
     _session = unlocked;
     return unlocked;
   }
 
   /// bridge 构建：v1 解锁后立即原子写回 v2；失败则不返回会话，旧文件保持原样。
-  Future<void> _persistMigratedIfNeeded(UnlockedVault unlocked) async {
+  Future<void> _persistMigratedIfNeeded(
+    UnlockedVault unlocked,
+    int epoch,
+  ) async {
     if (unlocked.migration == null) return;
     try {
       await _serialize(() async {
+        if (epoch != _epoch) throw _lockedError;
         final bytes = await VaultContainer.seal(unlocked);
+        if (epoch != _epoch) throw _lockedError;
         await _writeAtomic(bytes);
+        if (epoch != _epoch) throw _lockedError;
       });
     } catch (_) {
       unlocked.close();
@@ -112,17 +146,29 @@ class VaultRepository {
   /// `Isolate.run` 的闭包会一起捕获所在写队列闭包的上下文（含 Future），
   /// 发送时报 unsendable。慢的只有 Argon2id，见 create/unlock。
   Future<Uint8List> save(VaultData data) {
+    final epoch = _epoch;
     return _serialize(() async {
+      if (epoch != _epoch) throw _lockedError;
       final current = _session;
-      if (current == null) {
-        throw const VaultFormatException('保险库未解锁', code: VaultErrorCode.locked);
-      }
+      if (current == null) throw _lockedError;
       final next = current.withData(data);
-      final bytes = await VaultContainer.seal(next);
+      final sealing = UnlockedVault(
+        header: current.header,
+        vaultKey: Uint8List.fromList(current.vaultKey),
+        data: data,
+      );
+      final bytes = await sealSession(sealing);
+      if (epoch != _epoch) throw _lockedError;
       await _writeAtomic(bytes);
+      if (epoch != _epoch) throw _lockedError;
       _session = next;
       return bytes;
     });
+  }
+
+  /// 加密一个会话。测试可覆写以观察锁定与写盘之间的竞态。
+  Future<Uint8List> sealSession(UnlockedVault session) {
+    return VaultContainer.seal(session);
   }
 
   /// 改主密码：旧口令立即失效，vault key 不变。
@@ -130,10 +176,9 @@ class VaultRepository {
     required String currentPassword,
     required String newPassword,
   }) async {
+    final epoch = _epoch;
     final current = _session;
-    if (current == null) {
-      throw const VaultFormatException('保险库未解锁', code: VaultErrorCode.locked);
-    }
+    if (current == null) throw _lockedError;
     // 两次派生都放在顶层 helper 里，避免闭包连带捕获 Repository 的写队列。
     final onDisk = await (await _vaultFile()).readAsBytes();
     final verified = await _unlockBytesInBackground(onDisk, currentPassword);
@@ -144,8 +189,14 @@ class VaultRepository {
       newPassword,
       _kdfParams,
     );
+    if (epoch != _epoch) {
+      rotated.session.close();
+      throw _lockedError;
+    }
     await _serialize(() async {
+      if (epoch != _epoch) throw _lockedError;
       await _writeAtomic(rotated.bytes);
+      if (epoch != _epoch) throw _lockedError;
       current.close();
       _session = rotated.session;
     });
@@ -157,7 +208,12 @@ class VaultRepository {
     required Uint8List bytes,
     required String password,
   }) async {
+    final epoch = _epoch;
     final unlocked = await _unlockBytesInBackground(bytes, password);
+    if (epoch != _epoch) {
+      unlocked.close();
+      throw _lockedError;
+    }
     final Uint8List target;
     try {
       target = unlocked.migration == null
@@ -172,7 +228,9 @@ class VaultRepository {
       await file.copy(p.join((await _directory()).path, preImportFileName));
     }
     await _serialize(() async {
+      if (epoch != _epoch) throw _lockedError;
       await _writeAtomic(target);
+      if (epoch != _epoch) throw _lockedError;
       _session?.close();
       _session = unlocked;
     });
@@ -194,18 +252,23 @@ class VaultRepository {
   }
 
   void lock() {
+    _epoch++;
     _session?.close();
     _session = null;
   }
 
   /// 删除库文件与安全副本（危险操作，由 UI 二次确认后调用）。
   Future<void> deleteAll() async {
-    lock();
-    final directory = await _directory();
-    final vault = File(p.join(directory.path, fileName));
-    if (await vault.exists()) await vault.delete();
-    final preImport = File(p.join(directory.path, preImportFileName));
-    if (await preImport.exists()) await preImport.delete();
+    _epoch++;
+    _session?.close();
+    _session = null;
+    await _serialize(() async {
+      final directory = await _directory();
+      final vault = File(p.join(directory.path, fileName));
+      if (await vault.exists()) await vault.delete();
+      final preImport = File(p.join(directory.path, preImportFileName));
+      if (await preImport.exists()) await preImport.delete();
+    });
   }
 
   Future<void> _writeAtomic(Uint8List bytes) async {
