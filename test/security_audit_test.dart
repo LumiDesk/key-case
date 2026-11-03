@@ -9,11 +9,10 @@ VaultItem login({
   String title = 'Site',
 }) {
   final now = DateTime.utc(2026, 1, 1);
-  return VaultItem(
+  return VaultItem.loginItem(
     id: id,
-    kind: ItemKind.login,
     title: title,
-    password: password,
+    login: LoginData(password: password),
     createdAt: now,
     updatedAt: updatedAt ?? now,
   );
@@ -72,11 +71,12 @@ void main() {
       final now2 = DateTime.utc(2026, 6, 1);
       final issues = auditVault(<VaultItem>[
         login(id: 'gone', password: 'weak').copyWith(deletedAt: now2),
-        VaultItem(
+        VaultItem.tokenItem(
           id: 'token',
-          kind: ItemKind.totp,
           title: 'T',
-          totp: const TotpSecret(secret: 'JBSWY3DPEHPK3PXP'),
+          token: const TokenData(
+            secret: TotpSecret(secret: 'JBSWY3DPEHPK3PXP'),
+          ),
           createdAt: now2,
           updatedAt: now2,
         ),

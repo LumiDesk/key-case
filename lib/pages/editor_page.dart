@@ -171,18 +171,20 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
         setState(() => _error = l10n.editorSecretInvalid);
         return;
       }
-      final item = VaultItem(
+      final item = VaultItem.tokenItem(
         id: original?.id ?? '${now.microsecondsSinceEpoch}',
-        kind: ItemKind.totp,
         title: title,
-        username: _username.text.trim(),
-        totp: TotpSecret(
-          type: _type,
-          secret: secret,
-          algorithm: _algorithm,
-          digits: _digits,
-          period: _period,
-          counter: _counter,
+        token: TokenData(
+          secret: TotpSecret(
+            type: _type,
+            secret: secret,
+            algorithm: _algorithm,
+            digits: _digits,
+            period: _period,
+            counter: _counter,
+          ),
+          account: _username.text.trim(),
+          notes: original?.token?.notes ?? '',
         ),
         createdAt: original?.createdAt ?? now,
         updatedAt: now,
@@ -191,14 +193,15 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
       );
       await controller.saveItem(item);
     } else {
-      final item = VaultItem(
+      final item = VaultItem.loginItem(
         id: original?.id ?? '${now.microsecondsSinceEpoch}',
-        kind: ItemKind.login,
         title: title,
-        username: _username.text.trim(),
-        password: _password.text,
-        urls: rawUrl.isEmpty ? const <String>[] : <String>[rawUrl],
-        notes: _notes.text.trim(),
+        login: LoginData(
+          username: _username.text.trim(),
+          password: _password.text,
+          urls: rawUrl.isEmpty ? const <String>[] : <String>[rawUrl],
+          notes: _notes.text.trim(),
+        ),
         createdAt: original?.createdAt ?? now,
         updatedAt: now,
         icon: _icon,
@@ -465,9 +468,8 @@ class _EditorIconRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final previewItem = VaultItem(
+    final previewItem = VaultItem.loginItem(
       id: 'preview',
-      kind: ItemKind.login,
       title: fallbackSeed.trim().isEmpty ? '?' : fallbackSeed.trim(),
       icon: icon,
       createdAt: DateTime.now(),

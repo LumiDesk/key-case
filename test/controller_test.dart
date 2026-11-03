@@ -175,15 +175,7 @@ void main() {
       final test = makeController();
       await test.controller.bootstrap();
       await test.controller.unlock('pw');
-      await test.controller.saveItem(
-        testToken(type: OtpType.hotp).copyWith(
-          totp: const TotpSecret(
-            type: OtpType.hotp,
-            secret: 'JBSWY3DPEHPK3PXP',
-            counter: 3,
-          ),
-        ),
-      );
+      await test.controller.saveItem(testToken(type: OtpType.hotp, counter: 3));
 
       await test.controller.advanceHotp('token-1');
 

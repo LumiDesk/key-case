@@ -95,11 +95,15 @@ class UnlockedVault {
     required this.header,
     required this.vaultKey,
     required this.data,
+    this.migration,
   });
 
   final VaultHeader header;
   final Uint8List vaultKey;
   final VaultData data;
+
+  /// bridge 构建专用：本次解锁是否刚从 v1 迁到 v2。final 构建会删除该字段。
+  final VaultMigrationReport? migration;
 
   UnlockedVault withData(VaultData next) =>
       UnlockedVault(header: header, vaultKey: vaultKey, data: next);
@@ -350,13 +354,14 @@ class VaultContainer {
       ciphertext: ciphertext,
     );
     final decoded = _decodePayload(plaintext);
-    if (decoded.vaultId != header.vaultId) {
+    if (decoded.data.vaultId != header.vaultId) {
       throw const VaultFormatException('保险库标识不一致');
     }
     return UnlockedVault(
       header: header,
       vaultKey: Uint8List.fromList(vaultKey),
-      data: decoded,
+      data: decoded.data,
+      migration: decoded.migration,
     );
   }
 
@@ -396,7 +401,7 @@ class VaultContainer {
     }
   }
 
-  static VaultData _decodePayload(Uint8List plaintext) {
+  static VaultDecoded _decodePayload(Uint8List plaintext) {
     try {
       final decoded = jsonDecode(utf8.decode(plaintext));
       if (decoded is! Map) {

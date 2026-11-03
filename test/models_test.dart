@@ -141,16 +141,14 @@ void main() {
         vaultId: 'v',
         createdAt: now,
         items: <VaultItem>[
-          VaultItem(
+          VaultItem.loginItem(
             id: 'a',
-            kind: ItemKind.login,
             title: 'A',
             createdAt: now,
             updatedAt: now,
           ),
-          VaultItem(
+          VaultItem.loginItem(
             id: 'b',
-            kind: ItemKind.login,
             title: 'B',
             createdAt: now,
             updatedAt: now,
@@ -181,6 +179,98 @@ void main() {
       expect(secret.secret, 'JBSWY3DPEHPK3PXP');
       expect(secret.digits, 8);
       expect(secret.period, 60);
+    });
+  });
+
+  group('v2 VaultItem', () {
+    final now = DateTime.utc(2026, 1, 1);
+
+    test('登录项往返保留多 URL、备注与图标', () {
+      final original = VaultItem.loginItem(
+        id: 'login',
+        title: 'GitHub',
+        login: const LoginData(
+          username: 'alice',
+          password: 'secret',
+          urls: <String>['https://github.com', 'https://gist.github.com'],
+          notes: 'note',
+        ),
+        favorite: true,
+        icon: const IconRef(name: 'GitHub'),
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final restored = VaultItem.fromJson(original.toJson());
+      expect(restored.kind, ItemKind.login);
+      expect(restored.login?.username, 'alice');
+      expect(restored.urls, <String>[
+        'https://github.com',
+        'https://gist.github.com',
+      ]);
+      expect(restored.token, isNull);
+      expect(restored.icon?.name, 'GitHub');
+      expect(restored.favorite, isTrue);
+    });
+
+    test('令牌往返保留 account/notes，Steam 参数归一化', () {
+      final original = VaultItem.tokenItem(
+        id: 'token',
+        title: 'Steam',
+        token: const TokenData(
+          secret: TotpSecret(
+            type: OtpType.steam,
+            secret: 'MZXW6YTBOI',
+            digits: 8,
+            period: 60,
+          ),
+          account: 'alice',
+          notes: 'steam note',
+        ),
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final restored = VaultItem.fromJson(original.toJson());
+      expect(restored.kind, ItemKind.totp);
+      expect(restored.login, isNull);
+      expect(restored.totp?.type, OtpType.steam);
+      expect(restored.totp?.digits, 5);
+      expect(restored.totp?.period, 30);
+      expect(restored.totp?.algorithm, OtpHashAlgorithm.sha1);
+      expect(restored.username, 'alice');
+      expect(restored.notes, 'steam note');
+    });
+
+    test('登录项带 totp 或令牌带 login 都拒绝', () {
+      final login = VaultItem.loginItem(
+        id: 'login',
+        title: 'L',
+        createdAt: now,
+        updatedAt: now,
+      ).toJson()..['totp'] = <String, Object?>{};
+      expect(() => VaultItem.fromJson(login), throwsFormatException);
+
+      final token = VaultItem.tokenItem(
+        id: 'token',
+        title: 'T',
+        token: const TokenData(secret: TotpSecret(secret: 'JBSWY3DPEHPK3PXP')),
+        createdAt: now,
+        updatedAt: now,
+      ).toJson()..['login'] = <String, Object?>{};
+      expect(() => VaultItem.fromJson(token), throwsFormatException);
+    });
+
+    test('VaultData 拒绝 v1 schema', () {
+      expect(
+        () => VaultData.fromJson(<String, Object?>{
+          'schemaVersion': 1,
+          'vaultId': 'v',
+          'createdAt': now.toIso8601String(),
+          'items': <Object?>[],
+        }),
+        throwsFormatException,
+      );
     });
   });
 }

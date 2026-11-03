@@ -104,12 +104,20 @@ extension KeyCaseControllerOps on KeyCaseController {
     final data = _state.data;
     if (data == null) return;
     final item = data.itemById(itemId);
-    final secret = item?.totp;
-    if (item == null || secret == null) return;
+    final token = item?.token;
+    if (item == null || token == null) return;
     final now = DateTime.now().toUtc();
-    final updated = item.copyWith(
-      totp: secret.copyWith(counter: secret.counter + 1),
+    final updated = VaultItem.tokenItem(
+      id: item.id,
+      title: item.title,
+      token: token.copyWith(
+        secret: token.secret.copyWith(counter: token.secret.counter + 1),
+      ),
+      favorite: item.favorite,
+      icon: item.icon,
+      createdAt: item.createdAt,
       updatedAt: now,
+      deletedAt: item.deletedAt,
     );
     final items = data.items
         .map((existing) => existing.id == itemId ? updated : existing)

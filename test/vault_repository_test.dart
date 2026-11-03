@@ -1,8 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:keycase/app/crypto/aead.dart';
 import 'package:keycase/app/crypto/kdf.dart';
+import 'package:keycase/app/crypto/random.dart';
 import 'package:keycase/app/models/models.dart';
 import 'package:keycase/app/vault/vault_container.dart';
 import 'package:keycase/app/vault/vault_repository.dart';
@@ -20,12 +24,10 @@ VaultData dataWithItem(String title) {
     vaultId: '',
     createdAt: now,
     items: <VaultItem>[
-      VaultItem(
+      VaultItem.loginItem(
         id: 'item-$title',
-        kind: ItemKind.login,
         title: title,
-        username: 'user',
-        password: 'pass',
+        login: const LoginData(username: 'user', password: 'pass'),
         createdAt: now,
         updatedAt: now,
       ),
@@ -168,4 +170,120 @@ void main() {
     final unlocked = await repository.unlock('password');
     expect(unlocked.data.items.single.title, 'Second-saved');
   });
+
+  test('v1 解锁后自动原子写回 v2', () async {
+    const vaultId = 'legacy-vault';
+    final now = DateTime.utc(2026, 1, 1);
+    final v1Bytes = await _buildV1Vault(
+      password: 'password',
+      vaultId: vaultId,
+      now: now,
+    );
+    await File(p.join(directory.path, VaultRepository.fileName))
+        .writeAsBytes(v1Bytes);
+
+    final unlocked = await repository.unlock('password');
+
+    expect(unlocked.migration, isNotNull);
+    expect(unlocked.migration!.migrated, 2);
+    expect(unlocked.data.schemaVersion, VaultData.currentSchemaVersion);
+    expect(unlocked.data.items.first.login, isNotNull);
+    expect(unlocked.data.items.last.token, isNotNull);
+
+    final onDisk = await File(p.join(directory.path, VaultRepository.fileName))
+        .readAsBytes();
+    final reread = await VaultContainer.unlock(
+      password: 'password',
+      bytes: onDisk,
+    );
+    expect(reread.migration, isNull);
+    expect(reread.data.schemaVersion, 2);
+    expect(reread.data.items, hasLength(2));
+  });
+}
+
+/// 按 v1 的格式手工组装一个 KCV1 容器，用来验证迁移写回。
+Future<Uint8List> _buildV1Vault({
+  required String password,
+  required String vaultId,
+  required DateTime now,
+}) async {
+  final vaultKey = randomBytes(32);
+  final salt = randomBytes(16);
+  final slotId = newId();
+  final passwordKey = await deriveArgon2idKey(
+    password: password,
+    salt: salt,
+    params: testKdf,
+  );
+  final wrapped = await sealBytes(
+    key: passwordKey,
+    plaintext: vaultKey,
+    aad: utf8.encode('KCV1|1|$slotId|password'),
+  );
+  final payload = <String, Object?>{
+    'schemaVersion': 1,
+    'vaultId': vaultId,
+    'createdAt': now.toIso8601String(),
+    'items': <Object?>[
+      <String, Object?>{
+        'id': 'legacy-login',
+        'kind': 'login',
+        'title': 'Legacy',
+        'username': 'alice',
+        'password': 'secret',
+        'urls': <String>['https://example.com'],
+        'notes': 'note',
+        'favorite': true,
+        'createdAt': now.toIso8601String(),
+        'updatedAt': now.toIso8601String(),
+      },
+      <String, Object?>{
+        'id': 'legacy-token',
+        'kind': 'totp',
+        'title': 'Legacy Token',
+        'username': 'alice',
+        'totp': <String, Object?>{
+          'type': 'totp',
+          'secret': 'JBSWY3DPEHPK3PXP',
+          'algorithm': 'SHA1',
+          'digits': 6,
+          'period': 30,
+          'counter': 0,
+        },
+        'createdAt': now.toIso8601String(),
+        'updatedAt': now.toIso8601String(),
+      },
+    ],
+  };
+  final compressed = GZipEncoder().encode(utf8.encode(jsonEncode(payload)));
+  final sealed = await sealBytes(
+    key: vaultKey,
+    plaintext: Uint8List.fromList(compressed),
+    aad: utf8.encode('KCV1|1|$vaultId|payload'),
+  );
+  final header = <String, Object?>{
+    'formatVersion': 1,
+    'vaultId': vaultId,
+    'createdAt': now.toIso8601String(),
+    'kdf': testKdf.toJson(),
+    'slots': <Object?>[
+      <String, Object?>{
+        'id': slotId,
+        'type': VaultContainer.passwordSlotType,
+        'salt': base64Encode(salt),
+        'nonce': base64Encode(wrapped.nonce),
+        'wrappedKey': base64Encode(wrapped.cipherText),
+      },
+    ],
+    'payloadNonce': base64Encode(sealed.nonce),
+  };
+  final headerBytes = utf8.encode(jsonEncode(header));
+  final out = Uint8List(9 + headerBytes.length + sealed.cipherText.length);
+  out.setAll(0, ascii.encode(VaultContainer.magic));
+  out[4] = VaultContainer.formatVersion;
+  ByteData.sublistView(out, 5, 9).setUint32(0, headerBytes.length);
+  out.setAll(9, headerBytes);
+  out.setAll(9 + headerBytes.length, sealed.cipherText);
+  return out;
 }

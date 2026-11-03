@@ -31,18 +31,19 @@ class GoogleMigrationEntry {
   String get displayTitle =>
       issuer.isNotEmpty ? issuer : (account.isNotEmpty ? account : secret);
 
-  VaultItem toItem(DateTime now, String id) => VaultItem(
+  VaultItem toItem(DateTime now, String id) => VaultItem.tokenItem(
     id: id,
-    kind: ItemKind.totp,
     title: displayTitle,
-    username: account,
-    totp: TotpSecret(
-      type: type,
-      secret: secret,
-      algorithm: algorithm,
-      digits: digits,
-      period: 30,
-      counter: counter,
+    token: TokenData(
+      secret: TotpSecret(
+        type: type,
+        secret: secret,
+        algorithm: algorithm,
+        digits: digits,
+        period: 30,
+        counter: counter,
+      ),
+      account: account,
     ),
     createdAt: now,
     updatedAt: now,

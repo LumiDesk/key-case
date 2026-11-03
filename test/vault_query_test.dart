@@ -13,13 +13,10 @@ VaultItem item({
   String? deletedAt,
 }) {
   final now = DateTime.utc(2026, 1, updatedDay);
-  return VaultItem(
+  return VaultItem.loginItem(
     id: id,
-    kind: ItemKind.login,
     title: title,
-    username: username,
-    notes: notes,
-    urls: urls,
+    login: LoginData(username: username, notes: notes, urls: urls),
     favorite: favorite,
     createdAt: now,
     updatedAt: now,

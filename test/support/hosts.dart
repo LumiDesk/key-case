@@ -80,14 +80,15 @@ VaultItem testLogin({
   bool favorite = false,
 }) {
   final now = DateTime.utc(2026, 1, 1);
-  return VaultItem(
+  return VaultItem.loginItem(
     id: id,
-    kind: ItemKind.login,
     title: title,
-    username: username,
-    password: password,
-    urls: urls,
-    notes: notes,
+    login: LoginData(
+      username: username,
+      password: password,
+      urls: urls,
+      notes: notes,
+    ),
     favorite: favorite,
     createdAt: now,
     updatedAt: now,
@@ -101,18 +102,25 @@ VaultItem testToken({
   OtpType type = OtpType.totp,
   int digits = 6,
   int period = 30,
+  int counter = 0,
   bool favorite = false,
+  String account = 'talyra42',
+  String notes = '',
 }) {
   final now = DateTime.utc(2026, 1, 1);
-  return VaultItem(
+  return VaultItem.tokenItem(
     id: id,
-    kind: ItemKind.totp,
     title: title,
-    totp: TotpSecret(
-      type: type,
-      secret: secret,
-      digits: digits,
-      period: period,
+    token: TokenData(
+      secret: TotpSecret(
+        type: type,
+        secret: secret,
+        digits: digits,
+        period: period,
+        counter: counter,
+      ),
+      account: account,
+      notes: notes,
     ),
     favorite: favorite,
     createdAt: now,

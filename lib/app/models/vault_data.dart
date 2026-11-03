@@ -13,7 +13,7 @@ class VaultData {
   });
 
   /// payload 结构版本。加字段/改语义时必须 +1，并在 VaultMigrations 里补一段。
-  static const int currentSchemaVersion = 1;
+  static const int currentSchemaVersion = 2;
 
   final int schemaVersion;
   final String vaultId;
@@ -55,9 +55,13 @@ class VaultData {
   };
 
   factory VaultData.fromJson(Map<String, Object?> json) {
+    final version = (json['schemaVersion'] as num?)?.toInt();
+    if (version != currentSchemaVersion) {
+      throw FormatException('不支持的保险库结构版本：$version');
+    }
     final rawItems = json['items'];
     return VaultData(
-      schemaVersion: (json['schemaVersion'] as num?)?.toInt() ?? 1,
+      schemaVersion: currentSchemaVersion,
       vaultId: json['vaultId'] as String? ?? '',
       createdAt:
           DateTime.tryParse(json['createdAt'] as String? ?? '')?.toUtc() ??

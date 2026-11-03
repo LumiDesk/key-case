@@ -11,11 +11,10 @@ void main() {
     expect(pack.loaded.value, isTrue);
     expect(pack.allNames.length, greaterThan(1000));
 
-    final item = VaultItem(
+    final item = VaultItem.loginItem(
       id: 'github',
-      kind: ItemKind.login,
       title: 'GitHub',
-      urls: const <String>['https://github.com'],
+      login: const LoginData(urls: <String>['https://github.com']),
       createdAt: DateTime.utc(2026, 1, 1),
       updatedAt: DateTime.utc(2026, 1, 1),
     );
@@ -29,9 +28,8 @@ void main() {
     await pack.ensureLoaded();
     final explicit = pack.allNames.first;
     final name = pack.resolve(
-      VaultItem(
+      VaultItem.loginItem(
         id: 'explicit',
-        kind: ItemKind.login,
         title: 'GitHub',
         icon: IconRef(name: explicit),
         createdAt: DateTime.utc(2026, 1, 1),

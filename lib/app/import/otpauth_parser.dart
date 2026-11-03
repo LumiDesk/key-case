@@ -34,12 +34,10 @@ class OtpauthPayload {
     counter: counter,
   );
 
-  VaultItem toItem(DateTime now) => VaultItem(
+  VaultItem toItem(DateTime now) => VaultItem.tokenItem(
     id: now.microsecondsSinceEpoch.toString(),
-    kind: ItemKind.totp,
     title: displayTitle,
-    username: account.trim(),
-    totp: toSecret(),
+    token: TokenData(secret: toSecret(), account: account.trim()),
     createdAt: now,
     updatedAt: now,
   );

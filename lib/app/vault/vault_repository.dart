@@ -74,6 +74,7 @@ class VaultRepository {
     final unlocked = await Isolate.run(
       () => VaultContainer.unlock(password: password, bytes: bytes),
     );
+    await _persistMigratedIfNeeded(unlocked);
     _session?.close();
     _session = unlocked;
     return unlocked;
@@ -85,9 +86,24 @@ class VaultRepository {
     final unlocked = await Isolate.run(
       () => VaultContainer.unlockWithVaultKey(bytes: bytes, vaultKey: vaultKey),
     );
+    await _persistMigratedIfNeeded(unlocked);
     _session?.close();
     _session = unlocked;
     return unlocked;
+  }
+
+  /// bridge 构建：v1 解锁后立即原子写回 v2；失败则不返回会话，旧文件保持原样。
+  Future<void> _persistMigratedIfNeeded(UnlockedVault unlocked) async {
+    if (unlocked.migration == null) return;
+    try {
+      await _serialize(() async {
+        final bytes = await VaultContainer.seal(unlocked);
+        await _writeAtomic(bytes);
+      });
+    } catch (_) {
+      unlocked.close();
+      rethrow;
+    }
   }
 
   /// 写入新的库内容并换新 nonce；返回落盘后的字节（供备份复用）。
@@ -142,12 +158,21 @@ class VaultRepository {
     required String password,
   }) async {
     final unlocked = await _unlockBytesInBackground(bytes, password);
+    final Uint8List target;
+    try {
+      target = unlocked.migration == null
+          ? bytes
+          : await VaultContainer.seal(unlocked);
+    } catch (_) {
+      unlocked.close();
+      rethrow;
+    }
     final file = await _vaultFile();
     if (await file.exists()) {
       await file.copy(p.join((await _directory()).path, preImportFileName));
     }
     await _serialize(() async {
-      await _writeAtomic(bytes);
+      await _writeAtomic(target);
       _session?.close();
       _session = unlocked;
     });
