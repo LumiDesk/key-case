@@ -27,7 +27,7 @@ Uint8List base32Decode(String input) {
     if (value < 0) {
       throw FormatException('非法的 Base32 字符：${text[i]}', input, i);
     }
-    bitBuffer = (bitBuffer << 5) | value;
+    bitBuffer = ((bitBuffer & 0xFFFFF) << 5) | value;
     bitCount += 5;
     if (bitCount >= 8) {
       bitCount -= 8;
@@ -42,7 +42,7 @@ String base32Encode(Uint8List bytes) {
   var bitBuffer = 0;
   var bitCount = 0;
   for (final byte in bytes) {
-    bitBuffer = (bitBuffer << 8) | byte;
+    bitBuffer = ((bitBuffer & 0xFFFF) << 8) | byte;
     bitCount += 8;
     while (bitCount >= 5) {
       bitCount -= 5;

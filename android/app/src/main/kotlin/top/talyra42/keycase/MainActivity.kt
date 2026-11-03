@@ -3,6 +3,7 @@ package top.talyra42.keycase
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.WindowManager
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -179,8 +180,9 @@ class MainActivity : FlutterFragmentActivity() {
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or
                     Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
             )
-        } catch (_: SecurityException) {
+        } catch (error: SecurityException) {
             // 个别 ROM 不给持久授权；本次仍可用，下次需要重新选择。
+            Log.w(TAG, "persistable uri permission failed", error)
         }
         val name = DocumentFile.fromTreeUri(this, uri)?.name ?: ""
         result?.success(mapOf("uri" to uri.toString(), "name" to name))
@@ -202,7 +204,8 @@ class MainActivity : FlutterFragmentActivity() {
                 output.flush()
                 true
             } ?: false
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "save backup failed", error)
             false
         }
         if (written) {
@@ -225,7 +228,8 @@ class MainActivity : FlutterFragmentActivity() {
             val file = folder.createFile("application/octet-stream", name) ?: return false
             contentResolver.openOutputStream(file.uri)?.use { it.write(bytes) } ?: return false
             true
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "write snapshot failed", error)
             false
         }
     }
@@ -238,7 +242,8 @@ class MainActivity : FlutterFragmentActivity() {
                 ?.mapNotNull { it.name }
                 ?.sortedDescending()
                 ?: emptyList()
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "list snapshots failed", error)
             emptyList()
         }
     }
@@ -250,12 +255,24 @@ class MainActivity : FlutterFragmentActivity() {
                 folder.findFile(name)?.delete()
             }
             true
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            Log.w(TAG, "delete snapshots failed", error)
             false
         }
     }
 
+    override fun onDestroy() {
+        // Activity 在系统选择器打开期间被回收时，Dart 侧 Future 不能永远悬挂。
+        pendingFolderResult?.error("interrupted", "activity destroyed", null)
+        pendingFolderResult = null
+        pendingSaveResult?.error("interrupted", "activity destroyed", null)
+        pendingSaveResult = null
+        pendingSaveBytes = null
+        super.onDestroy()
+    }
+
     companion object {
+        private const val TAG = "KeyCaseNative"
         private const val CHANNEL = "top.talyra42.keycase/native"
         private const val REQUEST_PICK_FOLDER = 4711
         private const val REQUEST_SAVE_BACKUP = 4712

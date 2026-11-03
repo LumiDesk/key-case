@@ -7,29 +7,33 @@ List<VaultItem> sortItems(Iterable<VaultItem> items, ItemSort sort) {
   final list = items.toList();
   switch (sort) {
     case ItemSort.name:
-      list.sort(
-        (a, b) => a.displayTitle.toLowerCase().compareTo(
-          b.displayTitle.toLowerCase(),
-        ),
-      );
+      list.sort(_byTitle);
     case ItemSort.recent:
-      list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+      list.sort((a, b) {
+        final byDate = b.updatedAt.compareTo(a.updatedAt);
+        return byDate != 0 ? byDate : a.id.compareTo(b.id);
+      });
     case ItemSort.favoritesFirst:
       list.sort((a, b) {
         if (a.favorite != b.favorite) return a.favorite ? -1 : 1;
-        return a.displayTitle.toLowerCase().compareTo(
-          b.displayTitle.toLowerCase(),
-        );
+        return _byTitle(a, b);
       });
   }
   return list;
+}
+
+int _byTitle(VaultItem a, VaultItem b) {
+  final byTitle = a.displayTitle.toLowerCase().compareTo(
+    b.displayTitle.toLowerCase(),
+  );
+  return byTitle != 0 ? byTitle : a.id.compareTo(b.id);
 }
 
 /// 首字母分组键：A–Z 用大写字母，其余（中文、数字、符号）统一进 `#`。
 String initialOf(String title) {
   final trimmed = title.trim();
   if (trimmed.isEmpty) return '#';
-  final first = trimmed.substring(0, 1).toUpperCase();
+  final first = String.fromCharCode(trimmed.runes.first).toUpperCase();
   if (RegExp(r'^[A-Z]$').hasMatch(first)) return first;
   return '#';
 }
