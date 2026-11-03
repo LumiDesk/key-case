@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../app/app_theme.dart';
-import '../app/feedback.dart';
 import '../app/import/google_migration.dart';
 import '../app/import/otpauth_parser.dart';
 import '../app/keycase_controller.dart';
 import '../app/keycase_scope.dart';
+import '../app/models/models.dart';
 import '../l10n/app_localizations.dart';
+import 'editor_page.dart';
 
 /// 扫码添加令牌。
 ///
 /// 只接受 `otpauth://` 二维码：其他内容不做自动处理，避免把任意 URL 当配置。
+/// 识别成功后进入新建令牌页并预填扫码结果，用户确认保存后才写入保险库。
 class TokenScanPage extends StatefulWidget {
   const TokenScanPage({super.key, this.initialLink});
 
@@ -73,15 +75,15 @@ class _TokenScanPageState extends State<TokenScanPage> {
       });
       return;
     }
-    final now = DateTime.now().toUtc();
-    final item = payload
-        .toItem(now)
-        .copyWith(id: '${now.microsecondsSinceEpoch}');
-    await controller.saveItem(item);
+    // 扫码只负责识别：把结果当作草稿打开新建令牌页，用户点保存才写入。
+    // 用 pushReplacement 换掉相机页，退出编辑页时回到令牌列表。
+    final item = payload.toItem(DateTime.now().toUtc());
     if (!mounted) return;
-    KcFeedbackScope.maybeOf(context)
-        ?.show(AppLocalizations.of(context).noticeItemSaved);
-    Navigator.of(context).pop(true);
+    await Navigator.of(context).pushReplacement<void, void>(
+      MaterialPageRoute<void>(
+        builder: (_) => ItemEditorPage(kind: ItemKind.totp, initialDraft: item),
+      ),
+    );
   }
 
   @override

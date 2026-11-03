@@ -17,11 +17,22 @@ import 'sheets.dart';
 ///
 /// 用整页而不是半屏 sheet：字段多、键盘弹出后需要滚动，整页更稳；
 /// 未保存返回时统一走「放弃修改？」确认。
+///
+/// 新建时可以用 [initialDraft] 预填字段（扫码添加令牌走这条路）：草稿只是
+/// 表单初值，页面不会自动保存，用户点「保存」才真正写入保险库。
 class ItemEditorPage extends StatefulWidget {
-  const ItemEditorPage({super.key, required this.kind, this.itemId});
+  const ItemEditorPage({
+    super.key,
+    required this.kind,
+    this.itemId,
+    this.initialDraft,
+  });
 
   final ItemKind kind;
   final String? itemId;
+
+  /// 仅新建时生效；与 [itemId] 同时传入时以编辑中的条目为准。
+  final VaultItem? initialDraft;
 
   @override
   State<ItemEditorPage> createState() => _ItemEditorPageState();
@@ -38,6 +49,9 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
   VaultItem? _original;
   IconRef? _icon;
   bool _loaded = false;
+
+  /// 页面打开时的字段初值；用来判断有没有未保存的修改。
+  _EditorSnapshot? _baseline;
   bool _obscurePassword = true;
   bool _obscureSecret = true;
   String? _error;
@@ -54,27 +68,34 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
     if (_loaded) return;
     _loaded = true;
     final id = widget.itemId;
-    if (id != null) {
-      final item = KeyCaseScope.read(context).state.data?.itemById(id);
-      if (item != null) {
-        _original = item;
-        _icon = item.icon;
-        _title.text = item.title;
-        _username.text = item.username;
-        _password.text = item.password;
-        _url.text = item.urls.isNotEmpty ? item.urls.first : '';
-        _notes.text = item.notes;
-        final totp = item.totp;
-        if (totp != null) {
-          _secret.text = totp.secret;
-          _type = totp.type;
-          _algorithm = totp.algorithm;
-          _digits = totp.digits;
-          _period = totp.period;
-          _counter = totp.counter;
-        }
-      }
+    final item = id == null
+        ? null
+        : KeyCaseScope.read(context).state.data?.itemById(id);
+    if (item != null) {
+      _original = item;
+      _applyItem(item);
+    } else {
+      final draft = widget.initialDraft;
+      if (draft != null) _applyItem(draft);
     }
+    _baseline = _snapshot();
+  }
+
+  void _applyItem(VaultItem item) {
+    _icon = item.icon;
+    _title.text = item.title;
+    _username.text = item.username;
+    _password.text = item.password;
+    _url.text = item.urls.isNotEmpty ? item.urls.first : '';
+    _notes.text = item.notes;
+    final totp = item.totp;
+    if (totp == null) return;
+    _secret.text = totp.secret;
+    _type = totp.type;
+    _algorithm = totp.algorithm;
+    _digits = totp.digits;
+    _period = totp.period;
+    _counter = totp.counter;
   }
 
   @override
@@ -90,35 +111,22 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
 
   bool get _isToken => widget.kind == ItemKind.totp;
 
-  bool get _isDirty {
-    final original = _original;
-    if (original == null) {
-      return _title.text.trim().isNotEmpty ||
-          _username.text.trim().isNotEmpty ||
-          _password.text.isNotEmpty ||
-          _url.text.trim().isNotEmpty ||
-          _notes.text.trim().isNotEmpty ||
-          _secret.text.trim().isNotEmpty;
-    }
-    if (_title.text != original.title) return true;
-    if (_username.text != original.username) return true;
-    if (_password.text != original.password) return true;
-    if (_url.text != (original.urls.isNotEmpty ? original.urls.first : '')) {
-      return true;
-    }
-    if (_notes.text != original.notes) return true;
-    if (_icon != original.icon) return true;
-    final totp = original.totp;
-    if (totp != null) {
-      if (_secret.text != totp.secret) return true;
-      if (_type != totp.type) return true;
-      if (_algorithm != totp.algorithm) return true;
-      if (_digits != totp.digits) return true;
-      if (_period != totp.period) return true;
-      if (_counter != totp.counter) return true;
-    }
-    return false;
-  }
+  _EditorSnapshot _snapshot() => (
+    title: _title.text,
+    username: _username.text,
+    password: _password.text,
+    url: _url.text,
+    notes: _notes.text,
+    secret: _secret.text,
+    type: _type,
+    algorithm: _algorithm,
+    digits: _digits,
+    period: _period,
+    counter: _counter,
+    icon: _icon,
+  );
+
+  bool get _isDirty => _baseline != null && _snapshot() != _baseline;
 
   Future<void> _onBack() async {
     final l10n = AppLocalizations.of(context);
@@ -266,7 +274,8 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                           : l10n.editorTitle,
                       controller: _title,
                       hint: l10n.editorTitleHint,
-                      autofocus: isNew,
+                      // 扫码预填的草稿已经有内容，不再抢焦点弹键盘。
+                      autofocus: isNew && widget.initialDraft == null,
                       onChanged: (_) => setState(() => _error = null),
                     ),
                     const SizedBox(height: 8),
@@ -568,3 +577,19 @@ class _InlineError extends StatelessWidget {
     );
   }
 }
+
+/// 编辑页字段快照：只用来判断「有没有改过」，不参与保存。
+typedef _EditorSnapshot = ({
+  String title,
+  String username,
+  String password,
+  String url,
+  String notes,
+  String secret,
+  OtpType type,
+  OtpHashAlgorithm algorithm,
+  int digits,
+  int period,
+  int counter,
+  IconRef? icon,
+});

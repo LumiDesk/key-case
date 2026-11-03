@@ -4,6 +4,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Fixed
+
+- Scanning a token QR no longer saves it immediately: the scanned data now opens in the
+  new-token editor, and the token is written only after you tap Save.
+
 ## [1.0.6] - 2026-11-02
 
 ### Added
