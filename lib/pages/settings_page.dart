@@ -157,7 +157,6 @@ class SettingsPage extends StatelessWidget {
                           await controller.enableBiometrics(
                             reason: l10n.biometricEnableReason,
                             cancelLabel: l10n.actionCancel,
-                            hint: l10n.biometricEnableHint,
                           );
                         } else {
                           await controller.disableBiometrics();

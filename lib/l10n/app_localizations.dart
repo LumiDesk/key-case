@@ -1580,18 +1580,6 @@ abstract class AppLocalizations {
   /// **'验证指纹以启用快捷解锁'**
   String get biometricEnableReason;
 
-  /// No description provided for @biometricPromptHint.
-  ///
-  /// In zh, this message translates to:
-  /// **'使用指纹解锁'**
-  String get biometricPromptHint;
-
-  /// No description provided for @biometricEnableHint.
-  ///
-  /// In zh, this message translates to:
-  /// **'使用指纹启用快捷解锁'**
-  String get biometricEnableHint;
-
   /// No description provided for @deleteVaultAction.
   ///
   /// In zh, this message translates to:

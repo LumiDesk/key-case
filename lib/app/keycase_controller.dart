@@ -177,7 +177,6 @@ class KeyCaseController extends ChangeNotifier {
   Future<bool> unlockWithBiometrics({
     required String reason,
     String cancelLabel = '取消',
-    String? hint,
   }) async {
     if (_state.busy) return false;
     if (!_state.biometricEnrolled) {
@@ -194,7 +193,6 @@ class KeyCaseController extends ChangeNotifier {
       final result = await _biometrics.authenticate(
         reason: reason,
         cancelLabel: cancelLabel,
-        hint: hint,
       );
       switch (result) {
         case BiometricResult.success:
@@ -238,7 +236,6 @@ class KeyCaseController extends ChangeNotifier {
   Future<bool> enableBiometrics({
     required String reason,
     String cancelLabel = '取消',
-    String? hint,
   }) async {
     final session = _vault.session;
     if (session == null) {
@@ -252,7 +249,6 @@ class KeyCaseController extends ChangeNotifier {
     final result = await _biometrics.authenticate(
       reason: reason,
       cancelLabel: cancelLabel,
-      hint: hint,
     );
     switch (result) {
       case BiometricResult.success:

@@ -781,13 +781,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Verify your fingerprint to enable quick unlock';
 
   @override
-  String get biometricPromptHint => 'Use your fingerprint to unlock';
-
-  @override
-  String get biometricEnableHint =>
-      'Use your fingerprint to enable quick unlock';
-
-  @override
   String get deleteVaultAction => 'Delete vault';
 
   @override

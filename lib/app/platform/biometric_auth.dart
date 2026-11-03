@@ -37,7 +37,6 @@ class BiometricAuth {
     required String reason,
     String cancelLabel = '取消',
     String title = 'KeyCase',
-    String? hint,
   }) async {
     try {
       final approved = await _authentication.authenticate(
@@ -45,7 +44,8 @@ class BiometricAuth {
         authMessages: <AuthMessages>[
           AndroidAuthMessages(
             signInTitle: title,
-            signInHint: hint,
+            // Android 会把 hint 显示成第二行说明；留空只保留 reason 一行提示。
+            signInHint: '',
             cancelButton: cancelLabel,
           ),
         ],

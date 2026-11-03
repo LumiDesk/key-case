@@ -257,7 +257,6 @@ class FakeBiometricAuth extends BiometricAuth {
   int authenticateCalls = 0;
   String? lastReason;
   String? lastCancelLabel;
-  String? lastHint;
 
   @override
   Future<bool> isAvailable() async => available;
@@ -267,12 +266,10 @@ class FakeBiometricAuth extends BiometricAuth {
     required String reason,
     String cancelLabel = '取消',
     String title = 'KeyCase',
-    String? hint,
   }) async {
     authenticateCalls++;
     lastReason = reason;
     lastCancelLabel = cancelLabel;
-    lastHint = hint;
     return result;
   }
 }
