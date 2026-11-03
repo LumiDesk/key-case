@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,7 +33,11 @@ const String _releasesApi =
 ///
 /// 请求的是仓库的 latest release；返回 null 表示已是最新。
 /// 不发送任何设备信息，只带一个固定的 User-Agent（GitHub API 要求）。
-Future<UpdateInfo?> checkForUpdate(String currentVersion) async {
+Future<UpdateInfo?> checkForUpdate(String currentVersion) {
+  return _checkForUpdate(currentVersion).timeout(const Duration(seconds: 15));
+}
+
+Future<UpdateInfo?> _checkForUpdate(String currentVersion) async {
   final client = HttpClient()..connectionTimeout = const Duration(seconds: 10);
   try {
     final request = await client.getUrl(Uri.parse(_releasesApi));

@@ -384,16 +384,17 @@ class VaultContainer {
       );
     }
     try {
-      final inflated = GZipDecoder().decodeBytes(deflated);
-      if (inflated.length > _maxPlaintextBytes) {
-        throw const VaultFormatException(
-          '保险库内容过大',
-          code: VaultErrorCode.tooLarge,
-        );
-      }
+      final inflated = GZipDecoder().decodeBytes(
+        deflated,
+        maxOutputSize: _maxPlaintextBytes,
+      );
       return Uint8List.fromList(inflated);
+    } on ArchiveLimitException {
+      throw const VaultFormatException(
+        '保险库内容过大',
+        code: VaultErrorCode.tooLarge,
+      );
     } catch (error) {
-      if (error is VaultFormatException) rethrow;
       throw const VaultFormatException(
         '保险库正文无法解压',
         code: VaultErrorCode.corrupted,
@@ -477,7 +478,10 @@ class VaultContainer {
     } on VaultFormatException {
       rethrow;
     } catch (error) {
-      throw VaultFormatException('保险库头无法解析：$error');
+      throw VaultFormatException(
+        '保险库头无法解析：$error',
+        code: VaultErrorCode.corrupted,
+      );
     }
 
     return (
@@ -489,19 +493,57 @@ class VaultContainer {
   static VaultHeader _headerFromJson(Map<String, Object?> json) {
     final slots = <KeySlot>[];
     final rawSlots = json['slots'];
-    if (rawSlots is List) {
-      for (final raw in rawSlots) {
-        if (raw is Map) {
-          slots.add(KeySlot.fromJson(raw.cast<String, Object?>()));
-        }
-      }
+    if (rawSlots is! List) {
+      throw const VaultFormatException(
+        '保险库缺少密钥槽位',
+        code: VaultErrorCode.corrupted,
+      );
+    }
+    for (final raw in rawSlots) {
+      if (raw is! Map) continue;
+      slots.add(KeySlot.fromJson(raw.cast<String, Object?>()));
     }
     if (slots.isEmpty) {
-      throw const VaultFormatException('保险库缺少密钥槽位');
+      throw const VaultFormatException(
+        '保险库缺少密钥槽位',
+        code: VaultErrorCode.corrupted,
+      );
+    }
+    if (slots.length > 8) {
+      throw const VaultFormatException(
+        '保险库密钥槽位过多',
+        code: VaultErrorCode.corrupted,
+      );
+    }
+    for (final slot in slots) {
+      if (slot.id.isEmpty ||
+          slot.type.isEmpty ||
+          slot.salt.length < 8 ||
+          slot.nonce.length != 12 ||
+          slot.wrappedKey.length < macLength) {
+        throw const VaultFormatException(
+          '保险库密钥槽位格式不正确',
+          code: VaultErrorCode.corrupted,
+        );
+      }
+    }
+    final vaultId = json['vaultId'] as String? ?? '';
+    if (vaultId.isEmpty) {
+      throw const VaultFormatException(
+        '保险库缺少标识',
+        code: VaultErrorCode.corrupted,
+      );
+    }
+    final payloadNonce = base64Decode(json['payloadNonce'] as String? ?? '');
+    if (payloadNonce.length != 12) {
+      throw const VaultFormatException(
+        '保险库正文 nonce 长度不正确',
+        code: VaultErrorCode.corrupted,
+      );
     }
     return VaultHeader(
       formatVersion: (json['formatVersion'] as num?)?.toInt() ?? 0,
-      vaultId: json['vaultId'] as String? ?? '',
+      vaultId: vaultId,
       createdAt:
           DateTime.tryParse(json['createdAt'] as String? ?? '')?.toUtc() ??
           DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
@@ -509,7 +551,7 @@ class VaultContainer {
         (json['kdf'] as Map?)?.cast<String, Object?>() ?? const {},
       ),
       slots: slots,
-      payloadNonce: base64Decode(json['payloadNonce'] as String? ?? ''),
+      payloadNonce: payloadNonce,
     );
   }
 

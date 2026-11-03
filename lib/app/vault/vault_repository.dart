@@ -96,6 +96,7 @@ class VaultRepository {
     }
     _session?.close();
     _session = unlocked;
+    await _deletePreImportQuietly();
     return unlocked;
   }
 
@@ -117,7 +118,17 @@ class VaultRepository {
     }
     _session?.close();
     _session = unlocked;
+    await _deletePreImportQuietly();
     return unlocked;
+  }
+
+  Future<void> _deletePreImportQuietly() async {
+    try {
+      final file = File(p.join((await _directory()).path, preImportFileName));
+      if (await file.exists()) await file.delete();
+    } catch (error) {
+      AppLogger.warn('delete pre-import copy failed: $error');
+    }
   }
 
   /// bridge 构建：v1 解锁后立即原子写回 v2；失败则不返回会话，旧文件保持原样。

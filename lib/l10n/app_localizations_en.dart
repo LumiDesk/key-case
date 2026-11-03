@@ -315,6 +315,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorScanQr => 'Scan QR code';
 
   @override
+  String get scanCameraUnavailable =>
+      'Camera unavailable. Check permissions and try again.';
+
+  @override
   String get editorDiscardTitle => 'Discard changes?';
 
   @override
@@ -395,6 +399,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsSecureScreenDesc =>
       'Disable system screenshots and recording';
+
+  @override
+  String get settingsClipboardClear => 'Clear clipboard after copy';
+
+  @override
+  String get settingsClipboardClearDesc =>
+      'Clears passwords and codes after 60 seconds';
 
   @override
   String get settingsAutoLock => 'Auto-lock';

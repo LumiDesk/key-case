@@ -61,6 +61,7 @@ class KeyCaseController extends ChangeNotifier {
   DateTime? _pausedAt;
   bool _externalActivityOpen = false;
   bool _disposed = false;
+  DateTime? _lastAutoSnapshotAt;
 
   /// 串行化所有会修改保险库的操作。每个操作在队列里读取“执行时”的状态，
   /// 避免快速连点/并发导入时用旧快照覆盖新结果。
@@ -78,16 +79,26 @@ class KeyCaseController extends ChangeNotifier {
 
   /// 启动：读偏好、判断本机有没有库。
   Future<void> bootstrap() async {
-    _preferences = await _preferencesStore.load();
-    await _native.setSecureScreen(_preferences.secureScreen);
-    final exists = await _vault.exists();
-    _emit(
-      _state.copyWith(
-        status: exists ? VaultStatus.locked : VaultStatus.missing,
-        biometricEnrolled: _preferences.biometricEnabled,
-        clearError: true,
-      ),
-    );
+    try {
+      _preferences = await _preferencesStore.load();
+      await _native.setSecureScreen(_preferences.secureScreen);
+      final exists = await _vault.exists();
+      _emit(
+        _state.copyWith(
+          status: exists ? VaultStatus.locked : VaultStatus.missing,
+          biometricEnrolled: _preferences.biometricEnabled,
+          clearError: true,
+        ),
+      );
+    } catch (error) {
+      AppLogger.error('bootstrap failed', error);
+      _emit(
+        const KeyCaseState(
+          status: VaultStatus.locked,
+          error: KeyCaseError.vaultNotReadable,
+        ),
+      );
+    }
   }
 
   Future<bool> createVault({
@@ -362,8 +373,14 @@ class KeyCaseController extends ChangeNotifier {
     if (!_preferences.autoSnapshot) return;
     final dirUri = _preferences.backupTreeUri;
     if (dirUri.isEmpty) return;
+    final now = DateTime.now();
+    final last = _lastAutoSnapshotAt;
+    if (last != null && now.difference(last) < const Duration(minutes: 1)) {
+      return;
+    }
     try {
       await _backups.writeSnapshot(dirUri: dirUri, bytes: bytes);
+      _lastAutoSnapshotAt = now;
       await updatePreferences(
         _preferences.copyWith(
           lastBackupAt: DateTime.now().millisecondsSinceEpoch,

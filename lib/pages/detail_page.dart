@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../app/app_theme.dart';
+import '../app/feedback.dart';
 import '../app/keycase_scope.dart';
+import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
 import '../app/otp/otp.dart';
 import '../app/security/security_audit.dart';
@@ -357,10 +359,22 @@ class _LoginPanel extends StatelessWidget {
   Future<void> _openUrl(BuildContext context, String raw) async {
     final normalized = normalizeUrl(raw);
     if (normalized == null) return;
-    await launchUrl(
-      Uri.parse(normalized),
-      mode: LaunchMode.externalApplication,
-    );
+    try {
+      final launched = await launchUrl(
+        Uri.parse(normalized),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched && context.mounted) {
+        KcFeedbackScope.maybeOf(context)
+            ?.show(AppLocalizations.of(context).errorOpenLinkFailed);
+      }
+    } catch (error) {
+      AppLogger.warn('open url failed: $error');
+      if (context.mounted) {
+        KcFeedbackScope.maybeOf(context)
+            ?.show(AppLocalizations.of(context).errorOpenLinkFailed);
+      }
+    }
   }
 }
 

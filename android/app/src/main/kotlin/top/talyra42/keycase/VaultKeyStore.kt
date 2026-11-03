@@ -100,5 +100,12 @@ object VaultKeyStore {
             .remove(KEY_IV)
             .remove(KEY_VAULT_ID)
             .apply()
+        // 同时删除 Keystore 别名：换库/删库后旧密钥不应继续可用。
+        try {
+            KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+                .deleteEntry(KEY_ALIAS)
+        } catch (_: Exception) {
+            // 个别 ROM 在别名不存在时抛异常；密文已清，降级可接受。
+        }
     }
 }

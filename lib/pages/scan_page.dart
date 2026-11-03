@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -89,6 +91,11 @@ class _TokenScanPageState extends State<TokenScanPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final controller = KeyCaseScope.of(context);
+    // 锁屏路由盖住本页时不会触发生命周期回调；这里主动停相机，避免锁屏后继续采集。
+    if (!controller.state.isUnlocked) {
+      unawaited(_controller.stop());
+    }
     return Scaffold(
       backgroundColor: kcCanvasDark,
       appBar: AppBar(
@@ -113,7 +120,7 @@ class _TokenScanPageState extends State<TokenScanPage> {
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Text(
-                  error.errorDetails?.message ?? l10n.editorSecretInvalid,
+                  l10n.scanCameraUnavailable,
                   textAlign: TextAlign.center,
                   style: const TextStyle(color: Colors.white70),
                 ),

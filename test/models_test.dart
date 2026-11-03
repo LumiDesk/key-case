@@ -8,6 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   group('AppPreferences', () {
+    test('默认开启防截屏与剪贴板清除', () {
+      const prefs = AppPreferences();
+      expect(prefs.secureScreen, isTrue);
+      expect(prefs.clipboardAutoClear, isTrue);
+
+      final restored = AppPreferences.fromJson(<String, Object?>{});
+      expect(restored.secureScreen, isTrue);
+      expect(restored.clipboardAutoClear, isTrue);
+    });
+
     test('全部字段 JSON 往返', () {
       const original = AppPreferences(
         themeMode: ThemeModePreference.dark,
@@ -17,6 +27,7 @@ void main() {
         showTokenCodes: false,
         showNextToken: true,
         secureScreen: true,
+        clipboardAutoClear: false,
         autoLockSeconds: 60,
         codeGrouping: CodeGrouping.four,
         languageCode: 'en',
@@ -36,6 +47,7 @@ void main() {
       expect(restored.showTokenCodes, isFalse);
       expect(restored.showNextToken, isTrue);
       expect(restored.secureScreen, isTrue);
+      expect(restored.clipboardAutoClear, isFalse);
       expect(restored.autoLockSeconds, 60);
       expect(restored.codeGrouping, CodeGrouping.four);
       expect(restored.languageCode, 'en');

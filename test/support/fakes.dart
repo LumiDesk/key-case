@@ -279,6 +279,7 @@ class FakeBackupService extends BackupService {
   Uint8List? importBytes;
   bool snapshotFails = false;
   String lastSnapshotDir = '';
+  int snapshotCount = 0;
 
   @override
   Future<({String uri, String name})?> pickFolder() async => folder;
@@ -289,6 +290,7 @@ class FakeBackupService extends BackupService {
     required Uint8List bytes,
   }) async {
     lastSnapshotDir = dirUri;
+    snapshotCount++;
     if (snapshotFails) throw const FileSystemException('无法写入备份目录');
     return 'keycase-test.kcbak';
   }

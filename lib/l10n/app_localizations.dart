@@ -698,6 +698,12 @@ abstract class AppLocalizations {
   /// **'扫描二维码'**
   String get editorScanQr;
 
+  /// No description provided for @scanCameraUnavailable.
+  ///
+  /// In zh, this message translates to:
+  /// **'相机不可用，请检查权限后重试'**
+  String get scanCameraUnavailable;
+
   /// No description provided for @editorDiscardTitle.
   ///
   /// In zh, this message translates to:
@@ -859,6 +865,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'禁止系统截图与录屏'**
   String get settingsSecureScreenDesc;
+
+  /// No description provided for @settingsClipboardClear.
+  ///
+  /// In zh, this message translates to:
+  /// **'复制后自动清除'**
+  String get settingsClipboardClear;
+
+  /// No description provided for @settingsClipboardClearDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'60 秒后清除密码与验证码'**
+  String get settingsClipboardClearDesc;
 
   /// No description provided for @settingsAutoLock.
   ///

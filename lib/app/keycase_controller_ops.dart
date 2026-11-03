@@ -23,6 +23,7 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemSaved,
+      snapshot: true,
     );
   });
 
@@ -41,6 +42,7 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemDeleted,
+      snapshot: true,
     );
   });
 
@@ -58,6 +60,7 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemRestored,
+      snapshot: true,
     );
   });
 
@@ -69,6 +72,7 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.itemPurged,
+      snapshot: true,
     );
   });
 
@@ -79,6 +83,7 @@ extension KeyCaseControllerOps on KeyCaseController {
     await _persist(
       data.copyWith(items: items),
       notice: KeyCaseNotice.trashEmptied,
+      snapshot: true,
     );
   });
 
@@ -209,6 +214,13 @@ extension KeyCaseControllerOps on KeyCaseController {
           bytes: bytes,
           password: password,
         );
+        // 新库的 vaultId 与旧包裹密钥不匹配，主动解除登记。
+        await _native.clearVaultKey();
+        if (_preferences.biometricEnabled) {
+          await updatePreferences(
+            _preferences.copyWith(biometricEnabled: false),
+          );
+        }
         _emit(
           _state.copyWith(
             status: VaultStatus.unlocked,
@@ -245,7 +257,11 @@ extension KeyCaseControllerOps on KeyCaseController {
     }
   });
 
-  Future<void> _persist(VaultData next, {KeyCaseNotice? notice}) async {
+  Future<void> _persist(
+    VaultData next, {
+    KeyCaseNotice? notice,
+    bool snapshot = false,
+  }) async {
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final bytes = await _vault.save(next);
@@ -259,7 +275,9 @@ extension KeyCaseControllerOps on KeyCaseController {
           clearNotice: notice == null,
         ),
       );
-      await _snapshotBytesQuietly(bytes);
+      if (snapshot) {
+        await _snapshotBytesQuietly(bytes);
+      }
     } on VaultFormatException catch (error) {
       _fail(_mapVaultError(error));
     } catch (error) {

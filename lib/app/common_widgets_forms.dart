@@ -277,6 +277,8 @@ class KcLabeledField extends StatelessWidget {
     this.onChanged,
     this.textInputAction,
     this.focusNode,
+    this.enableSuggestions = true,
+    this.autocorrect = true,
   });
 
   final String label;
@@ -290,6 +292,8 @@ class KcLabeledField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final TextInputAction? textInputAction;
   final FocusNode? focusNode;
+  final bool enableSuggestions;
+  final bool autocorrect;
 
   @override
   Widget build(BuildContext context) {
@@ -316,6 +320,8 @@ class KcLabeledField extends StatelessWidget {
           autofocus: autofocus,
           onChanged: onChanged,
           textInputAction: textInputAction,
+          enableSuggestions: obscure ? false : enableSuggestions,
+          autocorrect: obscure ? false : autocorrect,
           style: theme.textTheme.bodyLarge,
           decoration: InputDecoration(
             hintText: hint,

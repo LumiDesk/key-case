@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,6 +11,7 @@ import 'app/icons/aegis_icon_pack.dart';
 import 'app/keycase_controller.dart';
 import 'app/keycase_scope.dart';
 import 'app/keycase_state.dart';
+import 'app/logging/app_logger.dart';
 import 'app/messages.dart';
 import 'app/models/models.dart';
 import 'l10n/app_localizations.dart';
@@ -18,6 +20,14 @@ import 'pages/auth_pages.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterError.onError = (details) {
+    FlutterError.presentError(details);
+    AppLogger.error('flutter error', details.exception);
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    AppLogger.error('uncaught error', error);
+    return true;
+  };
   final controller = KeyCaseController();
   await controller.bootstrap();
   // 图标包只读一次；没读完之前列表先用首字母头像。

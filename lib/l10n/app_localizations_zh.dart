@@ -312,6 +312,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editorScanQr => '扫描二维码';
 
   @override
+  String get scanCameraUnavailable => '相机不可用，请检查权限后重试';
+
+  @override
   String get editorDiscardTitle => '放弃修改？';
 
   @override
@@ -391,6 +394,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get settingsSecureScreenDesc => '禁止系统截图与录屏';
+
+  @override
+  String get settingsClipboardClear => '复制后自动清除';
+
+  @override
+  String get settingsClipboardClearDesc => '60 秒后清除密码与验证码';
 
   @override
   String get settingsAutoLock => '自动锁定';

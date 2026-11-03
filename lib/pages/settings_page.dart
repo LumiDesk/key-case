@@ -123,6 +123,16 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
+                    KcSwitchRow(
+                      icon: Icons.content_paste_off_outlined,
+                      title: l10n.settingsClipboardClear,
+                      subtitle: l10n.settingsClipboardClearDesc,
+                      value: preferences.clipboardAutoClear,
+                      onChanged: (value) => controller.updatePreferences(
+                        preferences.copyWith(clipboardAutoClear: value),
+                      ),
+                    ),
+                    const KcRowDivider(),
                     KcMenuRow<int>(
                       icon: Icons.timer_outlined,
                       title: l10n.settingsAutoLock,
@@ -529,8 +539,22 @@ class SettingsPage extends StatelessWidget {
             onPressed: () async {
               Navigator.of(dialogContext).pop();
               final uri = Uri.tryParse(info.releaseUrl);
-              if (uri != null) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
+              if (uri == null) return;
+              try {
+                final launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+                if (!launched && context.mounted) {
+                  KcFeedbackScope.maybeOf(context)
+                      ?.show(l10n.errorOpenLinkFailed);
+                }
+              } catch (error) {
+                AppLogger.warn('open release failed: $error');
+                if (context.mounted) {
+                  KcFeedbackScope.maybeOf(context)
+                      ?.show(l10n.errorOpenLinkFailed);
+                }
               }
             },
             child: Text(l10n.updateOpenRelease),

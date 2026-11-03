@@ -22,4 +22,9 @@ class KeyCaseScope extends InheritedNotifier<KeyCaseController> {
     assert(scope != null, 'KeyCaseScope 未挂载');
     return scope!.notifier!;
   }
+
+  /// 可选读取：纯组件/测试宿主没有挂载时返回 null。
+  static KeyCaseController? maybeRead(BuildContext context) {
+    return context.getInheritedWidgetOfExactType<KeyCaseScope>()?.notifier;
+  }
 }
