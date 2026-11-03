@@ -274,6 +274,21 @@ void main() {
       expect(test.biometrics.lastCancelLabel, 'Cancel');
     });
 
+    test('设备不支持时拒绝启用且不写偏好', () async {
+      final test = makeController();
+      await test.controller.bootstrap();
+      await test.controller.unlock('pw');
+      test.biometrics.available = false;
+
+      final ok = await test.controller.enableBiometrics(reason: 'enable');
+
+      expect(ok, isFalse);
+      expect(test.controller.state.error, KeyCaseError.biometricUnavailable);
+      expect(test.controller.state.biometricEnrolled, isFalse);
+      expect(test.preferences.value.biometricEnabled, isFalse);
+      expect(test.native.vaultKey, isNull);
+    });
+
     test('用户取消时静默回退且不显示错误', () async {
       final test = makeController(
         preferences: const AppPreferences(biometricEnabled: true),

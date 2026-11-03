@@ -233,6 +233,9 @@ class KeyCaseController extends ChangeNotifier {
     return false;
   }
 
+  /// 设置页用来决定指纹开关是否可操作；真正的启用路径仍会再校验一次。
+  Future<bool> canUseBiometrics() => _biometrics.isAvailable();
+
   Future<bool> enableBiometrics({
     required String reason,
     String cancelLabel = '取消',

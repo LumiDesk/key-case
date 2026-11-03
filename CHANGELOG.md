@@ -34,6 +34,9 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - The fingerprint prompt uses the selected app language and no longer repeats the same
   sentence as title, hint, and reason.
 - The bottom feedback pill follows the light/dark theme instead of always being dark in light mode.
+- Feedback messages keep the selected language when the device locale includes a region
+  (`zh_CN`, `en_US`).
+- The fingerprint switch is disabled when the device has no usable biometric hardware or enrollment.
 - “Check for updates” shows an inline spinner and cannot be triggered twice while running.
 
 ## [1.0.7] - 2026-11-03

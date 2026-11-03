@@ -106,16 +106,17 @@ class KcSwitchRow extends StatelessWidget {
   final String title;
   final String? subtitle;
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool>? onChanged;
 
   @override
   Widget build(BuildContext context) {
+    final change = onChanged;
     return KcSettingsRow(
       icon: icon,
       title: title,
       subtitle: subtitle,
-      onTap: () => onChanged(!value),
-      trailing: Switch(value: value, onChanged: onChanged),
+      onTap: change == null ? null : () => change(!value),
+      trailing: Switch(value: value, onChanged: change),
     );
   }
 }

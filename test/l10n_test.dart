@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:keycase/main.dart';
 
 void main() {
   test('中英文 ARB 键与占位符一致', () {
@@ -28,5 +30,16 @@ void main() {
           .toSet();
       expect(zhPlaceholders, enPlaceholders, reason: '$key 的中英文占位符不一致');
     }
+  });
+
+  test('设备 locale 带地区时仍匹配到中文', () {
+    expect(
+      resolveAppLocalizations(const Locale('zh', 'CN')).noticeBiometricEnabled,
+      '已启用指纹解锁',
+    );
+    expect(
+      resolveAppLocalizations(const Locale('en', 'US')).noticeBiometricEnabled,
+      'Fingerprint unlock enabled',
+    );
   });
 }

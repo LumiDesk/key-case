@@ -145,24 +145,7 @@ class SettingsPage extends StatelessWidget {
                       ),
                     ),
                     const KcRowDivider(),
-                    KcSwitchRow(
-                      icon: Icons.fingerprint_rounded,
-                      title: l10n.settingsBiometric,
-                      subtitle: state.biometricEnrolled
-                          ? l10n.settingsBiometricOn
-                          : l10n.settingsBiometricOff,
-                      value: state.biometricEnrolled,
-                      onChanged: (value) async {
-                        if (value) {
-                          await controller.enableBiometrics(
-                            reason: l10n.biometricEnableReason,
-                            cancelLabel: l10n.actionCancel,
-                          );
-                        } else {
-                          await controller.disableBiometrics();
-                        }
-                      },
-                    ),
+                    _BiometricRow(controller: controller),
                     const KcRowDivider(),
                     KcSettingsRow(
                       icon: Icons.shield_outlined,
@@ -629,5 +612,63 @@ class SettingsPage extends StatelessWidget {
     if (confirmed) {
       await controller.deleteVault();
     }
+  }
+}
+
+/// 指纹开关：设备不支持/未录入时禁用，避免用户点开一个必然失败的系统弹窗。
+class _BiometricRow extends StatefulWidget {
+  const _BiometricRow({required this.controller});
+
+  final KeyCaseController controller;
+
+  @override
+  State<_BiometricRow> createState() => _BiometricRowState();
+}
+
+class _BiometricRowState extends State<_BiometricRow> {
+  late final Future<bool> _available = widget.controller.canUseBiometrics();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final enrolled = KeyCaseScope.of(context).state.biometricEnrolled;
+    return FutureBuilder<bool>(
+      future: _available,
+      builder: (context, snapshot) {
+        final checking = snapshot.connectionState != ConnectionState.done;
+        final available = snapshot.data ?? false;
+        final unavailable = !checking && !available;
+        final subtitle = checking
+            ? l10n.settingsBiometricOff
+            : unavailable
+            ? l10n.errorBiometricUnavailable
+            : enrolled
+            ? l10n.settingsBiometricOn
+            : l10n.settingsBiometricOff;
+        return KcSwitchRow(
+          icon: Icons.fingerprint_rounded,
+          title: l10n.settingsBiometric,
+          subtitle: subtitle,
+          value: enrolled,
+          // 已登记但硬件后来不可用时，仍允许关闭，避免留下无法撤销的开关。
+          onChanged: checking
+              ? null
+              : available
+              ? (value) async {
+                  if (value) {
+                    await widget.controller.enableBiometrics(
+                      reason: l10n.biometricEnableReason,
+                      cancelLabel: l10n.actionCancel,
+                    );
+                  } else {
+                    await widget.controller.disableBiometrics();
+                  }
+                }
+              : enrolled
+              ? (_) => widget.controller.disableBiometrics()
+              : null,
+        );
+      },
+    );
   }
 }
