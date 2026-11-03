@@ -4,6 +4,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Changed
+
+- The login editor keeps a single random-password button in the password field instead of
+  repeating it below the field.
+
 ### Fixed
 
 - Scanning a token QR no longer saves it immediately: the scanned data now opens in the

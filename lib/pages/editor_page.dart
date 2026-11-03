@@ -319,16 +319,7 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextButton.icon(
-                          onPressed: _generatePassword,
-                          icon: const Icon(Icons.autorenew_rounded, size: 18),
-                          label: Text(l10n.editorGenerate),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 14),
                       KcLabeledField(
                         label: l10n.editorUrl,
                         controller: _url,

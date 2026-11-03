@@ -92,6 +92,24 @@ void main() {
     expect(find.text('放弃修改？'), findsOneWidget);
     await disposeTestController(tester, test.controller);
   });
+  testWidgets('登录项只在密码框右侧保留一个随机密码按钮', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+
+    await pumpKcPage(
+      tester,
+      controller: test.controller,
+      page: const _EditorLauncher(),
+    );
+
+    expect(find.byType(ItemEditorPage), findsOneWidget);
+    expect(find.byIcon(Icons.visibility_outlined), findsOneWidget);
+    expect(find.byTooltip('生成随机密码'), findsOneWidget);
+    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.autorenew_rounded), findsNothing);
+    await disposeTestController(tester, test.controller);
+  });
 }
 
 /// 先把编辑页压进导航栈，这样「保存 / 返回」都能正常出栈。
@@ -113,7 +131,7 @@ class _EditorLauncherState extends State<_EditorLauncher> {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => ItemEditorPage(
-            kind: widget.draft?.kind ?? ItemKind.totp,
+            kind: widget.draft?.kind ?? ItemKind.login,
             initialDraft: widget.draft,
           ),
         ),
