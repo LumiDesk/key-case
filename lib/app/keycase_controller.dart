@@ -149,6 +149,7 @@ class KeyCaseController extends ChangeNotifier {
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final session = await _vault.unlock(password);
+      _clock?.resume();
       _emit(
         _state.copyWith(
           status: VaultStatus.unlocked,
@@ -208,6 +209,7 @@ class KeyCaseController extends ChangeNotifier {
         return false;
       }
       final session = await _vault.unlockWithVaultKey(vaultKey);
+      _clock?.resume();
       _emit(
         _state.copyWith(
           status: VaultStatus.unlocked,
@@ -286,6 +288,7 @@ class KeyCaseController extends ChangeNotifier {
 
   void lock() {
     if (!_state.isUnlocked) return;
+    _clock?.pause();
     _vault.lock();
     _emit(
       _state.copyWith(
@@ -305,6 +308,7 @@ class KeyCaseController extends ChangeNotifier {
   }
 
   void handleAppPaused() {
+    _clock?.pause();
     _pausedAt = DateTime.now();
     if (_externalActivityOpen) return;
     if (_preferences.autoLockSeconds == 0) {
@@ -313,6 +317,7 @@ class KeyCaseController extends ChangeNotifier {
   }
 
   void handleAppResumed() {
+    _clock?.resume();
     final pausedAt = _pausedAt;
     _pausedAt = null;
     final wasExternal = _externalActivityOpen;
