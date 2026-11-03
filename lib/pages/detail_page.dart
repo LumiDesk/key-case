@@ -1,4 +1,4 @@
-import '../app/keycase_controller.dart';
+﻿import '../app/keycase_controller.dart';
 
 import 'dart:async';
 
@@ -347,7 +347,6 @@ class _LoginPanel extends StatelessWidget {
                 ? null
                 : () => copyToClipboard(context, item.notes),
           ),
-          if (item.urls.isEmpty && item.notes.isEmpty) const SizedBox.shrink(),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(

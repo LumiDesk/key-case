@@ -40,13 +40,9 @@ int otpSecondsRemaining(TotpSecret secret, DateTime time) {
   return period - elapsed;
 }
 
-/// 下一组的验证码（TOTP/Steam）。HOTP 用 [nextHotpCode]。
+/// 下一组的验证码（TOTP/Steam）。
 String nextOtpCode(TotpSecret secret, DateTime time) =>
     generateOtpCode(secret: secret, counter: otpCounterAt(secret, time) + 1);
-
-/// HOTP「下一个」：消费当前计数器后返回该计数器的码。
-String currentHotpCode(TotpSecret secret) =>
-    generateOtpCode(secret: secret, counter: secret.counter);
 
 Uint8List _hmac(OtpHashAlgorithm algorithm, Uint8List key, int counter) {
   final message = Uint8List(8);

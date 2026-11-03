@@ -10,9 +10,6 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'KeyCase';
-
-  @override
   String get navHome => 'Home';
 
   @override
@@ -46,25 +43,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionBack => 'Back';
 
   @override
-  String get actionRetry => 'Retry';
-
-  @override
   String get actionNext => 'Next';
 
   @override
   String get actionAdd => 'Add';
 
   @override
-  String get actionConfirm => 'Confirm';
-
-  @override
   String get actionSearch => 'Search';
 
   @override
   String get actionSort => 'Sort';
-
-  @override
-  String get actionDone => 'Done';
 
   @override
   String get actionRestore => 'Restore';
@@ -623,9 +611,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get restoreBackupMessage =>
       'This replaces the current vault and disables fingerprint unlock. Continue?';
-
-  @override
-  String get importBackupAction => 'Import and replace';
 
   @override
   String get settingsImportAegis => 'Import from Aegis';

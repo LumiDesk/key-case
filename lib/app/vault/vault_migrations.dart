@@ -1,20 +1,16 @@
 import '../models/models.dart';
 import 'vault_container.dart';
-import 'vault_migrations_v1.dart';
 
-export 'vault_migrations_v1.dart' show VaultDecoded, VaultMigrationReport;
-
-/// payload 结构迁移。
+/// payload 结构版本守卫。
 ///
-/// bridge 构建支持 v1 → v2；final 构建会删除 v1 分支与本文件中的迁移入口。
-/// 规则：只追加新版本，不回改历史。
+/// 当前只支持 [VaultData.currentSchemaVersion]；旧版本保险库/备份不再兼容。
+/// 未来新增结构时在这里追加 N -> N+1，不回改历史段。
 class VaultMigrations {
   const VaultMigrations._();
 
-  static VaultDecoded decode(Map<String, Object?> json) {
-    final version = (json['schemaVersion'] as num?)?.toInt() ?? 1;
-
-    if (version < 1) {
+  static VaultData decode(Map<String, Object?> json) {
+    final version = (json['schemaVersion'] as num?)?.toInt();
+    if (version == null || version < 1) {
       throw const VaultFormatException(
         '保险库结构版本不合法',
         code: VaultErrorCode.corrupted,
@@ -26,11 +22,14 @@ class VaultMigrations {
         code: VaultErrorCode.unsupportedVersion,
       );
     }
-    if (version == 1) {
-      return migrateV1Vault(json);
+    if (version < VaultData.currentSchemaVersion) {
+      throw const VaultFormatException(
+        '该保险库由旧版 KeyCase 创建，当前版本不再支持',
+        code: VaultErrorCode.unsupportedVersion,
+      );
     }
     try {
-      return VaultDecoded(data: VaultData.fromJson(json));
+      return VaultData.fromJson(json);
     } on FormatException catch (error) {
       throw VaultFormatException(
         '保险库正文格式不正确：${error.message}',

@@ -125,7 +125,10 @@ tool/                          # 本地基准等非产品入口
 
 ### 数据与备份
 
-- 容器格式变更：提升 `VaultData.currentSchemaVersion`，在 `VaultMigrations` 追加“升到 N+1”的段，永不回改历史段，并补迁移测试。
+- 容器格式：`KCV1` + `formatVersion 1` + payload `schemaVersion 2`；条目只用互斥的
+  `login` / `totp` 嵌套对象，不再有顶层 `username/password/urls/notes/totp`。
+- 结构变更：提升 `VaultData.currentSchemaVersion`，在 `VaultMigrations` 追加“升到 N+1”的段，
+  永不回改历史段，并补迁移测试；当前只支持 v2，旧版库/备份直接拒绝。
 - 模型字段变更同步 `toJson` / `fromJson` 与往返测试。
 - 备份只有一种形态：同一加密容器的副本（`.kcbak`）。自动快照保留最近 10 份，只写用户选定的 SAF 目录。
 
@@ -146,7 +149,7 @@ flutter build apk --release
 
 ## CI 与发版
 
-- `.github/workflows/ci.yaml`：push 到 `main` 时跑格式检查、analyze、全量测试与 debug APK 编译。
+- `.github/workflows/ci.yaml`：push 到 `main` 时跑格式检查、analyze、全量测试、覆盖率、debug 与 release APK 编译。
 - `.github/workflows/release.yml`：推送 `vX.Y.Z` 标签时用 `signing/` 里的 keystore 构建签名 APK 并发布 GitHub Release（预发布，真机验收后手动提升）。
 - 发版必须得到用户明确授权；脚本 `dart run scripts/publish.dart patch|minor|major`。
 - 签名材料是已确认的仓库例外，不要替换或额外扩散。

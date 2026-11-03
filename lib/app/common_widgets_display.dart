@@ -98,21 +98,17 @@ class KcCodeCapsule extends StatelessWidget {
     required this.code,
     required this.onTap,
     this.hidden = false,
-    this.failed = false,
   });
 
   final String code;
   final VoidCallback onTap;
   final bool hidden;
-  final bool failed;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final color = failed
-        ? kcSemantic(context, kcDanger)
-        : theme.colorScheme.onSurface;
+    final color = theme.colorScheme.onSurface;
     return Semantics(
       button: true,
       label: hidden ? l10n.detailShowCode : l10n.actionCopy,
@@ -278,22 +274,18 @@ class KcDetailRow extends StatelessWidget {
     super.key,
     required this.label,
     required this.value,
-    this.icon,
     this.onCopy,
     this.onTap,
     this.obscure = false,
     this.trailing,
-    this.monospace = false,
   });
 
   final String label;
   final String value;
-  final IconData? icon;
   final VoidCallback? onCopy;
   final VoidCallback? onTap;
   final bool obscure;
   final Widget? trailing;
-  final bool monospace;
 
   @override
   Widget build(BuildContext context) {
@@ -323,10 +315,6 @@ class KcDetailRow extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w500,
-                  fontFeatures: monospace
-                      ? const <FontFeature>[FontFeature.tabularFigures()]
-                      : null,
-                  letterSpacing: monospace ? 0.6 : 0,
                 ),
               ),
             ),

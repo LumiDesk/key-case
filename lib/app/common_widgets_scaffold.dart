@@ -1,4 +1,4 @@
-part of '../common_widgets.dart';
+﻿part of '../common_widgets.dart';
 
 // 页面骨架域：KcPage / KcCard / KcHeader / KcSectionLabel / KcEmptyState。
 
@@ -259,23 +259,6 @@ class KcEmptyState extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// 顶部细进度条：用在「正在保存/解锁」这类不定长操作上。
-class KcTopProgress extends StatelessWidget {
-  const KcTopProgress({super.key, required this.visible});
-
-  final bool visible;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      child: visible
-          ? const LinearProgressIndicator(minHeight: 2)
-          : const SizedBox(height: 2),
     );
   }
 }

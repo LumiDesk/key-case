@@ -10,9 +10,6 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get appName => 'KeyCase';
-
-  @override
   String get navHome => '首页';
 
   @override
@@ -46,25 +43,16 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionBack => '返回';
 
   @override
-  String get actionRetry => '重试';
-
-  @override
   String get actionNext => '下一个';
 
   @override
   String get actionAdd => '添加';
 
   @override
-  String get actionConfirm => '确认';
-
-  @override
   String get actionSearch => '搜索';
 
   @override
   String get actionSort => '排序';
-
-  @override
-  String get actionDone => '完成';
 
   @override
   String get actionRestore => '恢复';
@@ -608,9 +596,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreBackupMessage => '将用备份替换当前保险库，并关闭指纹解锁。继续？';
-
-  @override
-  String get importBackupAction => '导入并替换';
 
   @override
   String get settingsImportAegis => '从 Aegis 导入';

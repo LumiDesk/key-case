@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// No description provided for @appName.
-  ///
-  /// In zh, this message translates to:
-  /// **'KeyCase'**
-  String get appName;
-
   /// No description provided for @navHome.
   ///
   /// In zh, this message translates to:
@@ -170,12 +164,6 @@ abstract class AppLocalizations {
   /// **'返回'**
   String get actionBack;
 
-  /// No description provided for @actionRetry.
-  ///
-  /// In zh, this message translates to:
-  /// **'重试'**
-  String get actionRetry;
-
   /// No description provided for @actionNext.
   ///
   /// In zh, this message translates to:
@@ -188,12 +176,6 @@ abstract class AppLocalizations {
   /// **'添加'**
   String get actionAdd;
 
-  /// No description provided for @actionConfirm.
-  ///
-  /// In zh, this message translates to:
-  /// **'确认'**
-  String get actionConfirm;
-
   /// No description provided for @actionSearch.
   ///
   /// In zh, this message translates to:
@@ -205,12 +187,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'排序'**
   String get actionSort;
-
-  /// No description provided for @actionDone.
-  ///
-  /// In zh, this message translates to:
-  /// **'完成'**
-  String get actionDone;
 
   /// No description provided for @actionRestore.
   ///
@@ -1291,12 +1267,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'将用备份替换当前保险库，并关闭指纹解锁。继续？'**
   String get restoreBackupMessage;
-
-  /// No description provided for @importBackupAction.
-  ///
-  /// In zh, this message translates to:
-  /// **'导入并替换'**
-  String get importBackupAction;
 
   /// No description provided for @settingsImportAegis.
   ///

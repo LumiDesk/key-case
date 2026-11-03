@@ -6,10 +6,7 @@ import 'package:keycase/pages/settings_page.dart';
 import 'support/controller_factory.dart';
 import 'support/hosts.dart';
 
-Future<void> pumpAt(
-  WidgetTester tester, {
-  required Widget page,
-}) async {
+Future<void> pumpAt(WidgetTester tester, {required Widget page}) async {
   final test = makeController();
   await test.controller.bootstrap();
   await test.controller.unlock('pw');
@@ -19,9 +16,7 @@ Future<void> pumpAt(
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
   addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-  await tester.pumpWidget(
-    kcTestApp(controller: test.controller, home: page),
-  );
+  await tester.pumpWidget(kcTestApp(controller: test.controller, home: page));
   await tester.pumpAndSettle();
 }
 

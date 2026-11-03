@@ -42,9 +42,9 @@ from **Settings → About**.
 | Area | What you get |
 |---|---|
 | **Vault** | Create with a master password, unlock, lock now, auto-lock when leaving the app; unlocking returns to the page you were on |
-| **Security** | Argon2id key derivation, AES-256-GCM, optional `FLAG_SECURE`, biometric unlock via Android Keystore |
-| **Logins** | Account, password, URL, notes, random password generator, copy to clipboard |
-| **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview |
+| **Security** | Argon2id key derivation, AES-256-GCM, `FLAG_SECURE` on by default, biometric unlock via Android Keystore, clipboard auto-clear |
+| **Logins** | Account, password, multiple URLs, notes, random password generator, copy to clipboard |
+| **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview; optional notes |
 | **Lists** | A–Z grouping, search across names/accounts/URLs/notes, favorites, three sort orders |
 | **Icons** | Bundled Aegis Simple Icons pack, automatic brand matching, searchable picker, custom image icons |
 | **Imports** | Aegis JSON exports (plain or password-encrypted), Google Authenticator migration links, KeyCase backups |
@@ -59,7 +59,7 @@ from **Settings → About**.
 |---|---|
 | UI | Flutter 3.47.2, Material 3, project design tokens (`kc*` colors, radii, `KcPage` / `KcCard` / `KcHeader`) |
 | State | `ChangeNotifier` + `InheritedNotifier`; no Provider/Riverpod/Bloc |
-| Vault format | Single `KCV1` file: JSON + gzip payload, `AES-256-GCM`, 16-byte tag |
+| Vault format | Single `KCV1` file; payload `schemaVersion 2`: gzip JSON with mutually exclusive `login` / `totp` objects, `AES-256-GCM`, 16-byte tag |
 | Key derivation | `Argon2id` (64 MiB, 3 iterations, p=2) via `cryptography`; parameters stored in the container header |
 | Native bridge | One `MethodChannel`: `FLAG_SECURE`, Android Keystore-wrapped vault key, SAF backup folder I/O |
 | Biometrics | `local_auth` / `BiometricPrompt` with master-password fallback |
@@ -113,11 +113,14 @@ docs/                             design system, components, architecture, decis
 ## Security model
 
 - **Encrypted at rest.** Entries only exist inside the `KCV1` container. The
-  payload is gzip-compressed JSON encrypted with a random 256-bit vault key;
+  `schemaVersion 2` payload is gzip-compressed JSON with mutually exclusive login/token
+  objects, encrypted with a random 256-bit vault key;
   the vault key is wrapped by a password key derived with Argon2id. The vault id
   is bound as AAD.
 - **No plaintext on disk.** Master password, vault key, TOTP secrets, and entry
   contents are never written to logs, preferences, caches, or temporary files.
+- **Clipboard.** Copied passwords and codes are cleared after 60 seconds when the clipboard
+  still contains the value KeyCase wrote. This can be disabled in Settings.
 - **Biometric unlock.** The vault key is encrypted by a non-exportable Android
   Keystore key and stored in app-private preferences. The system BiometricPrompt
   gates every unlock; the master password remains the fallback.
@@ -170,8 +173,9 @@ device.
 
 ## Project status
 
-Current version: **1.0.7** (`1.0.7+12`). Only Android is supported. The
-`android/` directory is the sole delivery target; there is no web or desktop
+Only Android is supported. The vault payload is `schemaVersion 2`; `schemaVersion 1`
+vaults and backups are no longer readable. The `android/` directory is the sole delivery target;
+there is no web or desktop
 build. See [CHANGELOG.md](CHANGELOG.md) for user-visible changes.
 
 ## Documentation

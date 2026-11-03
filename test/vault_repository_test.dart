@@ -172,7 +172,7 @@ void main() {
     expect(unlocked.data.items.single.title, 'Second-saved');
   });
 
-  test('v1 解锁后自动原子写回 v2', () async {
+  test('旧版 v1 库被拒绝且不产生会话', () async {
     const vaultId = 'legacy-vault';
     final now = DateTime.utc(2026, 1, 1);
     final v1Bytes = await _buildV1Vault(
@@ -183,23 +183,17 @@ void main() {
     await File(p.join(directory.path, VaultRepository.fileName))
         .writeAsBytes(v1Bytes);
 
-    final unlocked = await repository.unlock('password');
-
-    expect(unlocked.migration, isNotNull);
-    expect(unlocked.migration!.migrated, 2);
-    expect(unlocked.data.schemaVersion, VaultData.currentSchemaVersion);
-    expect(unlocked.data.items.first.login, isNotNull);
-    expect(unlocked.data.items.last.token, isNotNull);
-
-    final onDisk = await File(p.join(directory.path, VaultRepository.fileName))
-        .readAsBytes();
-    final reread = await VaultContainer.unlock(
-      password: 'password',
-      bytes: onDisk,
+    await expectLater(
+      repository.unlock('password'),
+      throwsA(
+        isA<VaultFormatException>().having(
+          (error) => error.code,
+          'code',
+          VaultErrorCode.unsupportedVersion,
+        ),
+      ),
     );
-    expect(reread.migration, isNull);
-    expect(reread.data.schemaVersion, 2);
-    expect(reread.data.items, hasLength(2));
+    expect(repository.session, isNull);
   });
 
   test('保存过程中锁定：不写回、不复活会话', () async {
@@ -234,7 +228,7 @@ class _GatedRepository extends VaultRepository {
   }
 }
 
-/// 按 v1 的格式手工组装一个 KCV1 容器，用来验证迁移写回。
+/// 按旧格式手工组装一个 KCV1 容器，用来验证旧版本被拒绝。
 Future<Uint8List> _buildV1Vault({
   required String password,
   required String vaultId,

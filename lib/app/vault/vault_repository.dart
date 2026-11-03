@@ -89,11 +89,6 @@ class VaultRepository {
       unlocked.close();
       throw _lockedError;
     }
-    await _persistMigratedIfNeeded(unlocked, epoch);
-    if (epoch != _epoch) {
-      unlocked.close();
-      throw _lockedError;
-    }
     _session?.close();
     _session = unlocked;
     await _deletePreImportQuietly();
@@ -111,11 +106,6 @@ class VaultRepository {
       unlocked.close();
       throw _lockedError;
     }
-    await _persistMigratedIfNeeded(unlocked, epoch);
-    if (epoch != _epoch) {
-      unlocked.close();
-      throw _lockedError;
-    }
     _session?.close();
     _session = unlocked;
     await _deletePreImportQuietly();
@@ -128,26 +118,6 @@ class VaultRepository {
       if (await file.exists()) await file.delete();
     } catch (error) {
       AppLogger.warn('delete pre-import copy failed: $error');
-    }
-  }
-
-  /// bridge 构建：v1 解锁后立即原子写回 v2；失败则不返回会话，旧文件保持原样。
-  Future<void> _persistMigratedIfNeeded(
-    UnlockedVault unlocked,
-    int epoch,
-  ) async {
-    if (unlocked.migration == null) return;
-    try {
-      await _serialize(() async {
-        if (epoch != _epoch) throw _lockedError;
-        final bytes = await VaultContainer.seal(unlocked);
-        if (epoch != _epoch) throw _lockedError;
-        await _writeAtomic(bytes);
-        if (epoch != _epoch) throw _lockedError;
-      });
-    } catch (_) {
-      unlocked.close();
-      rethrow;
     }
   }
 
@@ -225,22 +195,13 @@ class VaultRepository {
       unlocked.close();
       throw _lockedError;
     }
-    final Uint8List target;
-    try {
-      target = unlocked.migration == null
-          ? bytes
-          : await VaultContainer.seal(unlocked);
-    } catch (_) {
-      unlocked.close();
-      rethrow;
-    }
     final file = await _vaultFile();
     if (await file.exists()) {
       await file.copy(p.join((await _directory()).path, preImportFileName));
     }
     await _serialize(() async {
       if (epoch != _epoch) throw _lockedError;
-      await _writeAtomic(target);
+      await _writeAtomic(bytes);
       if (epoch != _epoch) throw _lockedError;
       _session?.close();
       _session = unlocked;

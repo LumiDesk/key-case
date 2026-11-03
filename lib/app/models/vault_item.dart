@@ -74,7 +74,7 @@ class TokenData {
 
   final TotpSecret secret;
 
-  /// 账号/用户名（v1 的 `username` 迁移到这里）。
+  /// 账号/用户名（登录项用 username，令牌用 account）。
   final String account;
   final String notes;
 

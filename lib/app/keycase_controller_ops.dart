@@ -145,12 +145,14 @@ extension KeyCaseControllerOps on KeyCaseController {
       return false;
     }
     return _enqueue(() async {
+      final base = _state.data;
       _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
       try {
         await _vault.changePassword(
           currentPassword: currentPassword,
           newPassword: newPassword,
         );
+        if (!_state.isUnlocked || !identical(_state.data, base)) return false;
         _emit(
           _state.copyWith(busy: false, notice: KeyCaseNotice.passwordChanged),
         );
@@ -262,11 +264,12 @@ extension KeyCaseControllerOps on KeyCaseController {
     KeyCaseNotice? notice,
     bool snapshot = false,
   }) async {
+    final base = _state.data;
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final bytes = await _vault.save(next);
-      // 保存期间可能已经锁定；锁定后绝不把明文写回状态。
-      if (!_state.isUnlocked || _state.data == null) return;
+      // 保存期间可能锁定/解锁过；基于旧数据的写入不能覆盖新会话。
+      if (!_state.isUnlocked || !identical(_state.data, base)) return;
       _emit(
         _state.copyWith(
           data: next,
@@ -322,7 +325,7 @@ extension KeyCaseImportOps on KeyCaseController {
         );
         final merged = mergeImportedItems(data, result.items);
         final sealed = await _vault.save(merged.data);
-        if (!_state.isUnlocked) return false;
+        if (!_state.isUnlocked || !identical(_state.data, data)) return false;
         _emit(
           _state.copyWith(
             data: merged.data,
@@ -361,7 +364,7 @@ extension KeyCaseImportOps on KeyCaseController {
         ];
         final merged = mergeImportedItems(data, imported);
         final sealed = await _vault.save(merged.data);
-        if (!_state.isUnlocked) return false;
+        if (!_state.isUnlocked || !identical(_state.data, data)) return false;
         _emit(
           _state.copyWith(
             data: merged.data,
