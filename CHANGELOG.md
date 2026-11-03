@@ -30,6 +30,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - Malformed or hostile backup headers can no longer force an unbounded Argon2id allocation.
 - TOTP parameters are validated before use, so a damaged token cannot crash the list.
 - Importing a backup clears the stale Keystore-wrapped vault key.
+- Token codes no longer sit in an oversized capsule or align toward the top of the row.
+- The fingerprint prompt uses the selected app language and no longer repeats the same
+  sentence as title, hint, and reason.
+- The bottom feedback pill follows the light/dark theme instead of always being dark in light mode.
+- “Check for updates” shows an inline spinner and cannot be triggered twice while running.
 
 ## [1.0.7] - 2026-11-03
 

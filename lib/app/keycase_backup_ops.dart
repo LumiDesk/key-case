@@ -50,6 +50,8 @@ extension KeyCaseBackupOps on KeyCaseController {
   /// 检查 GitHub Release。失败返回 `failed: true`，由 UI 给出提示；
   /// 已是最新返回 `info: null`。
   Future<({UpdateInfo? info, bool failed})> checkUpdates() async {
+    if (isDisposed) return (info: null, failed: true);
+    updateCheckInProgress.value = true;
     _emit(_state.copyWith(busy: true, clearError: true, clearNotice: true));
     try {
       final info = await checkForUpdate(kAppVersion);
@@ -59,6 +61,8 @@ extension KeyCaseBackupOps on KeyCaseController {
       AppLogger.warn('update check failed: $error');
       _emit(_state.copyWith(busy: false));
       return (info: null, failed: true);
+    } finally {
+      if (!isDisposed) updateCheckInProgress.value = false;
     }
   }
 }

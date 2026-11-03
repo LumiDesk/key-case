@@ -758,6 +758,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get biometricEnableReason => '验证指纹以启用快捷解锁';
 
   @override
+  String get biometricPromptHint => '使用指纹解锁';
+
+  @override
+  String get biometricEnableHint => '使用指纹启用快捷解锁';
+
+  @override
   String get deleteVaultAction => '删除保险库';
 
   @override

@@ -107,21 +107,34 @@ class _FeedbackPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final background = isDark ? kcSurfaceRaisedDark : kcSurfaceLight;
+    final borderColor = isDark ? Colors.white.withValues(alpha: 0.12) : kcLine;
     return Container(
       constraints: const BoxConstraints(maxWidth: 320),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: isDark ? kcSurfaceRaisedDark : kcInk,
+        color: background,
         borderRadius: BorderRadius.circular(kcRadiusXl),
+        border: Border.all(color: borderColor),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.24 : 0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Text(
         text,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         textAlign: TextAlign.center,
-        style: Theme.of(context).textTheme.bodyMedium
-            ?.copyWith(color: Colors.white, fontWeight: FontWeight.w500),
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurface,
+          fontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

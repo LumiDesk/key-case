@@ -113,29 +113,23 @@ class KcCodeCapsule extends StatelessWidget {
       button: true,
       label: hidden ? l10n.detailShowCode : l10n.actionCopy,
       child: ExcludeSemantics(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Material(
-            color: theme.colorScheme.primary.withValues(alpha: 0.08),
+        child: Material(
+          color: theme.colorScheme.primary.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(kcRadiusSm),
+          child: InkWell(
             borderRadius: BorderRadius.circular(kcRadiusSm),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(kcRadiusSm),
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                child: Text(
-                  hidden ? hiddenOtpCode(code) : code,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.6,
-                    fontFeatures: const <FontFeature>[
-                      FontFeature.tabularFigures(),
-                    ],
-                  ),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              child: Text(
+                hidden ? hiddenOtpCode(code) : code,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                  fontFeatures: const <FontFeature>[
+                    FontFeature.tabularFigures(),
+                  ],
                 ),
               ),
             ),

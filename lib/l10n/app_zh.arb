@@ -268,6 +268,8 @@
   "errorOpenLinkFailed": "无法打开链接",
   "biometricUnlockReason": "验证指纹以解锁 KeyCase",
   "biometricEnableReason": "验证指纹以启用快捷解锁",
+  "biometricPromptHint": "使用指纹解锁",
+  "biometricEnableHint": "使用指纹启用快捷解锁",
   "deleteVaultAction": "删除保险库",
   "errorBackupFolderMissing": "还没有选择备份目录",
   "noticeBackupFolderSelected": "备份目录已设置",

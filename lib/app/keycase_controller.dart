@@ -55,12 +55,18 @@ class KeyCaseController extends ChangeNotifier {
   OtpClock? _clock;
   OtpClock get clock => _clock ??= OtpClock();
 
+  /// 检查更新是唯一会联网的动作；设置页用它显示行内加载态。
+  final ValueNotifier<bool> updateCheckInProgress = ValueNotifier<bool>(false);
+
   KeyCaseState _state = const KeyCaseState();
   AppPreferences _preferences = const AppPreferences();
 
   DateTime? _pausedAt;
   bool _externalActivityOpen = false;
   bool _disposed = false;
+
+  /// 供异步扩展在回调落地前判断生命周期。
+  bool get isDisposed => _disposed;
   DateTime? _lastAutoSnapshotAt;
 
   /// 串行化所有会修改保险库的操作。每个操作在队列里读取“执行时”的状态，
@@ -171,6 +177,7 @@ class KeyCaseController extends ChangeNotifier {
   Future<bool> unlockWithBiometrics({
     required String reason,
     String cancelLabel = '取消',
+    String? hint,
   }) async {
     if (_state.busy) return false;
     if (!_state.biometricEnrolled) {
@@ -187,6 +194,7 @@ class KeyCaseController extends ChangeNotifier {
       final result = await _biometrics.authenticate(
         reason: reason,
         cancelLabel: cancelLabel,
+        hint: hint,
       );
       switch (result) {
         case BiometricResult.success:
@@ -230,6 +238,7 @@ class KeyCaseController extends ChangeNotifier {
   Future<bool> enableBiometrics({
     required String reason,
     String cancelLabel = '取消',
+    String? hint,
   }) async {
     final session = _vault.session;
     if (session == null) {
@@ -243,6 +252,7 @@ class KeyCaseController extends ChangeNotifier {
     final result = await _biometrics.authenticate(
       reason: reason,
       cancelLabel: cancelLabel,
+      hint: hint,
     );
     switch (result) {
       case BiometricResult.success:
@@ -406,6 +416,7 @@ class KeyCaseController extends ChangeNotifier {
     if (_disposed) return;
     _disposed = true;
     _clock?.dispose();
+    updateCheckInProgress.dispose();
     _vault.lock();
     super.dispose();
   }

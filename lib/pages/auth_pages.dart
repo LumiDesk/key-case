@@ -162,6 +162,7 @@ class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
         controller.unlockWithBiometrics(
           reason: l10n.biometricUnlockReason,
           cancelLabel: l10n.actionCancel,
+          hint: l10n.biometricPromptHint,
         ),
       );
     });
@@ -181,6 +182,7 @@ class _UnlockPageState extends State<UnlockPage> with WidgetsBindingObserver {
     await controller.unlockWithBiometrics(
       reason: l10n.biometricUnlockReason,
       cancelLabel: l10n.actionCancel,
+      hint: l10n.biometricPromptHint,
     );
   }
 

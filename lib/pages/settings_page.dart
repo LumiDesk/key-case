@@ -157,6 +157,7 @@ class SettingsPage extends StatelessWidget {
                           await controller.enableBiometrics(
                             reason: l10n.biometricEnableReason,
                             cancelLabel: l10n.actionCancel,
+                            hint: l10n.biometricEnableHint,
                           );
                         } else {
                           await controller.disableBiometrics();
@@ -309,10 +310,23 @@ class SettingsPage extends StatelessWidget {
                       subtitle: '$kAppVersion+$kAppBuildNumber',
                     ),
                     const KcRowDivider(),
-                    KcSettingsRow(
-                      icon: Icons.system_update_outlined,
-                      title: l10n.settingsCheckUpdate,
-                      onTap: () => _checkUpdates(context),
+                    ValueListenableBuilder<bool>(
+                      valueListenable: KeyCaseScope.of(context)
+                          .updateCheckInProgress,
+                      builder: (context, checking, _) => KcSettingsRow(
+                        icon: Icons.system_update_outlined,
+                        title: l10n.settingsCheckUpdate,
+                        trailing: checking
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : null,
+                        onTap: checking ? null : () => _checkUpdates(context),
+                      ),
                     ),
                     const KcRowDivider(),
                     KcSettingsRow(

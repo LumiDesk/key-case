@@ -265,6 +265,7 @@ void main() {
       final ok = await test.controller.enableBiometrics(
         reason: 'enable',
         cancelLabel: 'Cancel',
+        hint: 'Use fingerprint',
       );
 
       expect(ok, isTrue);
@@ -272,6 +273,7 @@ void main() {
       expect(test.native.vaultKey, isNotNull);
       expect(test.preferences.value.biometricEnabled, isTrue);
       expect(test.biometrics.lastCancelLabel, 'Cancel');
+      expect(test.biometrics.lastHint, 'Use fingerprint');
     });
 
     test('用户取消时静默回退且不显示错误', () async {
