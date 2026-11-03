@@ -40,11 +40,20 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
   final KcFeedbackController _feedback = KcFeedbackController();
   VaultStatus _lastStatus = VaultStatus.loading;
 
+  /// 本次运行是否解锁过。为 true 时锁定不再销毁主界面，而是用解锁页盖住
+  /// 当前页面，解锁后回到锁定前的位置。
+  bool _sessionStarted = false;
+
+  /// 盖在最上层的解锁路由；非 null 表示当前正锁屏。
+  Route<void>? _lockRoute;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _lastStatus = widget.controller.state.status;
+    // 演示数据等场景可能在 runApp 之前就已解锁，这里同步一次会话标记。
+    _sessionStarted = _lastStatus == VaultStatus.unlocked;
     widget.controller.addListener(_handleStateChange);
   }
 
@@ -72,16 +81,31 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
 
   /// 出错与一次性提示统一在这里消费：错误只在已解锁时用轻提示，
   /// 锁定/创建页把错误显示在表单里。
+  ///
+  /// 锁定不会关闭已打开的详情、搜索、编辑等页面：用全屏解锁路由盖住它们，
+  /// 解锁后原地返回。保险库数据与密钥仍由 Controller 立即清空。
   void _handleStateChange() {
     final state = widget.controller.state;
-    final wasUnlocked = _lastStatus == VaultStatus.unlocked;
+    final previous = _lastStatus;
     _lastStatus = state.status;
-    if (wasUnlocked && state.status != VaultStatus.unlocked) {
-      // 锁定后把已打开的详情/编辑/搜索等页面一起关掉，不能让明文留在栈顶。
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _navigatorKey.currentState?.popUntil((route) => route.isFirst);
-      });
+
+    switch (state.status) {
+      case VaultStatus.unlocked:
+        _sessionStarted = true;
+        if (previous == VaultStatus.locked) _dismissLockRoute();
+      case VaultStatus.locked:
+        if (previous == VaultStatus.unlocked) _showLockRoute();
+      case VaultStatus.missing:
+        // 保险库被删除后没有可恢复的会话，回到创建页。
+        _sessionStarted = false;
+        _dismissLockRoute();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _navigatorKey.currentState?.popUntil((route) => route.isFirst);
+        });
+      case VaultStatus.loading:
+        break;
     }
+
     final l10n = _localizations();
     if (state.notice != null) {
       _feedback.show(
@@ -93,6 +117,35 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
       _feedback.show(errorText(l10n, state.error!));
       widget.controller.clearError();
     }
+  }
+
+  /// 锁定：在导航栈顶压一个不可返回的全屏解锁页，原页面留在下面。
+  void _showLockRoute() {
+    if (_lockRoute != null) return;
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null) return;
+    final route = PageRouteBuilder<void>(
+      settings: const RouteSettings(name: 'keycase_lock'),
+      opaque: true,
+      barrierDismissible: false,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+      pageBuilder: (_, _, _) => const _LockScreen(),
+    );
+    _lockRoute = route;
+    unawaited(
+      navigator.push<void>(route).whenComplete(() {
+        if (identical(_lockRoute, route)) _lockRoute = null;
+      }),
+    );
+  }
+
+  /// 解锁成功：直接移除解锁页，回到锁定前的那一页。
+  void _dismissLockRoute() {
+    final route = _lockRoute;
+    if (route == null) return;
+    _lockRoute = null;
+    _navigatorKey.currentState?.removeRoute(route);
   }
 
   AppLocalizations _localizations() {
@@ -149,7 +202,7 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
               ),
             );
           },
-          home: const _RootGate(),
+          home: _RootGate(sessionStarted: _sessionStarted),
         );
       },
     );
@@ -157,8 +210,13 @@ class _KeyCaseAppState extends State<KeyCaseApp> with WidgetsBindingObserver {
 }
 
 /// 根据保险库状态选择：创建 / 解锁 / 主界面。
+///
+/// 本次运行解锁过之后，锁定不再把主界面换回解锁页——解锁页是压在最上层的
+/// 独立路由（见 [_LockScreen]），主界面保持原状即可。
 class _RootGate extends StatelessWidget {
-  const _RootGate();
+  const _RootGate({required this.sessionStarted});
+
+  final bool sessionStarted;
 
   @override
   Widget build(BuildContext context) {
@@ -169,10 +227,21 @@ class _RootGate extends StatelessWidget {
       child: switch (status) {
         VaultStatus.loading => const _BootSplash(),
         VaultStatus.missing => const CreateVaultPage(),
-        VaultStatus.locked => const UnlockPage(),
+        VaultStatus.locked =>
+          sessionStarted ? const AppShell() : const UnlockPage(),
         VaultStatus.unlocked => const AppShell(),
       },
     );
+  }
+}
+
+/// 锁屏遮罩：盖住锁定前的页面，只露出解锁表单；系统返回键不能关闭它。
+class _LockScreen extends StatelessWidget {
+  const _LockScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return const PopScope(canPop: false, child: UnlockPage());
   }
 }
 

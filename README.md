@@ -41,7 +41,7 @@ from **Settings → About**.
 
 | Area | What you get |
 |---|---|
-| **Vault** | Create with a master password, unlock, lock now, auto-lock when leaving the app |
+| **Vault** | Create with a master password, unlock, lock now, auto-lock when leaving the app; unlocking returns to the page you were on |
 | **Security** | Argon2id key derivation, AES-256-GCM, optional `FLAG_SECURE`, biometric unlock via Android Keystore |
 | **Logins** | Account, password, URL, notes, random password generator, copy to clipboard |
 | **Tokens** | TOTP, HOTP (with counter), Steam; one shared ticker, per-row countdown ring, next-code preview |
@@ -107,7 +107,8 @@ docs/                             design system, components, architecture, decis
 3. UI actions call controller methods; the controller builds the next
    `VaultData`, `VaultRepository.save()` serializes writes, and the container is
    replaced atomically (temp file + rename).
-4. Locking clears the vault key and the in-memory data; the file stays encrypted.
+4. Locking clears the vault key and the decrypted data; the unlock screen covers the
+   current page until you unlock again, then returns you to it. The file stays encrypted.
 
 ## Security model
 

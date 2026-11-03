@@ -13,6 +13,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 - Scanning a token QR no longer saves it immediately: the scanned data now opens in the
   new-token editor, and the token is written only after you tap Save.
+- Unlocking now returns to the screen and tab you were on before locking instead of the
+  Home tab.
 
 ## [1.0.6] - 2026-11-02
 

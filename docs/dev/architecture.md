@@ -36,7 +36,8 @@ KeyCase 只交付 Android，权威数据是应用私有目录里的单个加密�
    （header + vault key + `VaultData`）。
 3. 修改：页面调用 Controller 的操作 → 构造新的 `VaultData` → `VaultRepository.save`
    （写队列串行、临时文件 + rename）→ 更新内存状态 → 可选自动快照。
-4. 锁定：清零 vault key、清空内存数据；后台/超时由 `handleAppPaused` / `handleAppResumed` 驱动。
+4. 锁定：清零 vault key、清空内存里的保险库数据，并用全屏解锁路由盖住当前页面；
+   解锁后回到锁定前的页面。后台/超时由 `handleAppPaused` / `handleAppResumed` 驱动。
 
 ## 分层边界
 
