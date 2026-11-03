@@ -52,7 +52,7 @@
 | 组件 | 用途 |
 |---|---|
 | `KcSettingsRow` | 设置行：图标 + 标题/副标题 + 尾随控件或 chevron |
-| `KcSwitchRow` | 开关行（整行可点） |
+| `KcSwitchRow` | 开关行（整行可点；`onChanged` 为 null 时禁用） |
 | `KcRowDivider` | 卡片内分隔线（缩进到图标下方） |
 | `KcMenuRow<T>` | 静态单选行：设置页样式或 `dense` 紧凑样式，内部统一锚点菜单 |
 | `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错 |

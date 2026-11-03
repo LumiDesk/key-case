@@ -4,6 +4,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-03
+
 ### Added
 
 - Restore an encrypted backup directly from the unlock or create screen, and delete the local vault
