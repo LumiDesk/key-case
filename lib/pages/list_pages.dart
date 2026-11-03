@@ -29,6 +29,7 @@ class _LoginsPageState extends State<LoginsPage> {
   Widget build(BuildContext context) {
     final controller = KeyCaseScope.of(context);
     final items = sortItems(controller.state.loginItems, _sort);
+    final groups = groupByInitial(items);
     final l10n = AppLocalizations.of(context);
 
     return SafeArea(
@@ -60,9 +61,11 @@ class _LoginsPageState extends State<LoginsPage> {
                       title: l10n.loginsEmpty,
                       description: l10n.loginsEmptyDesc,
                     )
-                  : ListView(
+                  : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 96),
-                      children: _buildGroups(items, l10n),
+                      itemCount: groups.length,
+                      itemBuilder: (context, index) =>
+                          _buildGroup(groups[index]),
                     ),
             ),
           ],
@@ -71,10 +74,10 @@ class _LoginsPageState extends State<LoginsPage> {
     );
   }
 
-  List<Widget> _buildGroups(List<VaultItem> items, AppLocalizations l10n) {
-    final groups = groupByInitial(items);
-    return <Widget>[
-      for (final group in groups) ...<Widget>[
+  Widget _buildGroup(({String letter, List<VaultItem> items}) group) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
         KcLetterHeader(letter: group.letter),
         KcCard(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -93,7 +96,7 @@ class _LoginsPageState extends State<LoginsPage> {
           ),
         ),
       ],
-    ];
+    );
   }
 }
 
@@ -122,6 +125,7 @@ class _TokensPageState extends State<TokensPage> {
     final controller = KeyCaseScope.of(context);
     final preferences = controller.preferences;
     final items = sortItems(controller.state.tokenItems, _sort);
+    final groups = groupByInitial(items);
     final l10n = AppLocalizations.of(context);
 
     return SafeArea(
@@ -163,10 +167,11 @@ class _TokensPageState extends State<TokensPage> {
                         label: Text(l10n.editorScanQr),
                       ),
                     )
-                  : ListView(
+                  : ListView.builder(
                       padding: const EdgeInsets.only(bottom: 96),
-                      children: _buildGroups(
-                        items,
+                      itemCount: groups.length,
+                      itemBuilder: (context, index) => _buildGroup(
+                        groups[index],
                         preferences,
                         controller.clock,
                       ),
@@ -178,14 +183,14 @@ class _TokensPageState extends State<TokensPage> {
     );
   }
 
-  List<Widget> _buildGroups(
-    List<VaultItem> items,
+  Widget _buildGroup(
+    ({String letter, List<VaultItem> items}) group,
     AppPreferences preferences,
     OtpClock clock,
   ) {
-    final groups = groupByInitial(items);
-    return <Widget>[
-      for (final group in groups) ...<Widget>[
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
         KcLetterHeader(letter: group.letter),
         KcCard(
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -208,7 +213,7 @@ class _TokensPageState extends State<TokensPage> {
           ),
         ),
       ],
-    ];
+    );
   }
 }
 

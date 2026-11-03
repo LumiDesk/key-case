@@ -516,6 +516,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsPrivacy => 'Privacy';
 
   @override
+  String get settingsLicenses => 'Open source licenses';
+
+  @override
+  String get settingsLicensesDesc => 'Flutter and bundled components';
+
+  @override
   String get settingsPrivacyBody =>
       'KeyCase uploads nothing: no account, no sync, no analytics. Everything lives in the encrypted container on this device.';
 
@@ -683,6 +689,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iconCustom => 'Use a custom image';
+
+  @override
+  String get errorImagePickFailed => 'Could not read the image';
 
   @override
   String get iconRemove => 'Back to automatic';

@@ -1088,6 +1088,18 @@ abstract class AppLocalizations {
   /// **'隐私说明'**
   String get settingsPrivacy;
 
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In zh, this message translates to:
+  /// **'开源许可证'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsLicensesDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'Flutter 与第三方组件'**
+  String get settingsLicensesDesc;
+
   /// No description provided for @settingsPrivacyBody.
   ///
   /// In zh, this message translates to:
@@ -1399,6 +1411,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'使用自定义图片'**
   String get iconCustom;
+
+  /// No description provided for @errorImagePickFailed.
+  ///
+  /// In zh, this message translates to:
+  /// **'无法读取图片'**
+  String get errorImagePickFailed;
 
   /// No description provided for @iconRemove.
   ///

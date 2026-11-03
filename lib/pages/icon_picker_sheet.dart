@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../app/app_theme.dart';
+import '../app/feedback.dart';
 import '../app/icons/aegis_icon.dart';
 import '../app/icons/aegis_icon_pack.dart';
+import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
 import '../l10n/app_localizations.dart';
 import 'sheets.dart';
@@ -38,7 +41,18 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
   bool _pickingImage = false;
 
   @override
+  void initState() {
+    super.initState();
+    AegisIconPack.instance.loaded.addListener(_onPackLoaded);
+  }
+
+  void _onPackLoaded() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   void dispose() {
+    AegisIconPack.instance.loaded.removeListener(_onPackLoaded);
     _query.dispose();
     super.dispose();
   }
@@ -55,6 +69,15 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
       );
       if (picked == null) return;
       final bytes = await picked.readAsBytes();
+      // image_picker 会把相册图片复制到缓存；读完后清掉，避免明文图片残留。
+      if (picked.path.contains('/cache/') ||
+          picked.path.contains('\\cache\\')) {
+        try {
+          await File(picked.path).delete();
+        } catch (error) {
+          AppLogger.warn('delete picked icon cache failed: $error');
+        }
+      }
       if (!mounted) return;
       Navigator.of(context).pop(
         IconRef(
@@ -63,6 +86,12 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
           data: base64Encode(bytes),
         ),
       );
+    } catch (error) {
+      AppLogger.warn('pick custom icon failed: $error');
+      if (mounted) {
+        KcFeedbackScope.maybeOf(context)
+            ?.show(AppLocalizations.of(context).errorImagePickFailed);
+      }
     } finally {
       if (mounted) setState(() => _pickingImage = false);
     }
@@ -132,27 +161,33 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
           ),
           const SizedBox(height: 6),
           Flexible(
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-              itemCount: names.length,
-              itemBuilder: (context, index) {
-                final name = names[index];
-                return InkWell(
-                  key: ValueKey<String>('icon_$name'),
-                  borderRadius: BorderRadius.circular(kcRadiusMd),
-                  onTap: () => Navigator.of(context).pop(IconRef(name: name)),
-                  child: Tooltip(
-                    message: name,
-                    child: Center(child: AegisIcon(name: name, size: 36)),
+            child: !pack.loaded.value
+                ? const Center(child: CircularProgressIndicator())
+                : names.isEmpty
+                ? Center(child: Text(l10n.searchNoResults))
+                : GridView.builder(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                        ),
+                    itemCount: names.length,
+                    itemBuilder: (context, index) {
+                      final name = names[index];
+                      return InkWell(
+                        key: ValueKey<String>('icon_$name'),
+                        borderRadius: BorderRadius.circular(kcRadiusMd),
+                        onTap: () =>
+                            Navigator.of(context).pop(IconRef(name: name)),
+                        child: Tooltip(
+                          message: name,
+                          child: Center(child: AegisIcon(name: name, size: 36)),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),

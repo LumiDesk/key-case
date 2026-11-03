@@ -507,6 +507,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsPrivacy => '隐私说明';
 
   @override
+  String get settingsLicenses => '开源许可证';
+
+  @override
+  String get settingsLicensesDesc => 'Flutter 与第三方组件';
+
+  @override
   String get settingsPrivacyBody =>
       'KeyCase 不上传任何数据：没有账号、没有云同步、没有统计。所有内容都保存在本机的加密容器里。';
 
@@ -666,6 +672,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get iconCustom => '使用自定义图片';
+
+  @override
+  String get errorImagePickFailed => '无法读取图片';
 
   @override
   String get iconRemove => '恢复自动匹配';

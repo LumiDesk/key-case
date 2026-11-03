@@ -9,6 +9,46 @@ import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
 import 'item_tiles.dart';
 
+/// 首页派生数据的缓存：按 `VaultData` 实例失效，避免每次 build 重做审计与排序。
+final Expando<_HomeCache> _homeCaches = Expando<_HomeCache>('home');
+
+_HomeCache _cacheFor(VaultData? data) {
+  if (data == null) return const _HomeCache.empty();
+  return _homeCaches[data] ??= _HomeCache.from(data);
+}
+
+class _HomeCache {
+  const _HomeCache({
+    required this.issues,
+    required this.favorites,
+    required this.recent,
+    required this.activeCount,
+  });
+
+  const _HomeCache.empty()
+    : issues = 0,
+      favorites = const <VaultItem>[],
+      recent = const <VaultItem>[],
+      activeCount = 0;
+
+  factory _HomeCache.from(VaultData data) {
+    final active = data.activeItems;
+    final recent = <VaultItem>[...active]
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return _HomeCache(
+      issues: securityIssueItemCount(active),
+      favorites: active.where((item) => item.favorite).toList(growable: false),
+      recent: recent.take(5).toList(growable: false),
+      activeCount: active.length,
+    );
+  }
+
+  final int issues;
+  final List<VaultItem> favorites;
+  final List<VaultItem> recent;
+  final int activeCount;
+}
+
 /// 首页：概览 + 安全提醒 + 收藏 + 最近更新。
 class HomePage extends StatelessWidget {
   const HomePage({
@@ -32,15 +72,11 @@ class HomePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final logins = state.loginItems;
     final tokens = state.tokenItems;
-    final issues = securityIssueItemCount(state.activeItems);
-
-    final favorites = state.activeItems
-        .where((item) => item.favorite)
-        .toList(growable: false);
-    final recent = <VaultItem>[...state.activeItems]
-      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    final recentItems = recent.take(5).toList(growable: false);
-    final isEmpty = state.activeItems.isEmpty;
+    final cache = _cacheFor(state.data);
+    final issues = cache.issues;
+    final favorites = cache.favorites;
+    final recentItems = cache.recent;
+    final isEmpty = cache.activeCount == 0;
 
     return SafeArea(
       bottom: false,

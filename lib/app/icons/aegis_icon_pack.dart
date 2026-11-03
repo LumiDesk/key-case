@@ -82,13 +82,13 @@ class AegisIconPack {
   }
 
   String? _match(String text) {
-    final cached = _matchCache.containsKey(text);
-    if (cached) return _matchCache[text];
-    final key = normalizeIconKey(text);
-    if (key.isEmpty) {
-      _matchCache[text] = null;
-      return null;
+    final cached = _matchCache.remove(text);
+    if (cached != null) {
+      _matchCache[text] = cached;
+      return cached;
     }
+    final key = normalizeIconKey(text);
+    if (key.isEmpty) return null;
     var result = _nameByIssuer[key];
     if (result == null) {
       // 标题里可能带后缀（GitHub Enterprise）或前缀（AWS Console）：
@@ -113,9 +113,18 @@ class AegisIconPack {
         }
       }
     }
-    _matchCache[text] = result;
+    if (result != null) _storeMatch(text, result);
     return result;
   }
+
+  void _storeMatch(String text, String value) {
+    _matchCache[text] = value;
+    if (_matchCache.length > _maxMatchCache) {
+      _matchCache.remove(_matchCache.keys.first);
+    }
+  }
+
+  static const int _maxMatchCache = 256;
 
   /// 读取 SVG 文本（按图标名缓存 Future）。
   Future<String?> svgFor(String name) {

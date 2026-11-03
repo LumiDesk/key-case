@@ -72,6 +72,8 @@ class KcItemIcon extends StatelessWidget {
             height: size,
             fit: BoxFit.cover,
             gaplessPlayback: true,
+            errorBuilder: (context, error, stackTrace) =>
+                LetterAvatar(seed: item.displayTitle, size: size),
           ),
         );
       }
