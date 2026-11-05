@@ -68,7 +68,7 @@ SHA-256 is published next to the APK.
 
 ### 示例
 
-`v1.1.1` 的实际正文见 [docs/release-notes/v1.1.1.md](v1.1.1.md)。
+`v1.1.1` 的实际正文见 [v1.1.1.md](../release-notes/v1.1.1.md)。
 
 ## 5. 发布流程
 
