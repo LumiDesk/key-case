@@ -56,6 +56,9 @@ Future<void> main(List<String> args) async {
     '版本: ${match.group(0)!.replaceFirst('version: ', '')} -> $version+$nextBuild',
   );
 
+  // 发布说明与 CHANGELOG 是发版的必填项，缺文件时在改版本号之前就停下。
+  _checkReleaseNotes(version);
+
   if (dryRun) {
     print('--dry-run：跳过写入与提交');
     return;
@@ -89,6 +92,23 @@ Future<void> main(List<String> args) async {
   await _run(<String>['git', 'push', 'origin', 'HEAD']);
   await _run(<String>['git', 'push', 'origin', 'v$version']);
   print('已推送 v$version，CI 会构建签名 APK 并创建预发布。');
+  print('真机验收通过后提升为 Latest：');
+  print('  gh release edit v$version --prerelease=false --latest');
+}
+
+/// 发版前的必填项检查：CHANGELOG 段与发布说明文件，规则见 docs/dev/release.md。
+void _checkReleaseNotes(String version) {
+  final notes = File('docs/release-notes/v$version.md');
+  if (!notes.existsSync()) {
+    stderr.writeln('缺少发布说明：docs/release-notes/v$version.md');
+    stderr.writeln('先按 docs/dev/release.md 的模板写好，再执行发版。');
+    exit(1);
+  }
+  final changelog = File('CHANGELOG.md').readAsStringSync();
+  if (!changelog.contains('## [$version]')) {
+    stderr.writeln('CHANGELOG.md 缺少 ## [$version] 段，先记录用户可见变更。');
+    exit(1);
+  }
 }
 
 Future<void> _run(

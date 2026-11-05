@@ -168,8 +168,10 @@ dart run scripts/publish.dart patch   # or minor / major
 
 The script bumps `pubspec.yaml` and `lib/app/app_version.dart`, runs
 format/analyze/test, commits, tags, and pushes. CI builds a signed `arm64` APK
-and creates a **prerelease**. Promote it to latest after installing it on a
-device.
+and creates a **prerelease**: the title is `KeyCase X.Y.Z` and the body comes
+from `docs/release-notes/vX.Y.Z.md`. Promote it to latest after installing it on
+a device. The full process is in
+[docs/dev/release.md](docs/dev/release.md).
 
 ## Project status
 
@@ -187,6 +189,7 @@ there is no web or desktop build. See [CHANGELOG.md](CHANGELOG.md) for user-visi
 - [docs/dev/architecture.md](docs/dev/architecture.md) — source navigation
 - [docs/dev/testing.md](docs/dev/testing.md) — test layers and emulator checklist
 - [docs/dev/tech-decisions.md](docs/dev/tech-decisions.md) — crypto, Keystore, format, backups
+- [docs/dev/release.md](docs/dev/release.md) — versioning, release notes, promotion
 - [SECURITY.md](SECURITY.md) — threat model and reporting
 
 ## License

@@ -66,6 +66,7 @@ tool/                          # 本地基准等非产品入口
 - `docs/dev/architecture.md`：源码导航与分层。
 - `docs/dev/testing.md`：自动化测试分层、覆盖率口径与模拟器验收清单。
 - `docs/dev/tech-decisions.md`：KDF 参数、Keystore 取舍、格式与备份口径。
+- `docs/dev/release.md`：发版版本号、Release 标题、发布说明模板与 Latest 提升流程。
 
 ## 文档同步
 
@@ -150,8 +151,11 @@ flutter build apk --release
 ## CI 与发版
 
 - `.github/workflows/ci.yaml`：push 到 `main` 时跑格式检查、analyze、全量测试、覆盖率、debug 与 release APK 编译。
-- `.github/workflows/release.yml`：推送 `vX.Y.Z` 标签时用 `signing/` 里的 keystore 构建签名 APK 并发布 GitHub Release（预发布，真机验收后手动提升）。
-- 发版必须得到用户明确授权；脚本 `dart run scripts/publish.dart patch|minor|major`。
+- `.github/workflows/release.yml`：推送 `vX.Y.Z` 标签时用 `signing/` 里的 keystore 构建签名 APK；
+  Release 标题固定 `KeyCase X.Y.Z`，正文取 `docs/release-notes/vX.Y.Z.md`，缺文件在构建前失败。
+  发布结果是**预发布**，真机验收后手动提升为 Latest。
+- 发版必须得到用户明确授权；脚本 `dart run scripts/publish.dart patch|minor|major`，
+  发版前必须写好 `CHANGELOG.md` 对应段与发布说明，流程见 `docs/dev/release.md`。
 - 签名材料是已确认的仓库例外，不要替换或额外扩散。
 
 ## Never 规则
