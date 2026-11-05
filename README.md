@@ -173,7 +173,7 @@ device.
 
 ## Project status
 
-Current release: **1.1.0**.
+Current release: **1.1.1**.
 
 Only Android is supported. The vault payload is `schemaVersion 2`. The
 `android/` directory is the sole delivery target;

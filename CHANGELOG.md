@@ -4,6 +4,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-05
+
 ### Added
 
 - A favourite star in the detail header for both logins and tokens.
