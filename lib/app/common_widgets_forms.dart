@@ -312,6 +312,9 @@ class KcValueRow extends StatelessWidget {
 }
 
 /// 带外置标签的输入框：表单里统一用它，避免只剩 placeholder。
+///
+/// 长文本字段传 `minLines` 起步、`maxLines: null`，高度随内容增长，不使用
+/// 固定行数的滚动文本框。
 class KcLabeledField extends StatelessWidget {
   const KcLabeledField({
     super.key,
@@ -320,6 +323,7 @@ class KcLabeledField extends StatelessWidget {
     this.hint,
     this.obscure = false,
     this.keyboardType,
+    this.minLines,
     this.maxLines = 1,
     this.suffix,
     this.autofocus = false,
@@ -335,7 +339,8 @@ class KcLabeledField extends StatelessWidget {
   final String? hint;
   final bool obscure;
   final TextInputType? keyboardType;
-  final int maxLines;
+  final int? minLines;
+  final int? maxLines;
   final Widget? suffix;
   final bool autofocus;
   final ValueChanged<String>? onChanged;
@@ -365,6 +370,7 @@ class KcLabeledField extends StatelessWidget {
           focusNode: focusNode,
           obscureText: obscure,
           keyboardType: keyboardType,
+          minLines: minLines,
           maxLines: maxLines,
           autofocus: autofocus,
           onChanged: onChanged,

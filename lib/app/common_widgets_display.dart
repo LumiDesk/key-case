@@ -325,3 +325,38 @@ class KcDetailRow extends StatelessWidget {
     );
   }
 }
+
+/// 分组标题 + 卡片内的长文本（备注等）。
+///
+/// 高度随内容展开、可长按选择复制；不提供复制按钮，避免阅读型长文本旁边
+/// 出现操作图标。短字段继续用 [KcDetailRow]。
+class KcTextSection extends StatelessWidget {
+  const KcTextSection({
+    super.key,
+    required this.title,
+    required this.text,
+    this.cardMargin = const EdgeInsets.symmetric(horizontal: 12),
+  });
+
+  final String title;
+  final String text;
+  final EdgeInsetsGeometry cardMargin;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        KcSectionLabel(title),
+        KcCard(
+          margin: cardMargin,
+          child: SelectableText(
+            text,
+            style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+          ),
+        ),
+      ],
+    );
+  }
+}

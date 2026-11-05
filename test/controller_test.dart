@@ -280,7 +280,10 @@ void main() {
       await test.controller.unlock('pw');
       test.biometrics.available = false;
 
-      final ok = await test.controller.enableBiometrics(reason: 'enable');
+      final ok = await test.controller.enableBiometrics(
+        reason: 'enable',
+        cancelLabel: 'Cancel',
+      );
 
       expect(ok, isFalse);
       expect(test.controller.state.error, KeyCaseError.biometricUnavailable);
@@ -296,7 +299,10 @@ void main() {
       await test.controller.bootstrap();
       test.biometrics.result = BiometricResult.canceled;
 
-      final ok = await test.controller.unlockWithBiometrics(reason: 'unlock');
+      final ok = await test.controller.unlockWithBiometrics(
+        reason: 'unlock',
+        cancelLabel: 'Cancel',
+      );
 
       expect(ok, isFalse);
       expect(test.controller.state.error, isNull);
@@ -311,7 +317,10 @@ void main() {
       await test.controller.bootstrap();
       test.native.vaultKey = null;
 
-      final ok = await test.controller.unlockWithBiometrics(reason: 'unlock');
+      final ok = await test.controller.unlockWithBiometrics(
+        reason: 'unlock',
+        cancelLabel: 'Cancel',
+      );
 
       expect(ok, isFalse);
       expect(

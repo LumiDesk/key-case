@@ -15,6 +15,7 @@
 | 搜索、网格、滑条等自定义面板 | `showKcSheet` |
 | 页面内复杂表单（如修改主密码） | 页面自有 `AlertDialog` 或整页，不套单选弹层 |
 | 复制到剪贴板 | `copyToClipboard` |
+| 备注等长文本展示 | `KcTextSection` |
 
 - **单选没有底部弹层入口**：2–8 项静态选项必须走 `KcMenuRow<T>` /
   `AnchoredMenuChoice<T>`，不要新增第二套单选控件。
@@ -44,7 +45,8 @@
 | `KcItemIcon` | 条目图标：品牌图标优先，回落到头像 |
 | `KcCodeCapsule` | 验证码胶囊（可隐藏；点击由令牌行决定揭开/复制） |
 | `KcCountdownRing` | 倒计时环，最后 5 秒转警示色 |
-| `KcDetailRow` | 详情行：标签 + 值 + 复制/尾随操作 |
+| `KcDetailRow` | 详情行：标签 + 值 + 复制/尾随操作（值最多两行，长文本改用 `KcTextSection`） |
+| `KcTextSection` | 分组标题 + 卡片内长文本（备注）：高度自适应、可长按选择、无复制按钮 |
 | `KcInlineError` | 表单/页面内联错误（图标 + 文本 + 语义色） |
 
 ## 3. 表单与动作（`lib/app/common_widgets_forms.dart`、`common_widgets_navigation.dart`）
@@ -55,7 +57,7 @@
 | `KcSwitchRow` | 开关行（整行可点；`onChanged` 为 null 时禁用） |
 | `KcRowDivider` | 卡片内分隔线（缩进到图标下方） |
 | `KcMenuRow<T>` | 静态单选行：设置页样式或 `dense` 紧凑样式，内部统一锚点菜单 |
-| `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错 |
+| `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错；多行备注传 `minLines` + `maxLines: null` 自动增高 |
 | `KcValueRow` | 卡片内「标签 + 当前值 + chevron」，用于需要自定义弹层的字段 |
 | `KcPasswordStrengthBar` | 主密码强度条（`lib/app/password_strength.dart`） |
 | `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组；每个动作有独立 heroTag |

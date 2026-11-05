@@ -34,6 +34,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get actionEdit => 'Edit';
 
   @override
+  String get actionMore => 'More';
+
+  @override
   String get actionClose => 'Close';
 
   @override

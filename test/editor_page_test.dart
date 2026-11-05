@@ -164,6 +164,55 @@ void main() {
     expect(texts, contains('https://a.example\nhttps://b.example'));
     await disposeTestController(tester, test.controller);
   });
+
+  testWidgets('登录项备注输入框随内容增高且不限制行数', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+    final notes = List<String>.generate(
+      6,
+      (index) => '第 ${index + 1} 行备注',
+    ).join('\n');
+
+    await pumpKcPage(
+      tester,
+      controller: test.controller,
+      page: _EditorLauncher(draft: testLogin(notes: notes)),
+    );
+
+    final field = notesField(tester, notes);
+    expect(field.minLines, 4);
+    expect(field.maxLines, isNull);
+    await disposeTestController(tester, test.controller);
+  });
+
+  testWidgets('令牌备注输入框随内容增高且不限制行数', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+    final notes = List<String>.generate(
+      6,
+      (index) => '第 ${index + 1} 行备注',
+    ).join('\n');
+
+    await pumpKcPage(
+      tester,
+      controller: test.controller,
+      page: _EditorLauncher(draft: testToken(notes: notes)),
+    );
+
+    final field = notesField(tester, notes);
+    expect(field.minLines, 4);
+    expect(field.maxLines, isNull);
+    await disposeTestController(tester, test.controller);
+  });
+}
+
+/// 按内容定位备注输入框，避免依赖字段在页面里的顺序。
+TextField notesField(WidgetTester tester, String notes) {
+  return tester
+      .widgetList<TextField>(find.byType(TextField))
+      .firstWhere((field) => field.controller?.text == notes);
 }
 
 /// 先把编辑页压进导航栈，这样「保存 / 返回」都能正常出栈。

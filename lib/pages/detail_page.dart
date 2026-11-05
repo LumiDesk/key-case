@@ -86,25 +86,30 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                 title: item.isToken ? l10n.navTokens : l10n.navLogins,
                 onBack: () => Navigator.of(context).maybePop(),
                 actions: <Widget>[
+                  IconButton(
+                    key: const ValueKey<String>('detail_favorite'),
+                    tooltip: item.favorite
+                        ? l10n.detailUnfavorite
+                        : l10n.detailFavorite,
+                    onPressed: () => controller.toggleFavorite(item.id),
+                    icon: Icon(
+                      item.favorite
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: item.favorite
+                          ? kcSemantic(context, kcWarning)
+                          : null,
+                    ),
+                  ),
                   AnchoredMenuButton(
                     icon: Icons.more_vert_rounded,
-                    tooltip: l10n.actionEdit,
+                    tooltip: l10n.actionMore,
                     entries: <AnchoredMenuEntry>[
                       AnchoredMenuItem(
                         id: 'edit',
                         title: l10n.actionEdit,
                         icon: Icons.edit_outlined,
                         onPressed: () => _openEditor(item),
-                      ),
-                      AnchoredMenuItem(
-                        id: 'favorite',
-                        title: item.favorite
-                            ? l10n.detailUnfavorite
-                            : l10n.detailFavorite,
-                        icon: item.favorite
-                            ? Icons.star_rounded
-                            : Icons.star_outline_rounded,
-                        onPressed: () => controller.toggleFavorite(item.id),
                       ),
                       const AnchoredMenuDivider(),
                       AnchoredMenuItem(
@@ -120,42 +125,41 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 32),
+                  padding: const EdgeInsets.only(top: 4, bottom: 32),
                   children: <Widget>[
-                    _DetailHero(item: item),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: _DetailHero(item: item),
+                    ),
                     const SizedBox(height: 14),
-                    if (item.isToken)
-                      TapRegion(
-                        onTapOutside: (_) => _hideCode(),
-                        child: _TokenPanel(
-                          item: item,
-                          showCode: preferences.showTokenCodes,
-                          showNext: preferences.showNextToken,
-                          grouping: preferences.codeGrouping,
-                          revealedUntil: _revealUntil,
-                          onReveal: _revealFor,
-                        ),
-                      )
-                    else
-                      _LoginPanel(
-                        item: item,
-                        showPassword: _showPassword,
-                        onTogglePassword: () =>
-                            setState(() => _showPassword = !_showPassword),
-                      ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: item.isToken
+                          ? TapRegion(
+                              onTapOutside: (_) => _hideCode(),
+                              child: _TokenPanel(
+                                item: item,
+                                showCode: preferences.showTokenCodes,
+                                showNext: preferences.showNextToken,
+                                grouping: preferences.codeGrouping,
+                                revealedUntil: _revealUntil,
+                                onReveal: _revealFor,
+                              ),
+                            )
+                          : _LoginPanel(
+                              item: item,
+                              showPassword: _showPassword,
+                              onTogglePassword: () => setState(
+                                () => _showPassword = !_showPassword,
+                              ),
+                            ),
+                    ),
+                    if (item.notes.trim().isNotEmpty)
+                      KcTextSection(title: l10n.detailNotes, text: item.notes),
                     if (item.isToken) ...<Widget>[
-                      if (item.notes.trim().isNotEmpty) ...<Widget>[
-                        KcSectionLabel(l10n.detailNotes),
-                        KcCard(
-                          child: KcDetailRow(
-                            label: l10n.detailNotes,
-                            value: item.notes,
-                            onCopy: () => copyToClipboard(context, item.notes),
-                          ),
-                        ),
-                      ],
                       KcSectionLabel(l10n.editorAdvanced),
                       KcCard(
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
                         child: Column(
                           children: <Widget>[
                             KcDetailRow(
@@ -185,6 +189,7 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                     ],
                     KcSectionLabel(l10n.detailUpdated),
                     KcCard(
+                      margin: const EdgeInsets.symmetric(horizontal: 12),
                       child: Column(
                         children: <Widget>[
                           KcDetailRow(
@@ -288,7 +293,6 @@ class _LoginPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final controller = KeyCaseScope.read(context);
     return KcCard(
       child: Column(
         children: <Widget>[
@@ -340,26 +344,6 @@ class _LoginPanel extends StatelessWidget {
               onCopy: () => copyToClipboard(context, url),
               onTap: () => _openUrl(context, url),
             ),
-          KcDetailRow(
-            label: l10n.detailNotes,
-            value: item.notes,
-            onCopy: item.notes.isEmpty
-                ? null
-                : () => copyToClipboard(context, item.notes),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => controller.toggleFavorite(item.id),
-              icon: Icon(
-                item.favorite ? Icons.star_rounded : Icons.star_outline_rounded,
-                size: 18,
-              ),
-              label: Text(
-                item.favorite ? l10n.detailUnfavorite : l10n.detailFavorite,
-              ),
-            ),
-          ),
         ],
       ),
     );

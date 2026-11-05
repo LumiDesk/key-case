@@ -36,7 +36,9 @@ Future<void> _seedItems(KeyCaseController controller) async {
         username: 'talyra42',
         password: 'Tr0ub4dor&3-correct-horse',
         urls: <String>['https://github.com'],
-        notes: '主账号，开启了两步验证',
+        notes:
+            '主账号，开启了两步验证\n恢复码在离线保险箱\n组织管理员是 ops@example.com\n'
+            '换设备前先导出加密备份',
       ),
       favorite: true,
       createdAt: now.subtract(const Duration(days: 120)),
@@ -95,6 +97,9 @@ Future<void> _seedItems(KeyCaseController controller) async {
           period: 30,
         ),
         account: 'ops@example.com',
+        notes:
+            'Zero Trust 组织的运维令牌\n恢复码由团队保管\n轮换周期为 90 天\n'
+            '变更前通知 #ops 频道\n离职交接时一并移交',
       ),
       createdAt: now.subtract(const Duration(days: 45)),
       updatedAt: now.subtract(const Duration(days: 2)),

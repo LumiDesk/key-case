@@ -34,6 +34,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get actionEdit => '编辑';
 
   @override
+  String get actionMore => '更多';
+
+  @override
   String get actionClose => '关闭';
 
   @override

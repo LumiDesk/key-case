@@ -37,10 +37,16 @@ void main() {
     final auth = BiometricAuth(authentication: fake);
 
     expect(await auth.isAvailable(), isTrue);
-    expect(await auth.authenticate(reason: 'reason'), BiometricResult.success);
+    expect(
+      await auth.authenticate(reason: 'reason', cancelLabel: 'Cancel'),
+      BiometricResult.success,
+    );
 
     fake.approved = false;
-    expect(await auth.authenticate(reason: 'reason'), BiometricResult.canceled);
+    expect(
+      await auth.authenticate(reason: 'reason', cancelLabel: 'Cancel'),
+      BiometricResult.canceled,
+    );
 
     fake.available = false;
     expect(await auth.isAvailable(), isFalse);
@@ -53,19 +59,25 @@ void main() {
     fake.error = const LocalAuthException(
       code: LocalAuthExceptionCode.userCanceled,
     );
-    expect(await auth.authenticate(reason: 'reason'), BiometricResult.canceled);
+    expect(
+      await auth.authenticate(reason: 'reason', cancelLabel: 'Cancel'),
+      BiometricResult.canceled,
+    );
 
     fake.error = const LocalAuthException(
       code: LocalAuthExceptionCode.noBiometricsEnrolled,
     );
     expect(
-      await auth.authenticate(reason: 'reason'),
+      await auth.authenticate(reason: 'reason', cancelLabel: 'Cancel'),
       BiometricResult.unavailable,
     );
 
     fake.error = const LocalAuthException(
       code: LocalAuthExceptionCode.deviceError,
     );
-    expect(await auth.authenticate(reason: 'reason'), BiometricResult.failed);
+    expect(
+      await auth.authenticate(reason: 'reason', cancelLabel: 'Cancel'),
+      BiometricResult.failed,
+    );
   });
 }

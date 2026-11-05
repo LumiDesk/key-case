@@ -347,7 +347,9 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                         KcLabeledField(
                           label: l10n.editorNotes,
                           controller: _notes,
-                          maxLines: 4,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 4,
+                          maxLines: null,
                         ),
                       ] else ...<Widget>[
                         const SizedBox(height: 14),
@@ -372,7 +374,9 @@ class _ItemEditorPageState extends State<ItemEditorPage> {
                         KcLabeledField(
                           label: l10n.editorNotes,
                           controller: _notes,
-                          maxLines: 3,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 4,
+                          maxLines: null,
                         ),
                         const SizedBox(height: 18),
                         KcSectionLabel(l10n.editorAdvanced),

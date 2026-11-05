@@ -264,7 +264,7 @@ class FakeBiometricAuth extends BiometricAuth {
   @override
   Future<BiometricResult> authenticate({
     required String reason,
-    String cancelLabel = '取消',
+    required String cancelLabel,
     String title = 'KeyCase',
   }) async {
     authenticateCalls++;

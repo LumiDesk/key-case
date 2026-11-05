@@ -32,10 +32,11 @@ class BiometricAuth {
 
   /// 弹出系统生物识别提示。
   ///
-  /// 用户主动取消不算错误：调用方应据此静默回退到主密码。
+  /// 用户主动取消不算错误：调用方应据此静默回退到主密码。系统弹窗的按钮
+  /// 文案必须由调用方从 l10n 传入，这里不提供默认值。
   Future<BiometricResult> authenticate({
     required String reason,
-    String cancelLabel = '取消',
+    required String cancelLabel,
     String title = 'KeyCase',
   }) async {
     try {

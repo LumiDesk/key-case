@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'编辑'**
   String get actionEdit;
 
+  /// No description provided for @actionMore.
+  ///
+  /// In zh, this message translates to:
+  /// **'更多'**
+  String get actionMore;
+
   /// No description provided for @actionClose.
   ///
   /// In zh, this message translates to:

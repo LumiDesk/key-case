@@ -176,7 +176,7 @@ class KeyCaseController extends ChangeNotifier {
   /// 生物识别解锁：先验证指纹，再用 Keystore 里的密钥直接解正文。
   Future<bool> unlockWithBiometrics({
     required String reason,
-    String cancelLabel = '取消',
+    required String cancelLabel,
   }) async {
     if (_state.busy) return false;
     if (!_state.biometricEnrolled) {
@@ -238,7 +238,7 @@ class KeyCaseController extends ChangeNotifier {
 
   Future<bool> enableBiometrics({
     required String reason,
-    String cancelLabel = '取消',
+    required String cancelLabel,
   }) async {
     final session = _vault.session;
     if (session == null) {

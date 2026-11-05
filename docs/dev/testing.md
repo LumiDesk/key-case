@@ -8,8 +8,8 @@
 | 模型 | v2 `login`/`totp` 互斥、往返、非法组合、TOTP 值域 | `test/models_test.dart`、`test/vault_migrations_test.dart` |
 | 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、会话 epoch、锁定与删除、schemaVersion 校验 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
 | 状态与操作 | Controller 启动、创建/解锁/锁定、自动锁定、条目增删改、回收站、HOTP、偏好、生物识别、备份、导入、并发队列、锁定竞态 | `test/controller_test.dart` |
-| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面 | `test/*_page_test.dart`、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
-| 布局 | 360dp + 2x 字号无溢出 | `test/layout_test.dart` |
+| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情（顶栏收藏、备注可选）、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面 | `test/*_page_test.dart`（含 `detail_page_test.dart`）、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
+| 布局 | 360dp + 2x 字号无溢出（设置、首页、登录/令牌详情、编辑页长备注） | `test/layout_test.dart` |
 | 组件策略 | 禁止底部单选弹层、禁止分段单选控件、禁止 `sheets.dart` 之外的裸弹层 | `test/component_policy_test.dart` |
 
 ```bash
@@ -43,6 +43,8 @@ flutter test --coverage
 - 恢复入口：解锁页「从加密备份恢复」可选文件、输入备份密码并替换；成功后指纹关闭、可重新开启；错误密码/损坏文件/版本不匹配的备份分别提示。
 - Steam：扫描 `encoder=steam` 或被标记为 Steam 的 otpauth 二维码，进入编辑器后类型为 Steam、算法固定 SHA1、5 位、30 秒；保存后码为 5 位字母。
 - 剪贴板：复制密码后 60 秒清空；复制别的内容后 60 秒不被清掉；设置里可关闭。
+- 详情页顶栏：登录项与令牌都只有「收藏 → 更多」两个动作；点星标即刻变实心警示色，再点恢复描边；更多菜单里不再出现收藏，只留编辑与移到回收站。
+- 备注：编辑页备注框随内容增高、没有行数上限；详情页备注完整显示在独立区块，长按可选中复制，右侧没有复制按钮；令牌详情只有一个「备注」标题。
 - 锁定竞态：保存瞬间按 Home/锁屏，回来必须要求解锁，且没有数据回写或会话复活。
-- 尺寸：360dp + 2.0 字号下设置/首页/编辑/详情/回收站无溢出。
+- 尺寸：360dp + 2.0 字号下设置/首页/编辑/登录与令牌详情/回收站无溢出，长备注不裁切。
 - release APK（R8）：安装后跑完整主链路与扫码/备份。
