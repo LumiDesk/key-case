@@ -169,6 +169,8 @@ void main() {
 
       await test.controller.toggleFavorite('login-1');
       expect(test.controller.state.activeItems.single.favorite, isTrue);
+      // 星标本身就是反馈，不再弹一次性提示。
+      expect(test.controller.state.notice, isNull);
 
       await test.controller.deleteItem('login-1');
       expect(test.controller.state.activeItems, isEmpty);

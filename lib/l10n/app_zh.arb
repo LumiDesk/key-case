@@ -248,7 +248,6 @@
   "noticeBackupExported": "备份已导出",
   "noticeBackupImported": "备份已导入",
   "noticeSnapshotSaved": "快照已保存",
-  "noticeFavoriteUpdated": "收藏已更新",
   "noticeBiometricEnabled": "已启用指纹解锁",
   "noticeBiometricDisabled": "已关闭指纹解锁",
   "errorPasswordTooShort": "主密码至少 8 位",

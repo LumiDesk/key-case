@@ -41,7 +41,6 @@ String noticeText(AppLocalizations l10n, KeyCaseNotice notice) {
     KeyCaseNotice.backupExported => l10n.noticeBackupExported,
     KeyCaseNotice.backupImported => l10n.noticeBackupImported,
     KeyCaseNotice.snapshotSaved => l10n.noticeSnapshotSaved,
-    KeyCaseNotice.favoriteUpdated => l10n.noticeFavoriteUpdated,
     KeyCaseNotice.biometricEnabled => l10n.noticeBiometricEnabled,
     KeyCaseNotice.biometricDisabled => l10n.noticeBiometricDisabled,
     KeyCaseNotice.imported => l10n.noticeImported(0),

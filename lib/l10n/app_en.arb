@@ -248,7 +248,6 @@
   "noticeBackupExported": "Backup exported",
   "noticeBackupImported": "Backup imported",
   "noticeSnapshotSaved": "Snapshot saved",
-  "noticeFavoriteUpdated": "Favorite updated",
   "noticeBiometricEnabled": "Fingerprint unlock enabled",
   "noticeBiometricDisabled": "Fingerprint unlock disabled",
   "errorPasswordTooShort": "Master password must be at least 8 characters",

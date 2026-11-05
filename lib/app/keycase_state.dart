@@ -50,7 +50,6 @@ enum KeyCaseNotice {
   backupExported,
   backupImported,
   snapshotSaved,
-  favoriteUpdated,
   biometricEnabled,
   biometricDisabled,
   imported,

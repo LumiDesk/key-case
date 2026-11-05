@@ -13,6 +13,7 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - Notes are shown as a full-height block that can be selected and copied by long-press, instead of a two-line row with a copy button.
 - The notes field in the editor grows with its content instead of stopping at four lines.
 - Detail page cards and section labels line up with the home and settings screens.
+- Toggling a favourite no longer shows a feedback message; the star changes immediately.
 
 ### Fixed
 

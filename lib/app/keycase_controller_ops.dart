@@ -99,10 +99,7 @@ extension KeyCaseControllerOps on KeyCaseController {
               : existing,
         )
         .toList();
-    await _persist(
-      data.copyWith(items: items),
-      notice: KeyCaseNotice.favoriteUpdated,
-    );
+    await _persist(data.copyWith(items: items));
   });
 
   /// HOTP 的「下一个」：计数器 +1 后落库，旧的码立即失效。

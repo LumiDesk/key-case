@@ -1460,12 +1460,6 @@ abstract class AppLocalizations {
   /// **'快照已保存'**
   String get noticeSnapshotSaved;
 
-  /// No description provided for @noticeFavoriteUpdated.
-  ///
-  /// In zh, this message translates to:
-  /// **'收藏已更新'**
-  String get noticeFavoriteUpdated;
-
   /// No description provided for @noticeBiometricEnabled.
   ///
   /// In zh, this message translates to:

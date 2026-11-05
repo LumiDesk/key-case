@@ -698,9 +698,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noticeSnapshotSaved => '快照已保存';
 
   @override
-  String get noticeFavoriteUpdated => '收藏已更新';
-
-  @override
   String get noticeBiometricEnabled => '已启用指纹解锁';
 
   @override

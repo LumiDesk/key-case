@@ -715,9 +715,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noticeSnapshotSaved => 'Snapshot saved';
 
   @override
-  String get noticeFavoriteUpdated => 'Favorite updated';
-
-  @override
   String get noticeBiometricEnabled => 'Fingerprint unlock enabled';
 
   @override
