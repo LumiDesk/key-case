@@ -65,6 +65,7 @@ Future<void> main(List<String> args) async {
   }
 
   await _run(<String>['git', 'status', '--porcelain'], expectCleanOutput: true);
+  await _requireGh();
 
   final updated = content.replaceFirst(
     match.group(0)!,
@@ -78,6 +79,10 @@ Future<void> main(List<String> args) async {
     'const int kAppBuildNumber = $nextBuild;\n',
   );
 
+  // main 是受保护分支：发版提交必须走 PR，等检查通过后再合并，最后在合并后的
+  // 历史上打 tag。直接 push main 会被分支保护拒绝。
+  final branch = 'release/v$version';
+  await _run(<String>['git', 'checkout', '-b', branch]);
   await _run(<String>['dart', 'format', '.']);
   await _run(<String>['flutter', 'analyze']);
   await _run(<String>['flutter', 'test']);
@@ -88,12 +93,32 @@ Future<void> main(List<String> args) async {
     'lib/app/app_version.dart',
   ]);
   await _run(<String>['git', 'commit', '-m', 'chore: release v$version']);
-  await _run(<String>['git', 'tag', 'v$version']);
-  await _run(<String>['git', 'push', 'origin', 'HEAD']);
+  final releaseSha = (await _capture(<String>['git', 'rev-parse', 'HEAD']))
+      .trim();
+
+  await _run(<String>['git', 'push', '-u', 'origin', branch]);
+  await _run(<String>['gh', 'pr', 'create', '--fill', '--base', 'main']);
+  print('等待 PR 检查通过（格式、analyze、测试都在 PR 上跑）…');
+  await _run(<String>['gh', 'pr', 'checks', '--watch', '--interval', '20']);
+  await _run(<String>['gh', 'pr', 'merge', '--merge', '--delete-branch']);
+
+  await _run(<String>['git', 'checkout', 'main']);
+  await _run(<String>['git', 'pull', '--ff-only']);
+  await _run(<String>['git', 'branch', '-D', branch], allowFailure: true);
+  await _run(<String>['git', 'tag', 'v$version', releaseSha]);
   await _run(<String>['git', 'push', 'origin', 'v$version']);
-  print('已推送 v$version，CI 会构建签名 APK 并创建预发布。');
+  print('已合并 PR 并推送 tag v$version，CI 会构建签名 APK 并创建预发布。');
   print('真机验收通过后提升为 Latest：');
   print('  gh release edit v$version --prerelease=false --latest');
+}
+
+/// 合并受保护分支需要 gh CLI 且已登录。
+Future<void> _requireGh() async {
+  final result = await _captureOrNull(<String>['gh', '--version']);
+  if (result == null) {
+    stderr.writeln('找不到 gh CLI：合并受保护分支需要它，请安装并 gh auth login。');
+    exit(1);
+  }
 }
 
 /// 发版前的必填项检查：CHANGELOG 段与发布说明文件，规则见 docs/dev/release.md。
@@ -114,6 +139,7 @@ void _checkReleaseNotes(String version) {
 Future<void> _run(
   List<String> command, {
   bool expectCleanOutput = false,
+  bool allowFailure = false,
 }) async {
   // Windows 上 flutter/dart 是 .bat，必须交给 shell 解析，否则 Process.run 找不到文件。
   final result = await Process.run(
@@ -123,7 +149,7 @@ Future<void> _run(
   );
   stdout.write(result.stdout);
   stderr.write(result.stderr);
-  if (result.exitCode != 0) {
+  if (!allowFailure && result.exitCode != 0) {
     stderr.writeln('命令失败: ${command.join(' ')}');
     exit(result.exitCode);
   }
@@ -131,4 +157,23 @@ Future<void> _run(
     stderr.writeln('工作区不干净，先提交或清理再发版。');
     exit(1);
   }
+}
+
+Future<String> _capture(List<String> command) async {
+  final output = await _captureOrNull(command);
+  if (output == null) {
+    stderr.writeln('命令失败: ${command.join(' ')}');
+    exit(1);
+  }
+  return output;
+}
+
+Future<String?> _captureOrNull(List<String> command) async {
+  final result = await Process.run(
+    command.first,
+    command.sublist(1),
+    runInShell: true,
+  );
+  if (result.exitCode != 0) return null;
+  return result.stdout as String;
 }

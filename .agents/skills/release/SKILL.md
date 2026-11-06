@@ -61,8 +61,12 @@ git fetch --prune
 dart run scripts/publish.dart patch        # 或 minor / major
 ```
 
-脚本会：改版本 → `dart format` → `flutter analyze` → `flutter test` → 提交
-`chore: release vX.Y.Z` → 打 tag → 推送 `main` 与 tag。
+脚本会：切出 `release/vX.Y.Z` 分支 → 改版本 → `dart format` → `flutter analyze` →
+`flutter test` → 提交 `chore: release vX.Y.Z` → 推送分支 → 开 PR → 等 PR 检查 →
+合并（merge commit，删除分支）→ 回到 `main` → 打 tag → 推送 tag。
+
+`main` 是受保护分支（要求 PR + 状态检查），脚本不再直接推 `main`。中途失败时分支与
+PR 都会留着：修好重跑，或手动合并在本地补 tag。
 
 ## 5. 盯着 CI 到绿
 
