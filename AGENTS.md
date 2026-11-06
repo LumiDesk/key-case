@@ -72,6 +72,8 @@ tool/                          # 本地基准等非产品入口
 - `.agents/skills/release/SKILL.md`：**发版的可执行流程**（合并、清理分支、publish、等 CI、处置失败、汇报）。
 - `.agents/notes/`：设计稿、技术选型、被否决的方案。**不是当前事实**，只记来龙去脉；
   规则见 `.agents/notes/README.md`。
+- `.agents/CONVENTIONS.md`：跨项目共用的体系约定（分支合并、依赖更新、文档分层、授权边界）。
+- `.agents/skills/merge-pr/SKILL.md`：合并 PR 的可执行流程（状态判定、合并、回滚）。
 
 ## 文档同步
 
@@ -168,6 +170,15 @@ flutter build apk --release
   发版前必须写好 `CHANGELOG.md` 对应段与发布说明；完整流程按 `.agents/skills/release/SKILL.md`
   执行，规则见 `docs/dev/release.md`。
 - 签名材料是已确认的仓库例外，不要替换或额外扩散。
+
+## 合并与依赖更新
+
+- `main` 受保护：必须经 PR，且必需状态检查通过；合并只用 **merge commit**。
+- 合并前确认 `mergeStateStatus=CLEAN` 且 `mergeable`，不要凭"看起来绿了"判断。
+- 依赖 PR（dependabot）只应改 `.github/workflows/*`、`pubspec.yaml`、`pubspec.lock`；动了别的就停下问。
+- 大版本跳跃合并后必须确认 `main` 的 CI：PR 上不构建安装包，只有 `main` 会真正打包。
+- 合坏了用 `git revert -m 1 <merge-sha>` 开 PR 回滚；不 force push、不 reset 远端。
+- 步骤见 `.agents/skills/merge-pr/SKILL.md`；授权边界见 `.agents/CONVENTIONS.md`。
 
 ## Never 规则
 
