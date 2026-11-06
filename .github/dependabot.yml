@@ -1,0 +1,28 @@
+version: 2
+# 依赖与 Actions 每周检查，同生态合成一个 PR、最多 1 个未合并。
+# 合并后走 main 的 CI，会真的构建一次 release APK（PR 上不构建），
+# 所以大版本升级也要在合并后确认构建通过，坏了就回滚。
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: ci
+
+  - package-ecosystem: pub
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 1
+    groups:
+      pub:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: deps

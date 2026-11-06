@@ -42,7 +42,9 @@ lib/
 android/                       # 原生桥、Manifest、签名配置
 assets/iconpacks/              # Aegis Simple Icons（SVG + pack.json）
 test/                          # 单元与 widget 测试
-docs/                          # 设计与技术文档
+docs/                          # 当前事实：设计、架构、测试、发版
+.agents/notes/                 # 设计与决策记录（为什么这么定、否掉了什么）
+.agents/skills/                # 固化流程（release：合并→发版→等 CI→汇报）
 scripts/                       # Dart 任务脚本
 tool/                          # 本地基准等非产品入口
 ```
@@ -67,20 +69,26 @@ tool/                          # 本地基准等非产品入口
 - `docs/dev/testing.md`：自动化测试分层、覆盖率口径与模拟器验收清单。
 - `docs/dev/tech-decisions.md`：KDF 参数、Keystore 取舍、格式与备份口径。
 - `docs/dev/release.md`：发版版本号、Release 标题、发布说明模板与 Latest 提升流程。
+- `.agents/skills/release/SKILL.md`：**发版的可执行流程**（合并、清理分支、publish、等 CI、处置失败、汇报）。
+- `.agents/notes/`：设计稿、技术选型、被否决的方案。**不是当前事实**，只记来龙去脉；
+  规则见 `.agents/notes/README.md`。
 
 ## 文档同步
 
-文档与注释只描述**当前实现和当前产品状态**。仓库里不得保留：
+文档与注释只描述**当前实现和当前产品状态**。`docs/`、`README.md` 与 `AGENTS.md` 里不得保留：
 
 - 旧版本、旧实现、旧格式的说明，以及“迁移前/迁移后”的叙事；
 - 已删除的功能、旧名称、旧路径、旧依赖的残留引用；
 - 方案草稿、实施计划、评审记录、被否决的选项、与其它项目的对比；
 - “曾经/原来/不再/重写/兼容旧版”这类历史叙述。
 
+这类过程材料需要保留来龙去脉时，写进 `.agents/notes/`，不要写进 `docs/`。
+
 本仓库已按此口径完成一次全量整理；后续变更按本节持续同步。
 
 具体规则：
 
+- 方案落地后：结论合并进 `docs/`，笔记移到 `.agents/notes/implemented/`，只补事实同步。
 - 行为、容器格式、依赖、目录、构建或发版流程变化时，在**同一个提交**内更新受影响的 `README.md`、`AGENTS.md`、`docs/` 与代码注释。
 - 删除功能时，直接从文档、注释和注册表里删掉，不写“已移除/旧版兼容”说明；只有用户可见的功能变化才进 `CHANGELOG.md`。
 - 新增或改名可复用组件、纯函数时同步 `docs/design/components.md`；新增用户可见能力时同步 `README.md`。
@@ -150,12 +158,15 @@ flutter build apk --release
 
 ## CI 与发版
 
-- `.github/workflows/ci.yaml`：push 到 `main` 时跑格式检查、analyze、全量测试、覆盖率、debug 与 release APK 编译。
+- `.github/workflows/ci.yaml`：PR 只跑格式检查、analyze、全量测试与覆盖率；
+  推送到 `main` 时追加构建 debug 与 release APK（验证 Kotlin / Manifest / R8 与签名配置）。
+  Gradle 依赖与任务缓存跨运行复用（`gradle/actions/setup-gradle`）。
 - `.github/workflows/release.yml`：推送 `vX.Y.Z` 标签时用 `signing/` 里的 keystore 构建签名 APK；
   Release 标题固定 `KeyCase X.Y.Z`，正文取 `docs/release-notes/vX.Y.Z.md`，缺文件在构建前失败。
   发布结果是**预发布**，真机验收后手动提升为 Latest。
 - 发版必须得到用户明确授权；脚本 `dart run scripts/publish.dart patch|minor|major`，
-  发版前必须写好 `CHANGELOG.md` 对应段与发布说明，流程见 `docs/dev/release.md`。
+  发版前必须写好 `CHANGELOG.md` 对应段与发布说明；完整流程按 `.agents/skills/release/SKILL.md`
+  执行，规则见 `docs/dev/release.md`。
 - 签名材料是已确认的仓库例外，不要替换或额外扩散。
 
 ## Never 规则

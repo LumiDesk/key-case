@@ -23,6 +23,9 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # Gradle 依赖与任务缓存跨运行复用：首次仍要下载，之后 APK 构建能省掉一半以上。
+      - uses: gradle/actions/setup-gradle@v4
+
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
@@ -53,17 +56,25 @@ jobs:
           path: coverage/lcov.info
           if-no-files-found: ignore
 
+      # ---- 以下只在 main 的推送上跑：PR 只做静态检查与测试 ----
+      # APK 构建占 CI 时间的大头，PR 的价值是「快速知道代码对不对」。
+      # 代价：Kotlin / Manifest / 签名配置的问题要等合并进 main 才暴露。
+      # 需要 PR 上也编译时，把三条 if 去掉即可。
+
       # Dart 层测试不会编译 android/ 下的 Kotlin；这里额外构建一次 debug APK，
       # 提前拦住 MethodChannel、Manifest 与签名配置错误。
       - name: Build debug APK
+        if: github.event_name != 'pull_request'
         run: flutter build apk --debug
 
       # release 的 R8/资源裁剪与签名路径只在发版时才会走到；CI 也构建一次，
       # 避免 release-only 崩溃拖到打 tag 才暴露。
       - name: Build release APK
+        if: github.event_name != 'pull_request'
         run: flutter build apk --release --target-platform android-arm64
 
       - name: Verify release APK
+        if: github.event_name != 'pull_request'
         run: |
           APK=build/app/outputs/flutter-apk/app-release.apk
           test -f "$APK"

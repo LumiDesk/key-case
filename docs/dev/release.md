@@ -2,6 +2,8 @@
 
 发布是**用户可见的对外动作**：只有用户明确要求时才执行。本文件定义版本号、发布说明、
 Release 标题与提升流程；唯一命令入口是 `dart run scripts/publish.dart`。
+可执行的分步流程（合并、清理分支、等 CI、失败处置、汇报）见
+[`.agents/skills/release/SKILL.md`](../../.agents/skills/release/SKILL.md)。
 
 ## 1. 版本号
 
