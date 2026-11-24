@@ -262,6 +262,101 @@ class KcInlineError extends StatelessWidget {
   }
 }
 
+/// 图标网格：图标 + 名称 +（非默认包）风格标签。
+///
+/// 图标选择器与图标库共用同一套格子，避免两处各写一份同构布局。
+class KcIconGrid extends StatelessWidget {
+  const KcIconGrid({
+    super.key,
+    required this.icons,
+    required this.onIconTap,
+    required this.keyPrefix,
+    this.padding = const EdgeInsets.fromLTRB(16, 8, 16, 16),
+  });
+
+  final List<IconPackIcon> icons;
+  final ValueChanged<IconPackIcon> onIconTap;
+
+  /// 格子 key 的前缀，测试与页面用 `<前缀>_<图标标识>` 定位。
+  final String keyPrefix;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return MediaQuery.withClampedTextScaling(
+      // 2 倍字号下格子会被文字撑破；图标名称只做辅助识别，限制放大。
+      maxScaleFactor: 1.3,
+      child: GridView.builder(
+        padding: padding,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 8,
+          childAspectRatio: 0.82,
+        ),
+        itemCount: icons.length,
+        itemBuilder: (context, index) => _KcIconCell(
+          icon: icons[index],
+          cellKey: '${keyPrefix}_${icons[index].ref}',
+          onTap: () => onIconTap(icons[index]),
+        ),
+      ),
+    );
+  }
+}
+
+class _KcIconCell extends StatelessWidget {
+  const _KcIconCell({
+    required this.icon,
+    required this.cellKey,
+    required this.onTap,
+  });
+
+  final IconPackIcon icon;
+  final String cellKey;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    return InkWell(
+      key: ValueKey<String>(cellKey),
+      borderRadius: BorderRadius.circular(kcRadiusMd),
+      onTap: onTap,
+      child: Tooltip(
+        message: iconTooltip(l10n, icon),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            KcBrandIcon(ref: icon.ref, size: 36),
+            const SizedBox(height: 4),
+            Text(
+              icon.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
+              ),
+            ),
+            if (icon.pack != IconPackId.simple)
+              Text(
+                packLabel(l10n, icon.pack),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.42),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// 详情页的一行：图标 + 标签 + 值 + 复制。
 class KcDetailRow extends StatelessWidget {
   const KcDetailRow({

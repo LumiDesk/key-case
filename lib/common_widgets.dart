@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 
 import 'app/app_theme.dart';
 import 'app/icons/brand_icon.dart';
+import 'app/icons/icon_pack_labels.dart';
 import 'app/icons/icon_packs.dart';
 import 'app/models/models.dart';
 import 'app/otp/otp.dart';

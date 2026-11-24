@@ -89,6 +89,7 @@
 | `KcTokenTile` | `lib/pages/item_tiles.dart` | 令牌行（验证码 + 倒计时；揭开/复制/点外部隐藏） |
 | `KcLetterHeader` | `lib/pages/item_tiles.dart` | 字母分组头 |
 | `KcBrandIcon` | `lib/app/icons/brand_icon.dart` | 品牌 SVG 渲染；全彩包自动垫浅色底板 |
+| `KcIconGrid` | `lib/app/common_widgets_display.dart` | 图标网格：图标 + 名称 + 风格标签；选择器与图标库共用，`keyPrefix` 决定格子 key |
 | `KcFeedbackHost` | `lib/app/feedback.dart` | 根级轻反馈宿主 |
 
 ## 6. 纯函数

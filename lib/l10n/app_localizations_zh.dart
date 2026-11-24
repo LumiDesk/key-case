@@ -677,6 +677,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iconPackAegis => '单色';
 
   @override
+  String get settingsIcons => '图标';
+
+  @override
+  String get settingsBrowseIcons => '浏览图标';
+
+  @override
+  String get settingsBrowseIconsDesc => '查看内置的整套图标，可搜索与预览';
+
+  @override
+  String get iconLibraryTitle => '图标库';
+
+  @override
+  String get iconLibraryAll => '全部';
+
+  @override
+  String get iconLibraryFilter => '按图标包筛选';
+
+  @override
+  String iconLibraryCount(int count) {
+    return '$count 个图标';
+  }
+
+  @override
   String get noticeVaultCreated => '保险库已创建';
 
   @override

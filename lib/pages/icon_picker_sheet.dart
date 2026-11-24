@@ -4,17 +4,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../app/app_theme.dart';
 import '../app/feedback.dart';
-import '../app/icons/brand_icon.dart';
 import '../app/icons/icon_packs.dart';
 import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
+import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
-import 'icon_pack_labels.dart';
 import 'sheets.dart';
 
-/// 选择条目图标：内置 Aegis 图标（可搜索）或用户自己的图片。
+/// 选择条目图标：内置图标库（可搜索）或用户自己的图片。
 ///
 /// 自定义图片在选图时就被压到 256px，base64 存进保险库；不做后期裁剪，
 /// 避免在渲染路径里做图片处理。
@@ -162,80 +160,14 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
                 ? const Center(child: CircularProgressIndicator())
                 : icons.isEmpty
                 ? Center(child: Text(l10n.searchNoResults))
-                : MediaQuery.withClampedTextScaling(
-                    // 2 倍字号下格子会被文字撑破；图标名称只做辅助识别，限制放大。
-                    maxScaleFactor: 1.3,
-                    child: GridView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 4,
-                            crossAxisSpacing: 8,
-                            childAspectRatio: 0.82,
-                          ),
-                      itemCount: icons.length,
-                      itemBuilder: (context, index) {
-                        final icon = icons[index];
-                        return _IconCell(
-                          icon: icon,
-                          onTap: () =>
-                              Navigator.of(context)
-                                  .pop(IconRef(name: icon.ref)),
-                        );
-                      },
-                    ),
+                : KcIconGrid(
+                    icons: icons,
+                    keyPrefix: 'icon',
+                    onIconTap: (icon) =>
+                        Navigator.of(context).pop(IconRef(name: icon.ref)),
                   ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-/// 选择器里的一格：图标 + 名称 +（非默认包）风格标签。
-class _IconCell extends StatelessWidget {
-  const _IconCell({required this.icon, required this.onTap});
-
-  final IconPackIcon icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l10n = AppLocalizations.of(context);
-    return InkWell(
-      key: ValueKey<String>('icon_${icon.ref}'),
-      borderRadius: BorderRadius.circular(kcRadiusMd),
-      onTap: onTap,
-      child: Tooltip(
-        message: iconTooltip(l10n, icon),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            KcBrandIcon(ref: icon.ref, size: 36),
-            const SizedBox(height: 4),
-            Text(
-              icon.name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
-              ),
-            ),
-            if (icon.pack != IconPackId.simple)
-              Text(
-                packLabel(l10n, icon.pack),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  fontSize: 9,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.42),
-                ),
-              ),
-          ],
-        ),
       ),
     );
   }

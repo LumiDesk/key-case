@@ -694,6 +694,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iconPackAegis => 'Mono';
 
   @override
+  String get settingsIcons => 'Icons';
+
+  @override
+  String get settingsBrowseIcons => 'Browse icons';
+
+  @override
+  String get settingsBrowseIconsDesc =>
+      'Search and preview every built-in icon';
+
+  @override
+  String get iconLibraryTitle => 'Icon library';
+
+  @override
+  String get iconLibraryAll => 'All';
+
+  @override
+  String get iconLibraryFilter => 'Filter by pack';
+
+  @override
+  String iconLibraryCount(int count) {
+    return '$count icons';
+  }
+
+  @override
   String get noticeVaultCreated => 'Vault created';
 
   @override

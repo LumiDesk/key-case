@@ -241,6 +241,20 @@
   "iconPackSimple": "Badge",
   "iconPackDashboard": "Full color",
   "iconPackAegis": "Mono",
+  "settingsIcons": "Icons",
+  "settingsBrowseIcons": "Browse icons",
+  "settingsBrowseIconsDesc": "Search and preview every built-in icon",
+  "iconLibraryTitle": "Icon library",
+  "iconLibraryAll": "All",
+  "iconLibraryFilter": "Filter by pack",
+  "iconLibraryCount": "{count} icons",
+  "@iconLibraryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noticeVaultCreated": "Vault created",
   "noticeItemSaved": "Saved",
   "noticeItemDeleted": "Moved to trash",

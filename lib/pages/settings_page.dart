@@ -13,6 +13,7 @@ import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
 import 'change_password_dialog.dart';
 import 'color_picker_sheet.dart';
+import 'icon_library_page.dart';
 import 'sheets.dart';
 
 /// 设置页：外观 / 安全 / 令牌 / 数据 / 备份 / 关于 / 危险操作。
@@ -198,6 +199,19 @@ class SettingsPage extends StatelessWidget {
                       keyPrefix: 'settings_grouping',
                       onSelected: (value) => controller.updatePreferences(
                         preferences.copyWith(codeGrouping: value),
+                      ),
+                    ),
+                  ]),
+                  KcSectionLabel(l10n.settingsIcons),
+                  _card(<Widget>[
+                    KcSettingsRow(
+                      icon: Icons.apps_rounded,
+                      title: l10n.settingsBrowseIcons,
+                      subtitle: l10n.settingsBrowseIconsDesc,
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const IconLibraryPage(),
+                        ),
                       ),
                     ),
                   ]),

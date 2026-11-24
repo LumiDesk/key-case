@@ -1,5 +1,5 @@
-import '../app/icons/icon_packs.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
+import 'icon_packs.dart';
 
 /// 图标包在界面上的名称。
 ///

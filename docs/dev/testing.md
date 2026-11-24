@@ -8,7 +8,7 @@
 | 模型 | v2 `login`/`totp` 互斥、往返、非法组合、TOTP 值域 | `test/models_test.dart`、`test/vault_migrations_test.dart` |
 | 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、会话 epoch、锁定与删除、schemaVersion 校验 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
 | 状态与操作 | Controller 启动、创建/解锁/锁定、自动锁定、条目增删改、回收站、HOTP、偏好、生物识别、备份、导入、并发队列、锁定竞态 | `test/controller_test.dart` |
-| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情（顶栏收藏、备注可选）、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面 | `test/*_page_test.dart`（含 `detail_page_test.dart`）、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
+| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情（顶栏收藏、备注可选）、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面、图标选择器与图标库（名称/风格标签/按包筛选/预览）、图标包加载与多包匹配 | `test/*_page_test.dart`（含 `detail_page_test.dart`）、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/icon_pack_test.dart`、`test/icon_picker_test.dart`、`test/icon_library_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
 | 布局 | 360dp + 2x 字号无溢出（设置、首页、登录/令牌详情、编辑页长备注） | `test/layout_test.dart` |
 | 组件策略 | 禁止底部单选弹层、禁止分段单选控件、禁止 `sheets.dart` 之外的裸弹层 | `test/component_policy_test.dart` |
 

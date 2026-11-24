@@ -46,7 +46,7 @@ from **Settings → About**.
 | **Logins** | Account, password, multiple URLs, notes, random password generator, copy to clipboard |
 | **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview; optional notes |
 | **Lists** | A–Z grouping, search across names/accounts/URLs/notes, favorites, three sort orders |
-| **Icons** | Three bundled SVG packs (6,800+ logos: badge, full-color, mono), automatic brand matching, searchable picker, custom image icons |
+| **Icons** | Three bundled SVG packs (6,800+ logos: badge, full-color, mono), automatic brand matching, searchable picker, browse-only library in Settings, custom image icons |
 | **Imports** | Aegis JSON exports (plain or password-encrypted), Google Authenticator migration links, KeyCase backups |
 | **Backups** | Encrypted `.kcbak` export/import; up to 10 automatic snapshots in a SAF folder you choose |
 | **Cleanup** | Trash with restore and purge, security center for weak/reused/stale passwords |
