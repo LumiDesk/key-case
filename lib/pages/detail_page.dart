@@ -142,6 +142,9 @@ class _ItemDetailPageState extends State<ItemDetailPage> {
                                 showCode: preferences.showTokenCodes,
                                 showNext: preferences.showNextToken,
                                 grouping: preferences.codeGrouping,
+                                codeEffect: kcCodeEffectOf(
+                                  preferences.codeAnimation,
+                                ),
                                 revealedUntil: _revealUntil,
                                 onReveal: _revealFor,
                               ),
@@ -377,6 +380,7 @@ class _TokenPanel extends StatelessWidget {
     required this.showCode,
     required this.showNext,
     required this.grouping,
+    required this.codeEffect,
     required this.revealedUntil,
     required this.onReveal,
   });
@@ -385,6 +389,7 @@ class _TokenPanel extends StatelessWidget {
   final bool showCode;
   final bool showNext;
   final CodeGrouping grouping;
+  final KcCodeEffect codeEffect;
   final DateTime? revealedUntil;
   final VoidCallback onReveal;
 
@@ -439,8 +444,11 @@ class _TokenPanel extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              visible ? formatted : hiddenOtpCode(formatted),
+                            KcAnimatedCode(
+                              text: visible
+                                  ? formatted
+                                  : hiddenOtpCode(formatted),
+                              effect: codeEffect,
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontSize: 30,
                                 letterSpacing: 2,
@@ -459,10 +467,12 @@ class _TokenPanel extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
                                 // 隐藏态保留圆点占位，和主验证码一致。
-                                child: Text(
-                                  visible
+                                child: KcAnimatedCode(
+                                  text: visible
                                       ? nextFormatted
                                       : hiddenOtpCode(nextFormatted),
+                                  effect: codeEffect,
+                                  fadeOnly: true,
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.45),

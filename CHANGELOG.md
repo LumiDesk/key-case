@@ -12,6 +12,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - The icon picker labels every icon with its name and marks the pack an icon comes from.
 - Settings → Icons → Browse icons opens a read-only library of every bundled icon, with search,
   a per-pack filter, and a large preview on tap.
+- Codes animate when they roll over. **Settings → Tokens → Code transition** offers Dissolve
+  (default), Roll, or Off; the next code fades in. System "remove animations" always wins.
 
 ### Fixed
 

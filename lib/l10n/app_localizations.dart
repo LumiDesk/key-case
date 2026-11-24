@@ -1010,6 +1010,36 @@ abstract class AppLocalizations {
   /// **'不分组'**
   String get groupingNone;
 
+  /// No description provided for @settingsCodeAnimation.
+  ///
+  /// In zh, this message translates to:
+  /// **'换码动画'**
+  String get settingsCodeAnimation;
+
+  /// No description provided for @settingsCodeAnimationDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'验证码切换时的数字过渡'**
+  String get settingsCodeAnimationDesc;
+
+  /// No description provided for @codeAnimationOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get codeAnimationOff;
+
+  /// No description provided for @codeAnimationDust.
+  ///
+  /// In zh, this message translates to:
+  /// **'飘散'**
+  String get codeAnimationDust;
+
+  /// No description provided for @codeAnimationRoll.
+  ///
+  /// In zh, this message translates to:
+  /// **'滚动'**
+  String get codeAnimationRoll;
+
   /// No description provided for @settingsData.
   ///
   /// In zh, this message translates to:

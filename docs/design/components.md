@@ -44,6 +44,7 @@
 | `LetterAvatar` | 首字母头像，颜色按内容哈希稳定 |
 | `KcItemIcon` | 条目图标：品牌图标优先，回落到头像 |
 | `KcCodeCapsule` | 验证码胶囊（可隐藏；点击由令牌行决定揭开/复制） |
+| `KcAnimatedCode` | 会做换码过渡的验证码文本；`KcCodeEffect` 决定飘散/滚动/淡入/直替 |
 | `KcCountdownRing` | 倒计时环，最后 5 秒转警示色 |
 | `KcDetailRow` | 详情行：标签 + 值 + 复制/尾随操作（值最多两行，长文本改用 `KcTextSection`） |
 | `KcTextSection` | 分组标题 + 卡片内长文本（备注）：高度自适应、可长按选择、无复制按钮 |
@@ -106,4 +107,5 @@
 | `generatePassword` | `lib/app/util/password_generator.dart` | 随机密码 |
 | `formatDateTime` / `formatDate` / `formatRelative` | `lib/app/util/date_format.dart` | 日期与相对时间格式化，全部走 l10n |
 | `normalizeIconKey` | `lib/app/icons/icon_packs.dart` | 图标匹配规范化（小写 + 去非字母数字） |
+| `kcCodeEffectOf` | `lib/app/common_widgets_display.dart` | 把偏好里的 `CodeAnimation` 映射成 `KcCodeEffect` |
 | `compareVersions` | `lib/app/update/update_checker.dart` | 语义化版本比较 |

@@ -201,6 +201,24 @@ class SettingsPage extends StatelessWidget {
                         preferences.copyWith(codeGrouping: value),
                       ),
                     ),
+                    const KcRowDivider(),
+                    KcMenuRow<CodeAnimation>(
+                      icon: Icons.animation_rounded,
+                      title: l10n.settingsCodeAnimation,
+                      subtitle: l10n.settingsCodeAnimationDesc,
+                      value: _codeAnimationLabel(
+                        preferences.codeAnimation,
+                        l10n,
+                      ),
+                      values: CodeAnimation.values,
+                      selected: preferences.codeAnimation,
+                      idOf: (value) => value.name,
+                      labelOf: (value) => _codeAnimationLabel(value, l10n),
+                      keyPrefix: 'settings_code_animation',
+                      onSelected: (value) => controller.updatePreferences(
+                        preferences.copyWith(codeAnimation: value),
+                      ),
+                    ),
                   ]),
                   KcSectionLabel(l10n.settingsIcons),
                   _card(<Widget>[
@@ -429,6 +447,13 @@ class SettingsPage extends StatelessWidget {
         CodeGrouping.three => l10n.groupingThree,
         CodeGrouping.four => l10n.groupingFour,
         CodeGrouping.none => l10n.groupingNone,
+      };
+
+  String _codeAnimationLabel(CodeAnimation animation, AppLocalizations l10n) =>
+      switch (animation) {
+        CodeAnimation.off => l10n.codeAnimationOff,
+        CodeAnimation.dust => l10n.codeAnimationDust,
+        CodeAnimation.roll => l10n.codeAnimationRoll,
       };
 
   // --- 动作 ---------------------------------------------------------------

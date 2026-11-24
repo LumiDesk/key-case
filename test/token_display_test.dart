@@ -29,7 +29,10 @@ String formattedAt(TotpSecret secret, {int offset = 0}) {
 void main() {
   testWidgets('隐藏令牌显示与原始位数一致的圆点，下一组也只显示圆点', (tester) async {
     final token = testToken();
-    final test = makeController(items: <VaultItem>[token]);
+    final test = makeController(
+      preferences: const AppPreferences(codeAnimation: CodeAnimation.off),
+      items: <VaultItem>[token],
+    );
     await test.controller.bootstrap();
     await test.controller.unlock('pw');
     test.controller.clock.seconds.value = fixedSeconds;
@@ -69,7 +72,10 @@ void main() {
 
   testWidgets('点击隐藏验证码会揭开并复制，点别处立即隐藏', (tester) async {
     final token = testToken();
-    final test = makeController(items: <VaultItem>[token]);
+    final test = makeController(
+      preferences: const AppPreferences(codeAnimation: CodeAnimation.off),
+      items: <VaultItem>[token],
+    );
     await test.controller.bootstrap();
     await test.controller.unlock('pw');
     test.controller.clock.seconds.value = fixedSeconds;
@@ -116,7 +122,10 @@ void main() {
 
   testWidgets('揭开后 10 秒自动隐藏', (tester) async {
     final token = testToken();
-    final test = makeController(items: <VaultItem>[token]);
+    final test = makeController(
+      preferences: const AppPreferences(codeAnimation: CodeAnimation.off),
+      items: <VaultItem>[token],
+    );
     await test.controller.bootstrap();
     await test.controller.unlock('pw');
     test.controller.clock.seconds.value = fixedSeconds;
@@ -148,7 +157,10 @@ void main() {
 
   testWidgets('8 位令牌隐藏后仍是 8 个圆点', (tester) async {
     final token = testToken(digits: 8);
-    final test = makeController(items: <VaultItem>[token]);
+    final test = makeController(
+      preferences: const AppPreferences(codeAnimation: CodeAnimation.off),
+      items: <VaultItem>[token],
+    );
     await test.controller.bootstrap();
     await test.controller.unlock('pw');
     test.controller.clock.seconds.value = fixedSeconds;
@@ -181,6 +193,7 @@ void main() {
       preferences: const AppPreferences(
         showTokenCodes: false,
         showNextToken: true,
+        codeAnimation: CodeAnimation.off,
       ),
       items: <VaultItem>[token],
     );

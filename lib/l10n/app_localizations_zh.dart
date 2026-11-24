@@ -468,6 +468,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get groupingNone => '不分组';
 
   @override
+  String get settingsCodeAnimation => '换码动画';
+
+  @override
+  String get settingsCodeAnimationDesc => '验证码切换时的数字过渡';
+
+  @override
+  String get codeAnimationOff => '关闭';
+
+  @override
+  String get codeAnimationDust => '飘散';
+
+  @override
+  String get codeAnimationRoll => '滚动';
+
+  @override
   String get settingsData => '数据';
 
   @override

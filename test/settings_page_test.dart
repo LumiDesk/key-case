@@ -45,4 +45,24 @@ void main() {
     expect(find.text('github.com/LumiDesk/key-case'), findsOneWidget);
     await disposeTestController(tester, test.controller);
   });
+
+  testWidgets('换码动画可切换并写进偏好', (tester) async {
+    final test = makeController();
+    await test.controller.bootstrap();
+    await test.controller.unlock('pw');
+
+    await pumpKcPage(tester, controller: test.controller, page: settingsPage());
+    await tester.ensureVisible(find.text('换码动画'));
+    await tester.pumpAndSettle();
+    expect(find.text('飘散'), findsOneWidget);
+
+    await tester.tap(find.text('换码动画'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('滚动').last);
+    await tester.pumpAndSettle();
+
+    expect(test.controller.preferences.codeAnimation, CodeAnimation.roll);
+    expect(find.text('滚动'), findsOneWidget);
+    await disposeTestController(tester, test.controller);
+  });
 }

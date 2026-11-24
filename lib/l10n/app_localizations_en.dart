@@ -475,6 +475,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupingNone => 'None';
 
   @override
+  String get settingsCodeAnimation => 'Code transition';
+
+  @override
+  String get settingsCodeAnimationDesc => 'Motion when the code changes';
+
+  @override
+  String get codeAnimationOff => 'Off';
+
+  @override
+  String get codeAnimationDust => 'Dissolve';
+
+  @override
+  String get codeAnimationRoll => 'Roll';
+
+  @override
   String get settingsData => 'Data';
 
   @override

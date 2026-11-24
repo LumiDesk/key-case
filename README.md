@@ -44,7 +44,7 @@ from **Settings → About**.
 | **Vault** | Create with a master password, unlock, lock now, auto-lock when leaving the app; unlocking returns to the page you were on |
 | **Security** | Argon2id key derivation, AES-256-GCM, `FLAG_SECURE` on by default, biometric unlock via Android Keystore, clipboard auto-clear |
 | **Logins** | Account, password, multiple URLs, notes, random password generator, copy to clipboard |
-| **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview; optional notes |
+| **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview, configurable code-switch animation; optional notes |
 | **Lists** | A–Z grouping, search across names/accounts/URLs/notes, favorites, three sort orders |
 | **Icons** | Three bundled SVG packs (6,800+ logos: badge, full-color, mono), automatic brand matching, searchable picker, browse-only library in Settings, custom image icons |
 | **Imports** | Aegis JSON exports (plain or password-encrypted), Google Authenticator migration links, KeyCase backups |
