@@ -146,6 +146,7 @@ class _ResultCard extends StatelessWidget {
                 showCode: preferences.showTokenCodes,
                 showNext: preferences.showNextToken,
                 grouping: preferences.codeGrouping,
+                codeEffect: kcCodeEffectOf(preferences.codeAnimation),
                 onTap: () => _open(context, items[i]),
               )
             else

@@ -1010,6 +1010,36 @@ abstract class AppLocalizations {
   /// **'不分组'**
   String get groupingNone;
 
+  /// No description provided for @settingsCodeAnimation.
+  ///
+  /// In zh, this message translates to:
+  /// **'换码动画'**
+  String get settingsCodeAnimation;
+
+  /// No description provided for @settingsCodeAnimationDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'验证码切换时的数字过渡'**
+  String get settingsCodeAnimationDesc;
+
+  /// No description provided for @codeAnimationOff.
+  ///
+  /// In zh, this message translates to:
+  /// **'关闭'**
+  String get codeAnimationOff;
+
+  /// No description provided for @codeAnimationDust.
+  ///
+  /// In zh, this message translates to:
+  /// **'飘散'**
+  String get codeAnimationDust;
+
+  /// No description provided for @codeAnimationRoll.
+  ///
+  /// In zh, this message translates to:
+  /// **'滚动'**
+  String get codeAnimationRoll;
+
   /// No description provided for @settingsData.
   ///
   /// In zh, this message translates to:
@@ -1399,6 +1429,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'恢复自动匹配'**
   String get iconRemove;
+
+  /// No description provided for @iconPackSimple.
+  ///
+  /// In zh, this message translates to:
+  /// **'徽章'**
+  String get iconPackSimple;
+
+  /// No description provided for @iconPackDashboard.
+  ///
+  /// In zh, this message translates to:
+  /// **'全彩'**
+  String get iconPackDashboard;
+
+  /// No description provided for @iconPackAegis.
+  ///
+  /// In zh, this message translates to:
+  /// **'单色'**
+  String get iconPackAegis;
+
+  /// No description provided for @settingsIcons.
+  ///
+  /// In zh, this message translates to:
+  /// **'图标'**
+  String get settingsIcons;
+
+  /// No description provided for @settingsBrowseIcons.
+  ///
+  /// In zh, this message translates to:
+  /// **'浏览图标'**
+  String get settingsBrowseIcons;
+
+  /// No description provided for @settingsBrowseIconsDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'查看内置的整套图标，可搜索与预览'**
+  String get settingsBrowseIconsDesc;
+
+  /// No description provided for @iconLibraryTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'图标库'**
+  String get iconLibraryTitle;
+
+  /// No description provided for @iconLibraryAll.
+  ///
+  /// In zh, this message translates to:
+  /// **'全部'**
+  String get iconLibraryAll;
+
+  /// No description provided for @iconLibraryFilter.
+  ///
+  /// In zh, this message translates to:
+  /// **'按图标包筛选'**
+  String get iconLibraryFilter;
+
+  /// No description provided for @iconLibraryCount.
+  ///
+  /// In zh, this message translates to:
+  /// **'{count} 个图标'**
+  String iconLibraryCount(int count);
 
   /// No description provided for @noticeVaultCreated.
   ///

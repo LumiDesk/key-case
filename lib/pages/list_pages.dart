@@ -205,6 +205,7 @@ class _TokensPageState extends State<TokensPage> {
                   showCode: preferences.showTokenCodes,
                   showNext: preferences.showNextToken,
                   grouping: preferences.codeGrouping,
+                  codeEffect: kcCodeEffectOf(preferences.codeAnimation),
                   onTap: () => widget.onOpenItem(group.items[i]),
                 ),
                 if (i != group.items.length - 1) const KcRowDivider(),

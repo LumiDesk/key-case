@@ -328,6 +328,7 @@ class _ItemCard extends StatelessWidget {
                 showCode: preferences.showTokenCodes,
                 showNext: preferences.showNextToken,
                 grouping: preferences.codeGrouping,
+                codeEffect: kcCodeEffectOf(preferences.codeAnimation),
                 onTap: () => onOpenItem(items[i]),
               )
             else

@@ -22,6 +22,12 @@ Future<void> prepareDemoIfNeeded(KeyCaseController controller) async {
     await controller.unlock(demoMasterPassword);
   }
   if (!controller.state.isUnlocked) return;
+  // 截屏保护会让模拟器截图全黑；演示模式关掉它，正式构建不受影响。
+  if (controller.preferences.secureScreen) {
+    await controller.updatePreferences(
+      controller.preferences.copyWith(secureScreen: false),
+    );
+  }
   if (controller.state.activeItems.isNotEmpty) return;
   await _seedItems(controller);
 }

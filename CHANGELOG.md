@@ -4,6 +4,29 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-24
+
+### Added
+
+- The built-in icon set grows from 3,467 to 6,810 logos with two additional packs: full-color
+  service logos from dashboard-icons and a monochrome 2FA set from aegis-icons. Every pack ships
+  its license and is listed under open-source licenses in Settings.
+- The icon picker labels every icon with its name and marks the pack an icon comes from.
+- Settings → Icons → Browse icons opens a read-only library of every bundled icon, with search,
+  a per-pack filter, and a large preview on tap.
+- Codes animate when they roll over. **Settings → Tokens → Code transition** offers Dissolve
+  (default), Roll, or Off; the next code fades in. System "remove animations" always wins.
+
+### Changed
+
+- The token page's add button now staggers its actions into place and rotates the plus into a
+  cross instead of swapping icons.
+
+### Fixed
+
+- With "Show next code" on and codes hidden, the upcoming code now shows as dots in the same
+  grouping instead of disappearing.
+
 ## [1.1.1] - 2026-11-05
 
 ### Added

@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:keycase/app/data/preferences_store.dart';
-import 'package:keycase/app/icons/aegis_icon_pack.dart';
+import 'package:keycase/app/icons/icon_packs.dart';
 import 'package:keycase/app/models/models.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -30,6 +30,7 @@ void main() {
         clipboardAutoClear: false,
         autoLockSeconds: 60,
         codeGrouping: CodeGrouping.four,
+        codeAnimation: CodeAnimation.roll,
         languageCode: 'en',
         biometricEnabled: true,
         autoSnapshot: true,
@@ -50,6 +51,7 @@ void main() {
       expect(restored.clipboardAutoClear, isFalse);
       expect(restored.autoLockSeconds, 60);
       expect(restored.codeGrouping, CodeGrouping.four);
+      expect(restored.codeAnimation, CodeAnimation.roll);
       expect(restored.languageCode, 'en');
       expect(restored.biometricEnabled, isTrue);
       expect(restored.autoSnapshot, isTrue);
@@ -63,12 +65,14 @@ void main() {
         'themeMode': 'unknown',
         'colorMode': 'unknown',
         'codeGrouping': 'unknown',
+        'codeAnimation': 'unknown',
         'presetIndex': null,
       });
 
       expect(restored.themeMode, ThemeModePreference.system);
       expect(restored.colorMode, ThemeColorMode.preset);
       expect(restored.codeGrouping, CodeGrouping.auto);
+      expect(restored.codeAnimation, CodeAnimation.dust);
       expect(restored.presetIndex, 0);
     });
   });

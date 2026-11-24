@@ -23,6 +23,9 @@ const Color kcDangerOnLight = Color(0xFFC2334F);
 const Color kcWarningOnLight = Color(0xFF8A5A00);
 const Color kcSuccessOnLight = Color(0xFF0B7A6C);
 
+/// 全彩图标底板：深色主题下纯黑字形靠它保证可见，因此两套主题共用同一浅色。
+const Color kcIconPlate = Color(0xFFF6F8FB);
+
 const double kcCardRadius = 16;
 const double kcRadiusSm = 8;
 const double kcRadiusMd = 12;

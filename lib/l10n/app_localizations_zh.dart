@@ -468,6 +468,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get groupingNone => '不分组';
 
   @override
+  String get settingsCodeAnimation => '换码动画';
+
+  @override
+  String get settingsCodeAnimationDesc => '验证码切换时的数字过渡';
+
+  @override
+  String get codeAnimationOff => '关闭';
+
+  @override
+  String get codeAnimationDust => '飘散';
+
+  @override
+  String get codeAnimationRoll => '滚动';
+
+  @override
   String get settingsData => '数据';
 
   @override
@@ -666,6 +681,38 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get iconRemove => '恢复自动匹配';
+
+  @override
+  String get iconPackSimple => '徽章';
+
+  @override
+  String get iconPackDashboard => '全彩';
+
+  @override
+  String get iconPackAegis => '单色';
+
+  @override
+  String get settingsIcons => '图标';
+
+  @override
+  String get settingsBrowseIcons => '浏览图标';
+
+  @override
+  String get settingsBrowseIconsDesc => '查看内置的整套图标，可搜索与预览';
+
+  @override
+  String get iconLibraryTitle => '图标库';
+
+  @override
+  String get iconLibraryAll => '全部';
+
+  @override
+  String get iconLibraryFilter => '按图标包筛选';
+
+  @override
+  String iconLibraryCount(int count) {
+    return '$count 个图标';
+  }
 
   @override
   String get noticeVaultCreated => '保险库已创建';

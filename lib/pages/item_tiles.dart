@@ -50,6 +50,7 @@ class KcTokenTile extends StatefulWidget {
     required this.showNext,
     required this.grouping,
     required this.onTap,
+    this.codeEffect = KcCodeEffect.none,
     this.onLongPress,
   });
 
@@ -58,6 +59,7 @@ class KcTokenTile extends StatefulWidget {
   final bool showCode;
   final bool showNext;
   final CodeGrouping grouping;
+  final KcCodeEffect codeEffect;
   final VoidCallback onTap;
   final VoidCallback? onLongPress;
 
@@ -142,6 +144,13 @@ class _KcTokenTileState extends State<KcTokenTile> {
             final next = secret.isCounterBased
                 ? null
                 : nextOtpCode(secret, time);
+            final nextText = next == null
+                ? null
+                : formatOtpCode(
+                    next,
+                    widget.grouping,
+                    steam: secret.type == OtpType.steam,
+                  );
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -155,17 +164,17 @@ class _KcTokenTileState extends State<KcTokenTile> {
                         steam: secret.type == OtpType.steam,
                       ),
                       hidden: !visible,
+                      effect: widget.codeEffect,
                       onTap: () => _handleCodeTap(code, visible),
                     ),
-                    if (widget.showNext && next != null && visible)
+                    if (widget.showNext && nextText != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 3),
-                        child: Text(
-                          formatOtpCode(
-                            next,
-                            widget.grouping,
-                            steam: secret.type == OtpType.steam,
-                          ),
+                        // 隐藏验证码时下一组同样只留圆点占位，不暴露位数以外的信息。
+                        child: KcAnimatedCode(
+                          text: visible ? nextText : hiddenOtpCode(nextText),
+                          effect: widget.codeEffect,
+                          fadeOnly: true,
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface

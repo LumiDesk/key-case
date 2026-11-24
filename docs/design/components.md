@@ -44,6 +44,7 @@
 | `LetterAvatar` | 首字母头像，颜色按内容哈希稳定 |
 | `KcItemIcon` | 条目图标：品牌图标优先，回落到头像 |
 | `KcCodeCapsule` | 验证码胶囊（可隐藏；点击由令牌行决定揭开/复制） |
+| `KcAnimatedCode` | 会做换码过渡的验证码文本；`KcCodeEffect` 决定飘散/滚动/淡入/直替 |
 | `KcCountdownRing` | 倒计时环，最后 5 秒转警示色 |
 | `KcDetailRow` | 详情行：标签 + 值 + 复制/尾随操作（值最多两行，长文本改用 `KcTextSection`） |
 | `KcTextSection` | 分组标题 + 卡片内长文本（备注）：高度自适应、可长按选择、无复制按钮 |
@@ -60,7 +61,7 @@
 | `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错；多行备注传 `minLines` + `maxLines: null` 自动增高 |
 | `KcValueRow` | 卡片内「标签 + 当前值 + chevron」，用于需要自定义弹层的字段 |
 | `KcPasswordStrengthBar` | 主密码强度条（`lib/app/password_strength.dart`） |
-| `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组；每个动作有独立 heroTag |
+| `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组：动作错位缩放淡入、加号旋转 45° 成叉；每个动作有独立 heroTag |
 
 `KcMenuRow<T>` 的 `keyPrefix` 用于锚点菜单项的稳定 key，页面传入
 `settings_language`、`editor_token_type` 这类前缀；不要在页面里自己拼
@@ -88,7 +89,8 @@
 | `KcLoginTile` | `lib/pages/item_tiles.dart` | 登录项行 |
 | `KcTokenTile` | `lib/pages/item_tiles.dart` | 令牌行（验证码 + 倒计时；揭开/复制/点外部隐藏） |
 | `KcLetterHeader` | `lib/pages/item_tiles.dart` | 字母分组头 |
-| `AegisIcon` | `lib/app/icons/aegis_icon.dart` | 品牌 SVG 渲染 |
+| `KcBrandIcon` | `lib/app/icons/brand_icon.dart` | 品牌 SVG 渲染；全彩包自动垫浅色底板 |
+| `KcIconGrid` | `lib/app/common_widgets_display.dart` | 图标网格：图标 + 名称 + 风格标签；选择器与图标库共用，`keyPrefix` 决定格子 key |
 | `KcFeedbackHost` | `lib/app/feedback.dart` | 根级轻反馈宿主 |
 
 ## 6. 纯函数
@@ -104,5 +106,6 @@
 | `normalizeUrl` / `displayUrl` | `lib/app/util/url_tools.dart` | 网址校验 |
 | `generatePassword` | `lib/app/util/password_generator.dart` | 随机密码 |
 | `formatDateTime` / `formatDate` / `formatRelative` | `lib/app/util/date_format.dart` | 日期与相对时间格式化，全部走 l10n |
-| `normalizeIconKey` | `lib/app/icons/aegis_icon_pack.dart` | 图标匹配规范化 |
+| `normalizeIconKey` | `lib/app/icons/icon_packs.dart` | 图标匹配规范化（小写 + 去非字母数字） |
+| `kcCodeEffectOf` | `lib/app/common_widgets_display.dart` | 把偏好里的 `CodeAnimation` 映射成 `KcCodeEffect` |
 | `compareVersions` | `lib/app/update/update_checker.dart` | 语义化版本比较 |

@@ -1,0 +1,4791 @@
+{
+ "uuid": "a2f6b7c1-9d4e-4a83-b5c2-7e1f3a9d8c42",
+ "name": "aegis-icons",
+ "version": 1,
+ "icons": [
+  {
+   "name": "1040.com",
+   "filename": "SVG/1040-com.svg",
+   "category": null,
+   "issuer": [
+    "1040.com"
+   ]
+  },
+  {
+   "name": "1984 Hosting",
+   "filename": "SVG/1984-hosting.svg",
+   "category": null,
+   "issuer": [
+    "1984 Hosting"
+   ]
+  },
+  {
+   "name": "1login od WP",
+   "filename": "SVG/1login-od-wp.svg",
+   "category": null,
+   "issuer": [
+    "1login od WP"
+   ]
+  },
+  {
+   "name": "23andMe",
+   "filename": "SVG/23andme.svg",
+   "category": null,
+   "issuer": [
+    "23andMe"
+   ]
+  },
+  {
+   "name": "2Captcha",
+   "filename": "SVG/2captcha.svg",
+   "category": null,
+   "issuer": [
+    "2Captcha"
+   ]
+  },
+  {
+   "name": "ANY.RUN",
+   "filename": "SVG/any-run.svg",
+   "category": null,
+   "issuer": [
+    "ANY.RUN"
+   ]
+  },
+  {
+   "name": "AOL",
+   "filename": "SVG/aol.svg",
+   "category": null,
+   "issuer": [
+    "AOL"
+   ]
+  },
+  {
+   "name": "ARIN",
+   "filename": "SVG/arin.svg",
+   "category": null,
+   "issuer": [
+    "ARIN"
+   ]
+  },
+  {
+   "name": "Accurate",
+   "filename": "SVG/accurate.svg",
+   "category": null,
+   "issuer": [
+    "Accurate"
+   ]
+  },
+  {
+   "name": "Active24",
+   "filename": "SVG/active24.svg",
+   "category": null,
+   "issuer": [
+    "Active24"
+   ]
+  },
+  {
+   "name": "Aer Lingus",
+   "filename": "SVG/aer-lingus.svg",
+   "category": null,
+   "issuer": [
+    "Aer Lingus"
+   ]
+  },
+  {
+   "name": "Akamai Connected Cloud",
+   "filename": "SVG/akamai-connected-cloud.svg",
+   "category": null,
+   "issuer": [
+    "Akamai Connected Cloud"
+   ]
+  },
+  {
+   "name": "All-Inkl",
+   "filename": "SVG/all-inkl.svg",
+   "category": null,
+   "issuer": [
+    "All-Inkl"
+   ]
+  },
+  {
+   "name": "AllMyLinks",
+   "filename": "SVG/allmylinks.svg",
+   "category": null,
+   "issuer": [
+    "AllMyLinks"
+   ]
+  },
+  {
+   "name": "Apigee",
+   "filename": "SVG/apigee.svg",
+   "category": null,
+   "issuer": [
+    "Apigee"
+   ]
+  },
+  {
+   "name": "AppFolio",
+   "filename": "SVG/appfolio.svg",
+   "category": null,
+   "issuer": [
+    "AppFolio"
+   ]
+  },
+  {
+   "name": "ArenaNet",
+   "filename": "SVG/arenanet.svg",
+   "category": null,
+   "issuer": [
+    "ArenaNet"
+   ]
+  },
+  {
+   "name": "Asklepios",
+   "filename": "SVG/asklepios.svg",
+   "category": null,
+   "issuer": [
+    "Asklepios"
+   ]
+  },
+  {
+   "name": "Aternos",
+   "filename": "SVG/aternos.svg",
+   "category": null,
+   "issuer": [
+    "Aternos"
+   ]
+  },
+  {
+   "name": "Authing",
+   "filename": "SVG/authing.svg",
+   "category": null,
+   "issuer": [
+    "Authing"
+   ]
+  },
+  {
+   "name": "Autistici",
+   "filename": "SVG/autistici.svg",
+   "category": null,
+   "issuer": [
+    "Autistici"
+   ]
+  },
+  {
+   "name": "Back4App",
+   "filename": "SVG/back4app.svg",
+   "category": null,
+   "issuer": [
+    "Back4App"
+   ]
+  },
+  {
+   "name": "Battlestate Games",
+   "filename": "SVG/battlestate-games.svg",
+   "category": null,
+   "issuer": [
+    "Battlestate Games"
+   ]
+  },
+  {
+   "name": "Best Buy",
+   "filename": "SVG/best-buy.svg",
+   "category": null,
+   "issuer": [
+    "Best Buy"
+   ]
+  },
+  {
+   "name": "Bethesda",
+   "filename": "SVG/bethesda.svg",
+   "category": null,
+   "issuer": [
+    "Bethesda"
+   ]
+  },
+  {
+   "name": "Better Uptime",
+   "filename": "SVG/better-uptime.svg",
+   "category": null,
+   "issuer": [
+    "Better Uptime"
+   ]
+  },
+  {
+   "name": "Betterment",
+   "filename": "SVG/betterment.svg",
+   "category": null,
+   "issuer": [
+    "Betterment"
+   ]
+  },
+  {
+   "name": "BeyondTrust",
+   "filename": "SVG/beyondtrust.svg",
+   "category": null,
+   "issuer": [
+    "BeyondTrust"
+   ]
+  },
+  {
+   "name": "BingX",
+   "filename": "SVG/bingx.svg",
+   "category": null,
+   "issuer": [
+    "BingX"
+   ]
+  },
+  {
+   "name": "Birdie",
+   "filename": "SVG/birdie.svg",
+   "category": null,
+   "issuer": [
+    "Birdie"
+   ]
+  },
+  {
+   "name": "BitGo",
+   "filename": "SVG/bitgo.svg",
+   "category": null,
+   "issuer": [
+    "BitGo"
+   ]
+  },
+  {
+   "name": "BitSight",
+   "filename": "SVG/bitsight.svg",
+   "category": null,
+   "issuer": [
+    "BitSight"
+   ]
+  },
+  {
+   "name": "BitSkins",
+   "filename": "SVG/bitskins.svg",
+   "category": null,
+   "issuer": [
+    "BitSkins"
+   ]
+  },
+  {
+   "name": "Bitazza",
+   "filename": "SVG/bitazza.svg",
+   "category": null,
+   "issuer": [
+    "Bitazza"
+   ]
+  },
+  {
+   "name": "Bitkub",
+   "filename": "SVG/bitkub.svg",
+   "category": null,
+   "issuer": [
+    "Bitkub"
+   ]
+  },
+  {
+   "name": "Bitpanda",
+   "filename": "SVG/bitpanda.svg",
+   "category": null,
+   "issuer": [
+    "Bitpanda"
+   ]
+  },
+  {
+   "name": "Bitpay",
+   "filename": "SVG/bitpay.svg",
+   "category": null,
+   "issuer": [
+    "Bitpay"
+   ]
+  },
+  {
+   "name": "Bitrix24",
+   "filename": "SVG/bitrix24.svg",
+   "category": null,
+   "issuer": [
+    "Bitrix24"
+   ]
+  },
+  {
+   "name": "Bitso",
+   "filename": "SVG/bitso.svg",
+   "category": null,
+   "issuer": [
+    "Bitso"
+   ]
+  },
+  {
+   "name": "Bitstamp",
+   "filename": "SVG/bitstamp.svg",
+   "category": null,
+   "issuer": [
+    "Bitstamp"
+   ]
+  },
+  {
+   "name": "Bitwage",
+   "filename": "SVG/bitwage.svg",
+   "category": null,
+   "issuer": [
+    "Bitwage"
+   ]
+  },
+  {
+   "name": "Black Desert",
+   "filename": "SVG/black-desert.svg",
+   "category": null,
+   "issuer": [
+    "Black Desert"
+   ]
+  },
+  {
+   "name": "Blesta",
+   "filename": "SVG/blesta.svg",
+   "category": null,
+   "issuer": [
+    "Blesta"
+   ]
+  },
+  {
+   "name": "Blockstream Green",
+   "filename": "SVG/blockstream-green.svg",
+   "category": null,
+   "issuer": [
+    "Blockstream Green"
+   ]
+  },
+  {
+   "name": "Bluehost",
+   "filename": "SVG/bluehost.svg",
+   "category": null,
+   "issuer": [
+    "Bluehost"
+   ]
+  },
+  {
+   "name": "Boomi",
+   "filename": "SVG/boomi.svg",
+   "category": null,
+   "issuer": [
+    "Boomi"
+   ]
+  },
+  {
+   "name": "BorgBase",
+   "filename": "SVG/borgbase.svg",
+   "category": null,
+   "issuer": [
+    "BorgBase"
+   ]
+  },
+  {
+   "name": "Borlabs",
+   "filename": "SVG/borlabs.svg",
+   "category": null,
+   "issuer": [
+    "Borlabs"
+   ]
+  },
+  {
+   "name": "Boxcryptor",
+   "filename": "SVG/boxcryptor.svg",
+   "category": null,
+   "issuer": [
+    "Boxcryptor"
+   ]
+  },
+  {
+   "name": "Braze",
+   "filename": "SVG/braze.svg",
+   "category": null,
+   "issuer": [
+    "Braze"
+   ]
+  },
+  {
+   "name": "British Computer Society",
+   "filename": "SVG/british-computer-society.svg",
+   "category": null,
+   "issuer": [
+    "British Computer Society"
+   ]
+  },
+  {
+   "name": "Bugzilla",
+   "filename": "SVG/bugzilla.svg",
+   "category": null,
+   "issuer": [
+    "Bugzilla"
+   ]
+  },
+  {
+   "name": "CAPCOM ID",
+   "filename": "SVG/capcom-id.svg",
+   "category": null,
+   "issuer": [
+    "CAPCOM ID"
+   ]
+  },
+  {
+   "name": "CODING",
+   "filename": "SVG/coding.svg",
+   "category": null,
+   "issuer": [
+    "CODING"
+   ]
+  },
+  {
+   "name": "CS.MONEY",
+   "filename": "SVG/cs-money.svg",
+   "category": null,
+   "issuer": [
+    "CS.MONEY"
+   ]
+  },
+  {
+   "name": "CSAM",
+   "filename": "SVG/csam.svg",
+   "category": null,
+   "issuer": [
+    "CSAM"
+   ]
+  },
+  {
+   "name": "CSGOFloat",
+   "filename": "SVG/csgofloat.svg",
+   "category": null,
+   "issuer": [
+    "CSGOFloat"
+   ]
+  },
+  {
+   "name": "Caixa",
+   "filename": "SVG/caixa.svg",
+   "category": null,
+   "issuer": [
+    "Caixa"
+   ]
+  },
+  {
+   "name": "CalorieTracker.io",
+   "filename": "SVG/calorietracker-io.svg",
+   "category": null,
+   "issuer": [
+    "CalorieTracker.io"
+   ]
+  },
+  {
+   "name": "Canapii",
+   "filename": "SVG/canapii.svg",
+   "category": null,
+   "issuer": [
+    "Canapii"
+   ]
+  },
+  {
+   "name": "Capital.com",
+   "filename": "SVG/capital-com.svg",
+   "category": null,
+   "issuer": [
+    "Capital.com"
+   ]
+  },
+  {
+   "name": "Carta",
+   "filename": "SVG/carta.svg",
+   "category": null,
+   "issuer": [
+    "Carta"
+   ]
+  },
+  {
+   "name": "Chaturbate",
+   "filename": "SVG/chaturbate.svg",
+   "category": null,
+   "issuer": [
+    "Chaturbate"
+   ]
+  },
+  {
+   "name": "Cheaper Domains",
+   "filename": "SVG/cheaper-domains.svg",
+   "category": null,
+   "issuer": [
+    "Cheaper Domains"
+   ]
+  },
+  {
+   "name": "ClearScore",
+   "filename": "SVG/clearscore.svg",
+   "category": null,
+   "issuer": [
+    "ClearScore"
+   ]
+  },
+  {
+   "name": "Cloudamo",
+   "filename": "SVG/cloudamo.svg",
+   "category": null,
+   "issuer": [
+    "Cloudamo"
+   ]
+  },
+  {
+   "name": "Cloudfanatic",
+   "filename": "SVG/cloudfanatic.svg",
+   "category": null,
+   "issuer": [
+    "Cloudfanatic"
+   ]
+  },
+  {
+   "name": "Clover",
+   "filename": "SVG/clover.svg",
+   "category": null,
+   "issuer": [
+    "Clover"
+   ]
+  },
+  {
+   "name": "Cobo",
+   "filename": "SVG/cobo.svg",
+   "category": null,
+   "issuer": [
+    "Cobo"
+   ]
+  },
+  {
+   "name": "Codeanywhere",
+   "filename": "SVG/codeanywhere.svg",
+   "category": null,
+   "issuer": [
+    "Codeanywhere"
+   ]
+  },
+  {
+   "name": "CoinTracker",
+   "filename": "SVG/cointracker.svg",
+   "category": null,
+   "issuer": [
+    "CoinTracker"
+   ]
+  },
+  {
+   "name": "CoinTracking",
+   "filename": "SVG/cointracking.svg",
+   "category": null,
+   "issuer": [
+    "CoinTracking"
+   ]
+  },
+  {
+   "name": "ComputerBase",
+   "filename": "SVG/computerbase.svg",
+   "category": null,
+   "issuer": [
+    "ComputerBase"
+   ]
+  },
+  {
+   "name": "Coretax",
+   "filename": "SVG/coretax.svg",
+   "category": null,
+   "issuer": [
+    "Coretax"
+   ]
+  },
+  {
+   "name": "Cozy Cloud",
+   "filename": "SVG/cozy-cloud.svg",
+   "category": null,
+   "issuer": [
+    "Cozy Cloud"
+   ]
+  },
+  {
+   "name": "CrashPlan",
+   "filename": "SVG/crashplan.svg",
+   "category": null,
+   "issuer": [
+    "CrashPlan"
+   ]
+  },
+  {
+   "name": "Critical Start",
+   "filename": "SVG/critical-start.svg",
+   "category": null,
+   "issuer": [
+    "Critical Start"
+   ]
+  },
+  {
+   "name": "Cronometer",
+   "filename": "SVG/cronometer.svg",
+   "category": null,
+   "issuer": [
+    "Cronometer"
+   ]
+  },
+  {
+   "name": "CrossBox",
+   "filename": "SVG/crossbox.svg",
+   "category": null,
+   "issuer": [
+    "CrossBox"
+   ]
+  },
+  {
+   "name": "CrowdNode",
+   "filename": "SVG/crowdnode.svg",
+   "category": null,
+   "issuer": [
+    "CrowdNode"
+   ]
+  },
+  {
+   "name": "Cults",
+   "filename": "SVG/cults.svg",
+   "category": null,
+   "issuer": [
+    "Cults"
+   ]
+  },
+  {
+   "name": "Cuttly",
+   "filename": "SVG/cuttly.svg",
+   "category": null,
+   "issuer": [
+    "Cuttly"
+   ]
+  },
+  {
+   "name": "CybelAngel",
+   "filename": "SVG/cybelangel.svg",
+   "category": null,
+   "issuer": [
+    "CybelAngel"
+   ]
+  },
+  {
+   "name": "CyberPanel",
+   "filename": "SVG/cyberpanel.svg",
+   "category": null,
+   "issuer": [
+    "CyberPanel"
+   ]
+  },
+  {
+   "name": "DEGIRO",
+   "filename": "SVG/degiro.svg",
+   "category": null,
+   "issuer": [
+    "DEGIRO"
+   ]
+  },
+  {
+   "name": "DMarket",
+   "filename": "SVG/dmarket.svg",
+   "category": null,
+   "issuer": [
+    "DMarket"
+   ]
+  },
+  {
+   "name": "DNS.services",
+   "filename": "SVG/dns-services.svg",
+   "category": null,
+   "issuer": [
+    "DNS.services"
+   ]
+  },
+  {
+   "name": "DOKU",
+   "filename": "SVG/doku.svg",
+   "category": null,
+   "issuer": [
+    "DOKU"
+   ]
+  },
+  {
+   "name": "Datove schranky",
+   "filename": "SVG/datove-schranky.svg",
+   "category": null,
+   "issuer": [
+    "Datove schranky"
+   ]
+  },
+  {
+   "name": "DedicatedMC",
+   "filename": "SVG/dedicatedmc.svg",
+   "category": null,
+   "issuer": [
+    "DedicatedMC"
+   ]
+  },
+  {
+   "name": "Del-One Federal Credit Union",
+   "filename": "SVG/del-one-federal-credit-union.svg",
+   "category": null,
+   "issuer": [
+    "Del-One Federal Credit Union"
+   ]
+  },
+  {
+   "name": "DeleteMe",
+   "filename": "SVG/deleteme.svg",
+   "category": null,
+   "issuer": [
+    "DeleteMe"
+   ]
+  },
+  {
+   "name": "Delinea",
+   "filename": "SVG/delinea.svg",
+   "category": null,
+   "issuer": [
+    "Delinea"
+   ]
+  },
+  {
+   "name": "Deque Systems",
+   "filename": "SVG/deque-systems.svg",
+   "category": null,
+   "issuer": [
+    "Deque Systems"
+   ]
+  },
+  {
+   "name": "Derpibooru",
+   "filename": "SVG/derpibooru.svg",
+   "category": null,
+   "issuer": [
+    "Derpibooru"
+   ]
+  },
+  {
+   "name": "Dewaweb",
+   "filename": "SVG/dewaweb.svg",
+   "category": null,
+   "issuer": [
+    "Dewaweb"
+   ]
+  },
+  {
+   "name": "DigiConnect",
+   "filename": "SVG/digiconnect.svg",
+   "category": null,
+   "issuer": [
+    "DigiConnect"
+   ]
+  },
+  {
+   "name": "Digitec Galaxus",
+   "filename": "SVG/digitec-galaxus.svg",
+   "category": null,
+   "issuer": [
+    "Digitec Galaxus"
+   ]
+  },
+  {
+   "name": "DomaiNesia",
+   "filename": "SVG/domainesia.svg",
+   "category": null,
+   "issuer": [
+    "DomaiNesia"
+   ]
+  },
+  {
+   "name": "DonDominio",
+   "filename": "SVG/dondominio.svg",
+   "category": null,
+   "issuer": [
+    "DonDominio"
+   ]
+  },
+  {
+   "name": "DreamFactory",
+   "filename": "SVG/dreamfactory.svg",
+   "category": null,
+   "issuer": [
+    "DreamFactory"
+   ]
+  },
+  {
+   "name": "Duitku",
+   "filename": "SVG/duitku.svg",
+   "category": null,
+   "issuer": [
+    "Duitku"
+   ]
+  },
+  {
+   "name": "Dynadot",
+   "filename": "SVG/dynadot.svg",
+   "category": null,
+   "issuer": [
+    "Dynadot"
+   ]
+  },
+  {
+   "name": "ESET",
+   "filename": "SVG/eset.svg",
+   "category": null,
+   "issuer": [
+    "ESET"
+   ]
+  },
+  {
+   "name": "Ed",
+   "filename": "SVG/ed.svg",
+   "category": null,
+   "issuer": [
+    "Ed"
+   ]
+  },
+  {
+   "name": "Eneba",
+   "filename": "SVG/eneba.svg",
+   "category": null,
+   "issuer": [
+    "Eneba"
+   ]
+  },
+  {
+   "name": "Enom",
+   "filename": "SVG/enom.svg",
+   "category": null,
+   "issuer": [
+    "Enom"
+   ]
+  },
+  {
+   "name": "Equinix",
+   "filename": "SVG/equinix.svg",
+   "category": null,
+   "issuer": [
+    "Equinix"
+   ]
+  },
+  {
+   "name": "EuroDNS",
+   "filename": "SVG/eurodns.svg",
+   "category": null,
+   "issuer": [
+    "EuroDNS"
+   ]
+  },
+  {
+   "name": "Exabytes",
+   "filename": "SVG/exabytes.svg",
+   "category": null,
+   "issuer": [
+    "Exabytes"
+   ]
+  },
+  {
+   "name": "Exact",
+   "filename": "SVG/exact.svg",
+   "category": null,
+   "issuer": [
+    "Exact"
+   ]
+  },
+  {
+   "name": "F-Secure",
+   "filename": "SVG/f-secure.svg",
+   "category": null,
+   "issuer": [
+    "F-Secure"
+   ]
+  },
+  {
+   "name": "FAX.PLUS",
+   "filename": "SVG/fax-plus.svg",
+   "category": null,
+   "issuer": [
+    "FAX.PLUS"
+   ]
+  },
+  {
+   "name": "Fakturoid",
+   "filename": "SVG/fakturoid.svg",
+   "category": null,
+   "issuer": [
+    "Fakturoid"
+   ]
+  },
+  {
+   "name": "FanDuel",
+   "filename": "SVG/fanduel.svg",
+   "category": null,
+   "issuer": [
+    "FanDuel"
+   ]
+  },
+  {
+   "name": "Fanatical",
+   "filename": "SVG/fanatical.svg",
+   "category": null,
+   "issuer": [
+    "Fanatical"
+   ]
+  },
+  {
+   "name": "Fansly",
+   "filename": "SVG/fansly.svg",
+   "category": null,
+   "issuer": [
+    "Fansly"
+   ]
+  },
+  {
+   "name": "Farmad",
+   "filename": "SVG/farmad.svg",
+   "category": null,
+   "issuer": [
+    "Farmad"
+   ]
+  },
+  {
+   "name": "Fathom Analytics",
+   "filename": "SVG/fathom-analytics.svg",
+   "category": null,
+   "issuer": [
+    "Fathom Analytics"
+   ]
+  },
+  {
+   "name": "FetLife",
+   "filename": "SVG/fetlife.svg",
+   "category": null,
+   "issuer": [
+    "FetLife"
+   ]
+  },
+  {
+   "name": "Finary",
+   "filename": "SVG/finary.svg",
+   "category": null,
+   "issuer": [
+    "Finary"
+   ]
+  },
+  {
+   "name": "Finnair",
+   "filename": "SVG/finnair.svg",
+   "category": null,
+   "issuer": [
+    "Finnair"
+   ]
+  },
+  {
+   "name": "Flip",
+   "filename": "SVG/flip.svg",
+   "category": null,
+   "issuer": [
+    "Flip"
+   ]
+  },
+  {
+   "name": "Flourish",
+   "filename": "SVG/flourish.svg",
+   "category": null,
+   "issuer": [
+    "Flourish"
+   ]
+  },
+  {
+   "name": "Focusrite",
+   "filename": "SVG/focusrite.svg",
+   "category": null,
+   "issuer": [
+    "Focusrite"
+   ]
+  },
+  {
+   "name": "Forward Email",
+   "filename": "SVG/forward-email.svg",
+   "category": null,
+   "issuer": [
+    "Forward Email"
+   ]
+  },
+  {
+   "name": "Framasoft",
+   "filename": "SVG/framasoft.svg",
+   "category": null,
+   "issuer": [
+    "Framasoft"
+   ]
+  },
+  {
+   "name": "FreeTaxUSA",
+   "filename": "SVG/freetaxusa.svg",
+   "category": null,
+   "issuer": [
+    "FreeTaxUSA"
+   ]
+  },
+  {
+   "name": "Fundrise",
+   "filename": "SVG/fundrise.svg",
+   "category": null,
+   "issuer": [
+    "Fundrise"
+   ]
+  },
+  {
+   "name": "GBAtemp",
+   "filename": "SVG/gbatemp.svg",
+   "category": null,
+   "issuer": [
+    "GBAtemp"
+   ]
+  },
+  {
+   "name": "GNS3",
+   "filename": "SVG/gns3.svg",
+   "category": null,
+   "issuer": [
+    "GNS3"
+   ]
+  },
+  {
+   "name": "GOV.BR",
+   "filename": "SVG/gov-br.svg",
+   "category": null,
+   "issuer": [
+    "GOV.BR"
+   ]
+  },
+  {
+   "name": "GOV.UK",
+   "filename": "SVG/gov-uk.svg",
+   "category": null,
+   "issuer": [
+    "GOV.UK"
+   ]
+  },
+  {
+   "name": "Gaia Online",
+   "filename": "SVG/gaia-online.svg",
+   "category": null,
+   "issuer": [
+    "Gaia Online"
+   ]
+  },
+  {
+   "name": "Gaijin Entertainment",
+   "filename": "SVG/gaijin-entertainment.svg",
+   "category": null,
+   "issuer": [
+    "Gaijin Entertainment"
+   ]
+  },
+  {
+   "name": "Gemini",
+   "filename": "SVG/gemini.svg",
+   "category": null,
+   "issuer": [
+    "Gemini"
+   ]
+  },
+  {
+   "name": "Glimesh",
+   "filename": "SVG/glimesh.svg",
+   "category": null,
+   "issuer": [
+    "Glimesh"
+   ]
+  },
+  {
+   "name": "Global Entry",
+   "filename": "SVG/global-entry.svg",
+   "category": null,
+   "issuer": [
+    "Global Entry"
+   ]
+  },
+  {
+   "name": "GoTo",
+   "filename": "SVG/goto.svg",
+   "category": null,
+   "issuer": [
+    "GoTo"
+   ]
+  },
+  {
+   "name": "GoatCounter",
+   "filename": "SVG/goatcounter.svg",
+   "category": null,
+   "issuer": [
+    "GoatCounter"
+   ]
+  },
+  {
+   "name": "GoodSync",
+   "filename": "SVG/goodsync.svg",
+   "category": null,
+   "issuer": [
+    "GoodSync"
+   ]
+  },
+  {
+   "name": "Gosuslugi",
+   "filename": "SVG/gosuslugi.svg",
+   "category": null,
+   "issuer": [
+    "Gosuslugi"
+   ]
+  },
+  {
+   "name": "Greenhost",
+   "filename": "SVG/greenhost.svg",
+   "category": null,
+   "issuer": [
+    "Greenhost"
+   ]
+  },
+  {
+   "name": "Greenview Data",
+   "filename": "SVG/greenview-data.svg",
+   "category": null,
+   "issuer": [
+    "Greenview Data"
+   ]
+  },
+  {
+   "name": "Grey",
+   "filename": "SVG/grey.svg",
+   "category": null,
+   "issuer": [
+    "Grey"
+   ]
+  },
+  {
+   "name": "Groups.io",
+   "filename": "SVG/groups-io.svg",
+   "category": null,
+   "issuer": [
+    "Groups.io"
+   ]
+  },
+  {
+   "name": "Guideline",
+   "filename": "SVG/guideline.svg",
+   "category": null,
+   "issuer": [
+    "Guideline"
+   ]
+  },
+  {
+   "name": "Guru.com",
+   "filename": "SVG/guru-com.svg",
+   "category": null,
+   "issuer": [
+    "Guru.com"
+   ]
+  },
+  {
+   "name": "H&R Block",
+   "filename": "SVG/h-r-block.svg",
+   "category": null,
+   "issuer": [
+    "H&R Block"
+   ]
+  },
+  {
+   "name": "HEXONET",
+   "filename": "SVG/hexonet.svg",
+   "category": null,
+   "issuer": [
+    "HEXONET"
+   ]
+  },
+  {
+   "name": "HMBradley",
+   "filename": "SVG/hmbradley.svg",
+   "category": null,
+   "issuer": [
+    "HMBradley"
+   ]
+  },
+  {
+   "name": "HYGH",
+   "filename": "SVG/hygh.svg",
+   "category": null,
+   "issuer": [
+    "HYGH"
+   ]
+  },
+  {
+   "name": "HackNotice",
+   "filename": "SVG/hacknotice.svg",
+   "category": null,
+   "issuer": [
+    "HackNotice"
+   ]
+  },
+  {
+   "name": "Hauk",
+   "filename": "SVG/hauk.svg",
+   "category": null,
+   "issuer": [
+    "Hauk"
+   ]
+  },
+  {
+   "name": "HelpSpot",
+   "filename": "SVG/helpspot.svg",
+   "category": null,
+   "issuer": [
+    "HelpSpot"
+   ]
+  },
+  {
+   "name": "Heroku",
+   "filename": "SVG/heroku.svg",
+   "category": null,
+   "issuer": [
+    "Heroku"
+   ]
+  },
+  {
+   "name": "Hestia Control Panel",
+   "filename": "SVG/hestia-control-panel.svg",
+   "category": null,
+   "issuer": [
+    "Hestia Control Panel"
+   ]
+  },
+  {
+   "name": "Hewlett Packard Enterprise",
+   "filename": "SVG/hewlett-packard-enterprise.svg",
+   "category": null,
+   "issuer": [
+    "Hewlett Packard Enterprise"
+   ]
+  },
+  {
+   "name": "Hiven",
+   "filename": "SVG/hiven.svg",
+   "category": null,
+   "issuer": [
+    "Hiven"
+   ]
+  },
+  {
+   "name": "Hiveon",
+   "filename": "SVG/hiveon.svg",
+   "category": null,
+   "issuer": [
+    "Hiveon"
+   ]
+  },
+  {
+   "name": "Homey",
+   "filename": "SVG/homey.svg",
+   "category": null,
+   "issuer": [
+    "Homey"
+   ]
+  },
+  {
+   "name": "Hostingpalvelu",
+   "filename": "SVG/hostingpalvelu.svg",
+   "category": null,
+   "issuer": [
+    "Hostingpalvelu"
+   ]
+  },
+  {
+   "name": "Hostwinds",
+   "filename": "SVG/hostwinds.svg",
+   "category": null,
+   "issuer": [
+    "Hostwinds"
+   ]
+  },
+  {
+   "name": "Hover",
+   "filename": "SVG/hover.svg",
+   "category": null,
+   "issuer": [
+    "Hover"
+   ]
+  },
+  {
+   "name": "Huobi",
+   "filename": "SVG/huobi.svg",
+   "category": null,
+   "issuer": [
+    "Huobi"
+   ]
+  },
+  {
+   "name": "Hurricane Electric",
+   "filename": "SVG/hurricane-electric.svg",
+   "category": null,
+   "issuer": [
+    "Hurricane Electric"
+   ]
+  },
+  {
+   "name": "Husky",
+   "filename": "SVG/husky.svg",
+   "category": null,
+   "issuer": [
+    "Husky"
+   ]
+  },
+  {
+   "name": "Hyper Expert",
+   "filename": "SVG/hyper-expert.svg",
+   "category": null,
+   "issuer": [
+    "Hyper Expert"
+   ]
+  },
+  {
+   "name": "Hypixel",
+   "filename": "SVG/hypixel.svg",
+   "category": null,
+   "issuer": [
+    "Hypixel"
+   ]
+  },
+  {
+   "name": "ID.me",
+   "filename": "SVG/id-me.svg",
+   "category": null,
+   "issuer": [
+    "ID.me"
+   ]
+  },
+  {
+   "name": "IDCloudHost",
+   "filename": "SVG/idcloudhost.svg",
+   "category": null,
+   "issuer": [
+    "IDCloudHost"
+   ]
+  },
+  {
+   "name": "ING",
+   "filename": "SVG/ing.svg",
+   "category": null,
+   "issuer": [
+    "ING"
+   ]
+  },
+  {
+   "name": "INWX",
+   "filename": "SVG/inwx.svg",
+   "category": null,
+   "issuer": [
+    "INWX"
+   ]
+  },
+  {
+   "name": "IServ",
+   "filename": "SVG/iserv.svg",
+   "category": null,
+   "issuer": [
+    "IServ"
+   ]
+  },
+  {
+   "name": "IVPN",
+   "filename": "SVG/ivpn.svg",
+   "category": null,
+   "issuer": [
+    "IVPN"
+   ]
+  },
+  {
+   "name": "Icedrive",
+   "filename": "SVG/icedrive.svg",
+   "category": null,
+   "issuer": [
+    "Icedrive"
+   ]
+  },
+  {
+   "name": "ImmoScout24",
+   "filename": "SVG/immoscout24.svg",
+   "category": null,
+   "issuer": [
+    "ImmoScout24"
+   ]
+  },
+  {
+   "name": "Incogniton",
+   "filename": "SVG/incogniton.svg",
+   "category": null,
+   "issuer": [
+    "Incogniton"
+   ]
+  },
+  {
+   "name": "Indodax",
+   "filename": "SVG/indodax.svg",
+   "category": null,
+   "issuer": [
+    "Indodax"
+   ]
+  },
+  {
+   "name": "Infura",
+   "filename": "SVG/infura.svg",
+   "category": null,
+   "issuer": [
+    "Infura"
+   ]
+  },
+  {
+   "name": "Interactive Brokers",
+   "filename": "SVG/interactive-brokers.svg",
+   "category": null,
+   "issuer": [
+    "Interactive Brokers"
+   ]
+  },
+  {
+   "name": "Internxt",
+   "filename": "SVG/internxt.svg",
+   "category": null,
+   "issuer": [
+    "Internxt"
+   ]
+  },
+  {
+   "name": "IronVest",
+   "filename": "SVG/ironvest.svg",
+   "category": null,
+   "issuer": [
+    "IronVest"
+   ]
+  },
+  {
+   "name": "Jagex",
+   "filename": "SVG/jagex.svg",
+   "category": null,
+   "issuer": [
+    "Jagex"
+   ]
+  },
+  {
+   "name": "Johns Hopkins",
+   "filename": "SVG/johns-hopkins.svg",
+   "category": null,
+   "issuer": [
+    "Johns Hopkins"
+   ]
+  },
+  {
+   "name": "Joker.com",
+   "filename": "SVG/joker-com.svg",
+   "category": null,
+   "issuer": [
+    "Joker.com"
+   ]
+  },
+  {
+   "name": "Jottacloud",
+   "filename": "SVG/jottacloud.svg",
+   "category": null,
+   "issuer": [
+    "Jottacloud"
+   ]
+  },
+  {
+   "name": "Justworks",
+   "filename": "SVG/justworks.svg",
+   "category": null,
+   "issuer": [
+    "Justworks"
+   ]
+  },
+  {
+   "name": "KACE",
+   "filename": "SVG/kace.svg",
+   "category": null,
+   "issuer": [
+    "KACE"
+   ]
+  },
+  {
+   "name": "KeepSolid",
+   "filename": "SVG/keepsolid.svg",
+   "category": null,
+   "issuer": [
+    "KeepSolid"
+   ]
+  },
+  {
+   "name": "Kerberos.io",
+   "filename": "SVG/kerberos-io.svg",
+   "category": null,
+   "issuer": [
+    "Kerberos.io"
+   ]
+  },
+  {
+   "name": "Kialo",
+   "filename": "SVG/kialo.svg",
+   "category": null,
+   "issuer": [
+    "Kialo"
+   ]
+  },
+  {
+   "name": "Kindai University",
+   "filename": "SVG/kindai-university.svg",
+   "category": null,
+   "issuer": [
+    "Kindai University"
+   ]
+  },
+  {
+   "name": "Kinguin",
+   "filename": "SVG/kinguin.svg",
+   "category": null,
+   "issuer": [
+    "Kinguin"
+   ]
+  },
+  {
+   "name": "Kiva",
+   "filename": "SVG/kiva.svg",
+   "category": null,
+   "issuer": [
+    "Kiva"
+   ]
+  },
+  {
+   "name": "KnowBe4",
+   "filename": "SVG/knowbe4.svg",
+   "category": null,
+   "issuer": [
+    "KnowBe4"
+   ]
+  },
+  {
+   "name": "Koofr",
+   "filename": "SVG/koofr.svg",
+   "category": null,
+   "issuer": [
+    "Koofr"
+   ]
+  },
+  {
+   "name": "Kraken",
+   "filename": "SVG/kraken.svg",
+   "category": null,
+   "issuer": [
+    "Kraken"
+   ]
+  },
+  {
+   "name": "Kualo",
+   "filename": "SVG/kualo.svg",
+   "category": null,
+   "issuer": [
+    "Kualo"
+   ]
+  },
+  {
+   "name": "Kwansei Gakuin University",
+   "filename": "SVG/kwansei-gakuin-university.svg",
+   "category": null,
+   "issuer": [
+    "Kwansei Gakuin University"
+   ]
+  },
+  {
+   "name": "Kyoto Sangyo University",
+   "filename": "SVG/kyoto-sangyo-university.svg",
+   "category": null,
+   "issuer": [
+    "Kyoto Sangyo University"
+   ]
+  },
+  {
+   "name": "La Poste",
+   "filename": "SVG/la-poste.svg",
+   "category": null,
+   "issuer": [
+    "La Poste"
+   ]
+  },
+  {
+   "name": "LabyMod",
+   "filename": "SVG/labymod.svg",
+   "category": null,
+   "issuer": [
+    "LabyMod"
+   ]
+  },
+  {
+   "name": "Libero",
+   "filename": "SVG/libero.svg",
+   "category": null,
+   "issuer": [
+    "Libero"
+   ]
+  },
+  {
+   "name": "Line 6",
+   "filename": "SVG/line-6.svg",
+   "category": null,
+   "issuer": [
+    "Line 6"
+   ]
+  },
+  {
+   "name": "Linus Tech Tips",
+   "filename": "SVG/linus-tech-tips.svg",
+   "category": null,
+   "issuer": [
+    "Linus Tech Tips"
+   ]
+  },
+  {
+   "name": "Lnk.Bio",
+   "filename": "SVG/lnk-bio.svg",
+   "category": null,
+   "issuer": [
+    "Lnk.Bio"
+   ]
+  },
+  {
+   "name": "Loket.nl",
+   "filename": "SVG/loket-nl.svg",
+   "category": null,
+   "issuer": [
+    "Loket.nl"
+   ]
+  },
+  {
+   "name": "LunaNode",
+   "filename": "SVG/lunanode.svg",
+   "category": null,
+   "issuer": [
+    "LunaNode"
+   ]
+  },
+  {
+   "name": "Luno",
+   "filename": "SVG/luno.svg",
+   "category": null,
+   "issuer": [
+    "Luno"
+   ]
+  },
+  {
+   "name": "M1",
+   "filename": "SVG/m1.svg",
+   "category": null,
+   "issuer": [
+    "M1"
+   ]
+  },
+  {
+   "name": "MC-HOST24",
+   "filename": "SVG/mc-host24.svg",
+   "category": null,
+   "issuer": [
+    "MC-HOST24"
+   ]
+  },
+  {
+   "name": "MEXC",
+   "filename": "SVG/mexc.svg",
+   "category": null,
+   "issuer": [
+    "MEXC"
+   ]
+  },
+  {
+   "name": "MXroute",
+   "filename": "SVG/mxroute.svg",
+   "category": null,
+   "issuer": [
+    "MXroute"
+   ]
+  },
+  {
+   "name": "Magento",
+   "filename": "SVG/magento.svg",
+   "category": null,
+   "issuer": [
+    "Magento"
+   ]
+  },
+  {
+   "name": "Mailfence",
+   "filename": "SVG/mailfence.svg",
+   "category": null,
+   "issuer": [
+    "Mailfence"
+   ]
+  },
+  {
+   "name": "Mailo",
+   "filename": "SVG/mailo.svg",
+   "category": null,
+   "issuer": [
+    "Mailo"
+   ]
+  },
+  {
+   "name": "ManyVids",
+   "filename": "SVG/manyvids.svg",
+   "category": null,
+   "issuer": [
+    "ManyVids"
+   ]
+  },
+  {
+   "name": "Marketplace.tf",
+   "filename": "SVG/marketplace-tf.svg",
+   "category": null,
+   "issuer": [
+    "Marketplace.tf"
+   ]
+  },
+  {
+   "name": "MathWorks",
+   "filename": "SVG/mathworks.svg",
+   "category": null,
+   "issuer": [
+    "MathWorks"
+   ]
+  },
+  {
+   "name": "Maxon",
+   "filename": "SVG/maxon.svg",
+   "category": null,
+   "issuer": [
+    "Maxon"
+   ]
+  },
+  {
+   "name": "Meister",
+   "filename": "SVG/meister.svg",
+   "category": null,
+   "issuer": [
+    "Meister"
+   ]
+  },
+  {
+   "name": "Mercado Libre",
+   "filename": "SVG/mercado-libre.svg",
+   "category": null,
+   "issuer": [
+    "Mercado Libre"
+   ]
+  },
+  {
+   "name": "Micron21",
+   "filename": "SVG/micron21.svg",
+   "category": null,
+   "issuer": [
+    "Micron21"
+   ]
+  },
+  {
+   "name": "Midtrans",
+   "filename": "SVG/midtrans.svg",
+   "category": null,
+   "issuer": [
+    "Midtrans"
+   ]
+  },
+  {
+   "name": "Migros",
+   "filename": "SVG/migros.svg",
+   "category": null,
+   "issuer": [
+    "Migros"
+   ]
+  },
+  {
+   "name": "Minehub.de",
+   "filename": "SVG/minehub-de.svg",
+   "category": null,
+   "issuer": [
+    "Minehub.de"
+   ]
+  },
+  {
+   "name": "Mint Mobile",
+   "filename": "SVG/mint-mobile.svg",
+   "category": null,
+   "issuer": [
+    "Mint Mobile"
+   ]
+  },
+  {
+   "name": "Mistral",
+   "filename": "SVG/mistral.svg",
+   "category": null,
+   "issuer": [
+    "Mistral"
+   ]
+  },
+  {
+   "name": "Mollie",
+   "filename": "SVG/mollie.svg",
+   "category": null,
+   "issuer": [
+    "Mollie"
+   ]
+  },
+  {
+   "name": "Monex",
+   "filename": "SVG/monex.svg",
+   "category": null,
+   "issuer": [
+    "Monex"
+   ]
+  },
+  {
+   "name": "Mos.ru",
+   "filename": "SVG/mos-ru.svg",
+   "category": null,
+   "issuer": [
+    "Mos.ru"
+   ]
+  },
+  {
+   "name": "Mutasibank",
+   "filename": "SVG/mutasibank.svg",
+   "category": null,
+   "issuer": [
+    "Mutasibank"
+   ]
+  },
+  {
+   "name": "MxToolbox",
+   "filename": "SVG/mxtoolbox.svg",
+   "category": null,
+   "issuer": [
+    "MxToolbox"
+   ]
+  },
+  {
+   "name": "My Digital Life Forums",
+   "filename": "SVG/my-digital-life-forums.svg",
+   "category": null,
+   "issuer": [
+    "My Digital Life Forums"
+   ]
+  },
+  {
+   "name": "MyChart",
+   "filename": "SVG/mychart.svg",
+   "category": null,
+   "issuer": [
+    "MyChart"
+   ]
+  },
+  {
+   "name": "MyHeritage",
+   "filename": "SVG/myheritage.svg",
+   "category": null,
+   "issuer": [
+    "MyHeritage"
+   ]
+  },
+  {
+   "name": "NETdepot",
+   "filename": "SVG/netdepot.svg",
+   "category": null,
+   "issuer": [
+    "NETdepot"
+   ]
+  },
+  {
+   "name": "NHS",
+   "filename": "SVG/nhs.svg",
+   "category": null,
+   "issuer": [
+    "NHS"
+   ]
+  },
+  {
+   "name": "Name.com",
+   "filename": "SVG/name-com.svg",
+   "category": null,
+   "issuer": [
+    "Name.com"
+   ]
+  },
+  {
+   "name": "NamePros",
+   "filename": "SVG/namepros.svg",
+   "category": null,
+   "issuer": [
+    "NamePros"
+   ]
+  },
+  {
+   "name": "Nanovest",
+   "filename": "SVG/nanovest.svg",
+   "category": null,
+   "issuer": [
+    "Nanovest"
+   ]
+  },
+  {
+   "name": "Nash",
+   "filename": "SVG/nash.svg",
+   "category": null,
+   "issuer": [
+    "Nash"
+   ]
+  },
+  {
+   "name": "NearlyFreeSpeech.NET",
+   "filename": "SVG/nearlyfreespeech-net.svg",
+   "category": null,
+   "issuer": [
+    "NearlyFreeSpeech.NET"
+   ]
+  },
+  {
+   "name": "Neopets",
+   "filename": "SVG/neopets.svg",
+   "category": null,
+   "issuer": [
+    "Neopets"
+   ]
+  },
+  {
+   "name": "Neos",
+   "filename": "SVG/neos.svg",
+   "category": null,
+   "issuer": [
+    "Neos"
+   ]
+  },
+  {
+   "name": "Neowin",
+   "filename": "SVG/neowin.svg",
+   "category": null,
+   "issuer": [
+    "Neowin"
+   ]
+  },
+  {
+   "name": "NetBird",
+   "filename": "SVG/netbird.svg",
+   "category": null,
+   "issuer": [
+    "NetBird"
+   ]
+  },
+  {
+   "name": "Nexo",
+   "filename": "SVG/nexo.svg",
+   "category": null,
+   "issuer": [
+    "Nexo"
+   ]
+  },
+  {
+   "name": "Nexus Mods",
+   "filename": "SVG/nexus-mods.svg",
+   "category": null,
+   "issuer": [
+    "Nexus Mods"
+   ]
+  },
+  {
+   "name": "Niagahoster",
+   "filename": "SVG/niagahoster.svg",
+   "category": null,
+   "issuer": [
+    "Niagahoster"
+   ]
+  },
+  {
+   "name": "Nimbus Platform",
+   "filename": "SVG/nimbus-platform.svg",
+   "category": null,
+   "issuer": [
+    "Nimbus Platform"
+   ]
+  },
+  {
+   "name": "Nintendo",
+   "filename": "SVG/nintendo.svg",
+   "category": null,
+   "issuer": [
+    "Nintendo"
+   ]
+  },
+  {
+   "name": "Nitrado",
+   "filename": "SVG/nitrado.svg",
+   "category": null,
+   "issuer": [
+    "Nitrado"
+   ]
+  },
+  {
+   "name": "Njalla",
+   "filename": "SVG/njalla.svg",
+   "category": null,
+   "issuer": [
+    "Njalla"
+   ]
+  },
+  {
+   "name": "No Starch Press",
+   "filename": "SVG/no-starch-press.svg",
+   "category": null,
+   "issuer": [
+    "No Starch Press"
+   ]
+  },
+  {
+   "name": "No-IP",
+   "filename": "SVG/no-ip.svg",
+   "category": null,
+   "issuer": [
+    "No-IP"
+   ]
+  },
+  {
+   "name": "Northflank",
+   "filename": "SVG/northflank.svg",
+   "category": null,
+   "issuer": [
+    "Northflank"
+   ]
+  },
+  {
+   "name": "NotABug.org",
+   "filename": "SVG/notabug-org.svg",
+   "category": null,
+   "issuer": [
+    "NotABug.org"
+   ]
+  },
+  {
+   "name": "Notejoy",
+   "filename": "SVG/notejoy.svg",
+   "category": null,
+   "issuer": [
+    "Notejoy"
+   ]
+  },
+  {
+   "name": "Nuki",
+   "filename": "SVG/nuki.svg",
+   "category": null,
+   "issuer": [
+    "Nuki"
+   ]
+  },
+  {
+   "name": "Nutstore",
+   "filename": "SVG/nutstore.svg",
+   "category": null,
+   "issuer": [
+    "Nutstore"
+   ]
+  },
+  {
+   "name": "OLG",
+   "filename": "SVG/olg.svg",
+   "category": null,
+   "issuer": [
+    "OLG"
+   ]
+  },
+  {
+   "name": "OMGSERV",
+   "filename": "SVG/omgserv.svg",
+   "category": null,
+   "issuer": [
+    "OMGSERV"
+   ]
+  },
+  {
+   "name": "ObsidianMD",
+   "filename": "SVG/obsidianmd.svg",
+   "category": null,
+   "issuer": [
+    "ObsidianMD"
+   ]
+  },
+  {
+   "name": "OffGamers",
+   "filename": "SVG/offgamers.svg",
+   "category": null,
+   "issuer": [
+    "OffGamers"
+   ]
+  },
+  {
+   "name": "OneProvider",
+   "filename": "SVG/oneprovider.svg",
+   "category": null,
+   "issuer": [
+    "OneProvider"
+   ]
+  },
+  {
+   "name": "OneSignal",
+   "filename": "SVG/onesignal.svg",
+   "category": null,
+   "issuer": [
+    "OneSignal"
+   ]
+  },
+  {
+   "name": "Opalstack",
+   "filename": "SVG/opalstack.svg",
+   "category": null,
+   "issuer": [
+    "Opalstack"
+   ]
+  },
+  {
+   "name": "OpenSRS",
+   "filename": "SVG/opensrs.svg",
+   "category": null,
+   "issuer": [
+    "OpenSRS"
+   ]
+  },
+  {
+   "name": "OpenVK",
+   "filename": "SVG/openvk.svg",
+   "category": null,
+   "issuer": [
+    "OpenVK"
+   ]
+  },
+  {
+   "name": "Optery",
+   "filename": "SVG/optery.svg",
+   "category": null,
+   "issuer": [
+    "Optery"
+   ]
+  },
+  {
+   "name": "Oray",
+   "filename": "SVG/oray.svg",
+   "category": null,
+   "issuer": [
+    "Oray"
+   ]
+  },
+  {
+   "name": "Osaka University",
+   "filename": "SVG/osaka-university.svg",
+   "category": null,
+   "issuer": [
+    "Osaka University"
+   ]
+  },
+  {
+   "name": "OwnCube",
+   "filename": "SVG/owncube.svg",
+   "category": null,
+   "issuer": [
+    "OwnCube"
+   ]
+  },
+  {
+   "name": "PIEE",
+   "filename": "SVG/piee.svg",
+   "category": null,
+   "issuer": [
+    "PIEE"
+   ]
+  },
+  {
+   "name": "Parsec",
+   "filename": "SVG/parsec.svg",
+   "category": null,
+   "issuer": [
+    "Parsec"
+   ]
+  },
+  {
+   "name": "Passmulticadeaux",
+   "filename": "SVG/passmulticadeaux.svg",
+   "category": null,
+   "issuer": [
+    "Passmulticadeaux"
+   ]
+  },
+  {
+   "name": "Patronite",
+   "filename": "SVG/patronite.svg",
+   "category": null,
+   "issuer": [
+    "Patronite"
+   ]
+  },
+  {
+   "name": "Paycor",
+   "filename": "SVG/paycor.svg",
+   "category": null,
+   "issuer": [
+    "Paycor"
+   ]
+  },
+  {
+   "name": "PebbleHost",
+   "filename": "SVG/pebblehost.svg",
+   "category": null,
+   "issuer": [
+    "PebbleHost"
+   ]
+  },
+  {
+   "name": "PeeringDB",
+   "filename": "SVG/peeringdb.svg",
+   "category": null,
+   "issuer": [
+    "PeeringDB"
+   ]
+  },
+  {
+   "name": "Philips",
+   "filename": "SVG/philips.svg",
+   "category": null,
+   "issuer": [
+    "Philips"
+   ]
+  },
+  {
+   "name": "Pintu",
+   "filename": "SVG/pintu.svg",
+   "category": null,
+   "issuer": [
+    "Pintu"
+   ]
+  },
+  {
+   "name": "Planning Center",
+   "filename": "SVG/planning-center.svg",
+   "category": null,
+   "issuer": [
+    "Planning Center"
+   ]
+  },
+  {
+   "name": "Playasia",
+   "filename": "SVG/playasia.svg",
+   "category": null,
+   "issuer": [
+    "Playasia"
+   ]
+  },
+  {
+   "name": "Pluang",
+   "filename": "SVG/pluang.svg",
+   "category": null,
+   "issuer": [
+    "Pluang"
+   ]
+  },
+  {
+   "name": "Populi",
+   "filename": "SVG/populi.svg",
+   "category": null,
+   "issuer": [
+    "Populi"
+   ]
+  },
+  {
+   "name": "Posteo",
+   "filename": "SVG/posteo.svg",
+   "category": null,
+   "issuer": [
+    "Posteo"
+   ]
+  },
+  {
+   "name": "Postmark",
+   "filename": "SVG/postmark.svg",
+   "category": null,
+   "issuer": [
+    "Postmark"
+   ]
+  },
+  {
+   "name": "Prey",
+   "filename": "SVG/prey.svg",
+   "category": null,
+   "issuer": [
+    "Prey"
+   ]
+  },
+  {
+   "name": "Primobox",
+   "filename": "SVG/primobox.svg",
+   "category": null,
+   "issuer": [
+    "Primobox"
+   ]
+  },
+  {
+   "name": "Privacy",
+   "filename": "SVG/privacy.svg",
+   "category": null,
+   "issuer": [
+    "Privacy"
+   ]
+  },
+  {
+   "name": "Prusa",
+   "filename": "SVG/prusa.svg",
+   "category": null,
+   "issuer": [
+    "Prusa"
+   ]
+  },
+  {
+   "name": "Public Transport Victoria",
+   "filename": "SVG/public-transport-victoria.svg",
+   "category": null,
+   "issuer": [
+    "Public Transport Victoria"
+   ]
+  },
+  {
+   "name": "PulseHeberg",
+   "filename": "SVG/pulseheberg.svg",
+   "category": null,
+   "issuer": [
+    "PulseHeberg"
+   ]
+  },
+  {
+   "name": "Python Package Index",
+   "filename": "SVG/python-package-index.svg",
+   "category": null,
+   "issuer": [
+    "Python Package Index"
+   ]
+  },
+  {
+   "name": "Qloud",
+   "filename": "SVG/qloud.svg",
+   "category": null,
+   "issuer": [
+    "Qloud"
+   ]
+  },
+  {
+   "name": "Questrade",
+   "filename": "SVG/questrade.svg",
+   "category": null,
+   "issuer": [
+    "Questrade"
+   ]
+  },
+  {
+   "name": "Qwintry",
+   "filename": "SVG/qwintry.svg",
+   "category": null,
+   "issuer": [
+    "Qwintry"
+   ]
+  },
+  {
+   "name": "RMIT University",
+   "filename": "SVG/rmit-university.svg",
+   "category": null,
+   "issuer": [
+    "RMIT University"
+   ]
+  },
+  {
+   "name": "RU-CENTER",
+   "filename": "SVG/ru-center.svg",
+   "category": null,
+   "issuer": [
+    "RU-CENTER"
+   ]
+  },
+  {
+   "name": "Rackspace Technology",
+   "filename": "SVG/rackspace-technology.svg",
+   "category": null,
+   "issuer": [
+    "Rackspace Technology"
+   ]
+  },
+  {
+   "name": "RaiDrive",
+   "filename": "SVG/raidrive.svg",
+   "category": null,
+   "issuer": [
+    "RaiDrive"
+   ]
+  },
+  {
+   "name": "RainLoop Webmail",
+   "filename": "SVG/rainloop-webmail.svg",
+   "category": null,
+   "issuer": [
+    "RainLoop Webmail"
+   ]
+  },
+  {
+   "name": "Raindrop.io",
+   "filename": "SVG/raindrop-io.svg",
+   "category": null,
+   "issuer": [
+    "Raindrop.io"
+   ]
+  },
+  {
+   "name": "RealVNC",
+   "filename": "SVG/realvnc.svg",
+   "category": null,
+   "issuer": [
+    "RealVNC"
+   ]
+  },
+  {
+   "name": "RedotPay",
+   "filename": "SVG/redotpay.svg",
+   "category": null,
+   "issuer": [
+    "RedotPay"
+   ]
+  },
+  {
+   "name": "Regery",
+   "filename": "SVG/regery.svg",
+   "category": null,
+   "issuer": [
+    "Regery"
+   ]
+  },
+  {
+   "name": "Register.ly",
+   "filename": "SVG/register-ly.svg",
+   "category": null,
+   "issuer": [
+    "Register.ly"
+   ]
+  },
+  {
+   "name": "Registro.br",
+   "filename": "SVG/registro-br.svg",
+   "category": null,
+   "issuer": [
+    "Registro.br"
+   ]
+  },
+  {
+   "name": "Reku",
+   "filename": "SVG/reku.svg",
+   "category": null,
+   "issuer": [
+    "Reku"
+   ]
+  },
+  {
+   "name": "Remote Utilities",
+   "filename": "SVG/remote-utilities.svg",
+   "category": null,
+   "issuer": [
+    "Remote Utilities"
+   ]
+  },
+  {
+   "name": "Report URI",
+   "filename": "SVG/report-uri.svg",
+   "category": null,
+   "issuer": [
+    "Report URI"
+   ]
+  },
+  {
+   "name": "Republic Wireless",
+   "filename": "SVG/republic-wireless.svg",
+   "category": null,
+   "issuer": [
+    "Republic Wireless"
+   ]
+  },
+  {
+   "name": "Restream",
+   "filename": "SVG/restream.svg",
+   "category": null,
+   "issuer": [
+    "Restream"
+   ]
+  },
+  {
+   "name": "Ripe NCC",
+   "filename": "SVG/ripe-ncc.svg",
+   "category": null,
+   "issuer": [
+    "Ripe NCC"
+   ]
+  },
+  {
+   "name": "Roberts Space Industries",
+   "filename": "SVG/roberts-space-industries.svg",
+   "category": null,
+   "issuer": [
+    "Roberts Space Industries"
+   ]
+  },
+  {
+   "name": "RoboForm",
+   "filename": "SVG/roboform.svg",
+   "category": null,
+   "issuer": [
+    "RoboForm"
+   ]
+  },
+  {
+   "name": "RubyGems.org",
+   "filename": "SVG/rubygems-org.svg",
+   "category": null,
+   "issuer": [
+    "RubyGems.org"
+   ]
+  },
+  {
+   "name": "Runbox",
+   "filename": "SVG/runbox.svg",
+   "category": null,
+   "issuer": [
+    "Runbox"
+   ]
+  },
+  {
+   "name": "Russian Post",
+   "filename": "SVG/russian-post.svg",
+   "category": null,
+   "issuer": [
+    "Russian Post"
+   ]
+  },
+  {
+   "name": "SAPO",
+   "filename": "SVG/sapo.svg",
+   "category": null,
+   "issuer": [
+    "SAPO"
+   ]
+  },
+  {
+   "name": "SIASN",
+   "filename": "SVG/siasn.svg",
+   "category": null,
+   "issuer": [
+    "SIASN"
+   ]
+  },
+  {
+   "name": "SPID",
+   "filename": "SVG/spid.svg",
+   "category": null,
+   "issuer": [
+    "SPID"
+   ]
+  },
+  {
+   "name": "STACK",
+   "filename": "SVG/stack.svg",
+   "category": null,
+   "issuer": [
+    "STACK"
+   ]
+  },
+  {
+   "name": "Satang",
+   "filename": "SVG/satang.svg",
+   "category": null,
+   "issuer": [
+    "Satang"
+   ]
+  },
+  {
+   "name": "Saweria",
+   "filename": "SVG/saweria.svg",
+   "category": null,
+   "issuer": [
+    "Saweria"
+   ]
+  },
+  {
+   "name": "Schibsted",
+   "filename": "SVG/schibsted.svg",
+   "category": null,
+   "issuer": [
+    "Schibsted"
+   ]
+  },
+  {
+   "name": "Scryfall",
+   "filename": "SVG/scryfall.svg",
+   "category": null,
+   "issuer": [
+    "Scryfall"
+   ]
+  },
+  {
+   "name": "Second Life",
+   "filename": "SVG/second-life.svg",
+   "category": null,
+   "issuer": [
+    "Second Life"
+   ]
+  },
+  {
+   "name": "Segment",
+   "filename": "SVG/segment.svg",
+   "category": null,
+   "issuer": [
+    "Segment"
+   ]
+  },
+  {
+   "name": "SendCutSend",
+   "filename": "SVG/sendcutsend.svg",
+   "category": null,
+   "issuer": [
+    "SendCutSend"
+   ]
+  },
+  {
+   "name": "Sendy",
+   "filename": "SVG/sendy.svg",
+   "category": null,
+   "issuer": [
+    "Sendy"
+   ]
+  },
+  {
+   "name": "SentinelOne",
+   "filename": "SVG/sentinelone.svg",
+   "category": null,
+   "issuer": [
+    "SentinelOne"
+   ]
+  },
+  {
+   "name": "Server-Eye",
+   "filename": "SVG/server-eye.svg",
+   "category": null,
+   "issuer": [
+    "Server-Eye"
+   ]
+  },
+  {
+   "name": "Seznam.cz",
+   "filename": "SVG/seznam-cz.svg",
+   "category": null,
+   "issuer": [
+    "Seznam.cz"
+   ]
+  },
+  {
+   "name": "Shakepay",
+   "filename": "SVG/shakepay.svg",
+   "category": null,
+   "issuer": [
+    "Shakepay"
+   ]
+  },
+  {
+   "name": "Shareworks",
+   "filename": "SVG/shareworks.svg",
+   "category": null,
+   "issuer": [
+    "Shareworks"
+   ]
+  },
+  {
+   "name": "Short.io",
+   "filename": "SVG/short-io.svg",
+   "category": null,
+   "issuer": [
+    "Short.io"
+   ]
+  },
+  {
+   "name": "Skiff",
+   "filename": "SVG/skiff.svg",
+   "category": null,
+   "issuer": [
+    "Skiff"
+   ]
+  },
+  {
+   "name": "Skrill",
+   "filename": "SVG/skrill.svg",
+   "category": null,
+   "issuer": [
+    "Skrill"
+   ]
+  },
+  {
+   "name": "Smarkets",
+   "filename": "SVG/smarkets.svg",
+   "category": null,
+   "issuer": [
+    "Smarkets"
+   ]
+  },
+  {
+   "name": "Smartschool",
+   "filename": "SVG/smartschool.svg",
+   "category": null,
+   "issuer": [
+    "Smartschool"
+   ]
+  },
+  {
+   "name": "SoFi",
+   "filename": "SVG/sofi.svg",
+   "category": null,
+   "issuer": [
+    "SoFi"
+   ]
+  },
+  {
+   "name": "SpaceHey",
+   "filename": "SVG/spacehey.svg",
+   "category": null,
+   "issuer": [
+    "SpaceHey"
+   ]
+  },
+  {
+   "name": "Sport80",
+   "filename": "SVG/sport80.svg",
+   "category": null,
+   "issuer": [
+    "Sport80"
+   ]
+  },
+  {
+   "name": "Spry Servers",
+   "filename": "SVG/spry-servers.svg",
+   "category": null,
+   "issuer": [
+    "Spry Servers"
+   ]
+  },
+  {
+   "name": "Stake",
+   "filename": "SVG/stake.svg",
+   "category": null,
+   "issuer": [
+    "Stake"
+   ]
+  },
+  {
+   "name": "Star Wars The Old Republic",
+   "filename": "SVG/star-wars-the-old-republic.svg",
+   "category": null,
+   "issuer": [
+    "Star Wars The Old Republic"
+   ]
+  },
+  {
+   "name": "StartMail",
+   "filename": "SVG/startmail.svg",
+   "category": null,
+   "issuer": [
+    "StartMail"
+   ]
+  },
+  {
+   "name": "Stockbit Crypto",
+   "filename": "SVG/stockbit-crypto.svg",
+   "category": null,
+   "issuer": [
+    "Stockbit Crypto"
+   ]
+  },
+  {
+   "name": "Stripchat",
+   "filename": "SVG/stripchat.svg",
+   "category": null,
+   "issuer": [
+    "Stripchat"
+   ]
+  },
+  {
+   "name": "SuperHosting.BG",
+   "filename": "SVG/superhosting-bg.svg",
+   "category": null,
+   "issuer": [
+    "SuperHosting.BG"
+   ]
+  },
+  {
+   "name": "Sync.com",
+   "filename": "SVG/sync-com.svg",
+   "category": null,
+   "issuer": [
+    "Sync.com"
+   ]
+  },
+  {
+   "name": "Systemli",
+   "filename": "SVG/systemli.svg",
+   "category": null,
+   "issuer": [
+    "Systemli"
+   ]
+  },
+  {
+   "name": "T-Mobile",
+   "filename": "SVG/t-mobile.svg",
+   "category": null,
+   "issuer": [
+    "T-Mobile"
+   ]
+  },
+  {
+   "name": "TETR.IO",
+   "filename": "SVG/tetr-io.svg",
+   "category": null,
+   "issuer": [
+    "TETR.IO"
+   ]
+  },
+  {
+   "name": "TU Berlin",
+   "filename": "SVG/tu-berlin.svg",
+   "category": null,
+   "issuer": [
+    "TU Berlin"
+   ]
+  },
+  {
+   "name": "TaxAct",
+   "filename": "SVG/taxact.svg",
+   "category": null,
+   "issuer": [
+    "TaxAct"
+   ]
+  },
+  {
+   "name": "TaxSlayer",
+   "filename": "SVG/taxslayer.svg",
+   "category": null,
+   "issuer": [
+    "TaxSlayer"
+   ]
+  },
+  {
+   "name": "Teamup Calendar",
+   "filename": "SVG/teamup-calendar.svg",
+   "category": null,
+   "issuer": [
+    "Teamup Calendar"
+   ]
+  },
+  {
+   "name": "The Good Cloud",
+   "filename": "SVG/the-good-cloud.svg",
+   "category": null,
+   "issuer": [
+    "The Good Cloud"
+   ]
+  },
+  {
+   "name": "The University of Chicago",
+   "filename": "SVG/the-university-of-chicago.svg",
+   "category": null,
+   "issuer": [
+    "The University of Chicago"
+   ]
+  },
+  {
+   "name": "TheraKey",
+   "filename": "SVG/therakey.svg",
+   "category": null,
+   "issuer": [
+    "TheraKey"
+   ]
+  },
+  {
+   "name": "ThreatQuotient",
+   "filename": "SVG/threatquotient.svg",
+   "category": null,
+   "issuer": [
+    "ThreatQuotient"
+   ]
+  },
+  {
+   "name": "Thunderpick",
+   "filename": "SVG/thunderpick.svg",
+   "category": null,
+   "issuer": [
+    "Thunderpick"
+   ]
+  },
+  {
+   "name": "Tildes",
+   "filename": "SVG/tildes.svg",
+   "category": null,
+   "issuer": [
+    "Tildes"
+   ]
+  },
+  {
+   "name": "Time4VPS",
+   "filename": "SVG/time4vps.svg",
+   "category": null,
+   "issuer": [
+    "Time4VPS"
+   ]
+  },
+  {
+   "name": "Ting",
+   "filename": "SVG/ting.svg",
+   "category": null,
+   "issuer": [
+    "Ting"
+   ]
+  },
+  {
+   "name": "Tiny Tiny RSS",
+   "filename": "SVG/tiny-tiny-rss.svg",
+   "category": null,
+   "issuer": [
+    "Tiny Tiny RSS"
+   ]
+  },
+  {
+   "name": "Tixte",
+   "filename": "SVG/tixte.svg",
+   "category": null,
+   "issuer": [
+    "Tixte"
+   ]
+  },
+  {
+   "name": "Tokocrypto",
+   "filename": "SVG/tokocrypto.svg",
+   "category": null,
+   "issuer": [
+    "Tokocrypto"
+   ]
+  },
+  {
+   "name": "Tokopedia",
+   "filename": "SVG/tokopedia.svg",
+   "category": null,
+   "issuer": [
+    "Tokopedia"
+   ]
+  },
+  {
+   "name": "Tom's Hardware",
+   "filename": "SVG/tom-s-hardware.svg",
+   "category": null,
+   "issuer": [
+    "Tom's Hardware"
+   ]
+  },
+  {
+   "name": "Toontown Rewritten",
+   "filename": "SVG/toontown-rewritten.svg",
+   "category": null,
+   "issuer": [
+    "Toontown Rewritten"
+   ]
+  },
+  {
+   "name": "Topicbox",
+   "filename": "SVG/topicbox.svg",
+   "category": null,
+   "issuer": [
+    "Topicbox"
+   ]
+  },
+  {
+   "name": "TorGuard",
+   "filename": "SVG/torguard.svg",
+   "category": null,
+   "issuer": [
+    "TorGuard"
+   ]
+  },
+  {
+   "name": "TorrentBD",
+   "filename": "SVG/torrentbd.svg",
+   "category": null,
+   "issuer": [
+    "TorrentBD"
+   ]
+  },
+  {
+   "name": "Torum",
+   "filename": "SVG/torum.svg",
+   "category": null,
+   "issuer": [
+    "Torum"
+   ]
+  },
+  {
+   "name": "TotalEnergies",
+   "filename": "SVG/totalenergies.svg",
+   "category": null,
+   "issuer": [
+    "TotalEnergies"
+   ]
+  },
+  {
+   "name": "Toyohashi University of Technology",
+   "filename": "SVG/toyohashi-university-of-technology.svg",
+   "category": null,
+   "issuer": [
+    "Toyohashi University of Technology"
+   ]
+  },
+  {
+   "name": "Trading 212",
+   "filename": "SVG/trading-212.svg",
+   "category": null,
+   "issuer": [
+    "Trading 212"
+   ]
+  },
+  {
+   "name": "TransIP",
+   "filename": "SVG/transip.svg",
+   "category": null,
+   "issuer": [
+    "TransIP"
+   ]
+  },
+  {
+   "name": "Travala.com",
+   "filename": "SVG/travala-com.svg",
+   "category": null,
+   "issuer": [
+    "Travala.com"
+   ]
+  },
+  {
+   "name": "TruckersMP",
+   "filename": "SVG/truckersmp.svg",
+   "category": null,
+   "issuer": [
+    "TruckersMP"
+   ]
+  },
+  {
+   "name": "True Wealth",
+   "filename": "SVG/true-wealth.svg",
+   "category": null,
+   "issuer": [
+    "True Wealth"
+   ]
+  },
+  {
+   "name": "URIports",
+   "filename": "SVG/uriports.svg",
+   "category": null,
+   "issuer": [
+    "URIports"
+   ]
+  },
+  {
+   "name": "USAA",
+   "filename": "SVG/usaa.svg",
+   "category": null,
+   "issuer": [
+    "USAA"
+   ]
+  },
+  {
+   "name": "Uberspace",
+   "filename": "SVG/uberspace.svg",
+   "category": null,
+   "issuer": [
+    "Uberspace"
+   ]
+  },
+  {
+   "name": "Ultimaker",
+   "filename": "SVG/ultimaker.svg",
+   "category": null,
+   "issuer": [
+    "Ultimaker"
+   ]
+  },
+  {
+   "name": "UltraCC",
+   "filename": "SVG/ultracc.svg",
+   "category": null,
+   "issuer": [
+    "UltraCC"
+   ]
+  },
+  {
+   "name": "Unitrends",
+   "filename": "SVG/unitrends.svg",
+   "category": null,
+   "issuer": [
+    "Unitrends"
+   ]
+  },
+  {
+   "name": "Upbit",
+   "filename": "SVG/upbit.svg",
+   "category": null,
+   "issuer": [
+    "Upbit"
+   ]
+  },
+  {
+   "name": "VDSina",
+   "filename": "SVG/vdsina.svg",
+   "category": null,
+   "issuer": [
+    "VDSina"
+   ]
+  },
+  {
+   "name": "VFUN",
+   "filename": "SVG/vfun.svg",
+   "category": null,
+   "issuer": [
+    "VFUN"
+   ]
+  },
+  {
+   "name": "VIPTel",
+   "filename": "SVG/viptel.svg",
+   "category": null,
+   "issuer": [
+    "VIPTel"
+   ]
+  },
+  {
+   "name": "Verifone",
+   "filename": "SVG/verifone.svg",
+   "category": null,
+   "issuer": [
+    "Verifone"
+   ]
+  },
+  {
+   "name": "Versio",
+   "filename": "SVG/versio.svg",
+   "category": null,
+   "issuer": [
+    "Versio"
+   ]
+  },
+  {
+   "name": "VicRoads",
+   "filename": "SVG/vicroads.svg",
+   "category": null,
+   "issuer": [
+    "VicRoads"
+   ]
+  },
+  {
+   "name": "WEDOS",
+   "filename": "SVG/wedos.svg",
+   "category": null,
+   "issuer": [
+    "WEDOS"
+   ]
+  },
+  {
+   "name": "WHM",
+   "filename": "SVG/whm.svg",
+   "category": null,
+   "issuer": [
+    "WHM"
+   ]
+  },
+  {
+   "name": "WHMCS",
+   "filename": "SVG/whmcs.svg",
+   "category": null,
+   "issuer": [
+    "WHMCS"
+   ]
+  },
+  {
+   "name": "WPMU DEV",
+   "filename": "SVG/wpmu-dev.svg",
+   "category": null,
+   "issuer": [
+    "WPMU DEV"
+   ]
+  },
+  {
+   "name": "Wargaming.net",
+   "filename": "SVG/wargaming-net.svg",
+   "category": null,
+   "issuer": [
+    "Wargaming.net"
+   ]
+  },
+  {
+   "name": "Warner Bros. Games",
+   "filename": "SVG/warner-bros-games.svg",
+   "category": null,
+   "issuer": [
+    "Warner Bros. Games"
+   ]
+  },
+  {
+   "name": "WeVPN",
+   "filename": "SVG/wevpn.svg",
+   "category": null,
+   "issuer": [
+    "WeVPN"
+   ]
+  },
+  {
+   "name": "Wealthfront",
+   "filename": "SVG/wealthfront.svg",
+   "category": null,
+   "issuer": [
+    "Wealthfront"
+   ]
+  },
+  {
+   "name": "Well.ca",
+   "filename": "SVG/well-ca.svg",
+   "category": null,
+   "issuer": [
+    "Well.ca"
+   ]
+  },
+  {
+   "name": "WhiteBIT",
+   "filename": "SVG/whitebit.svg",
+   "category": null,
+   "issuer": [
+    "WhiteBIT"
+   ]
+  },
+  {
+   "name": "Wilma",
+   "filename": "SVG/wilma.svg",
+   "category": null,
+   "issuer": [
+    "Wilma"
+   ]
+  },
+  {
+   "name": "Windscribe",
+   "filename": "SVG/windscribe.svg",
+   "category": null,
+   "issuer": [
+    "Windscribe"
+   ]
+  },
+  {
+   "name": "Wordfence",
+   "filename": "SVG/wordfence.svg",
+   "category": null,
+   "issuer": [
+    "Wordfence"
+   ]
+  },
+  {
+   "name": "Wuxiaworld",
+   "filename": "SVG/wuxiaworld.svg",
+   "category": null,
+   "issuer": [
+    "Wuxiaworld"
+   ]
+  },
+  {
+   "name": "Wykop.pl",
+   "filename": "SVG/wykop-pl.svg",
+   "category": null,
+   "issuer": [
+    "Wykop.pl"
+   ]
+  },
+  {
+   "name": "XenForo",
+   "filename": "SVG/xenforo.svg",
+   "category": null,
+   "issuer": [
+    "XenForo"
+   ]
+  },
+  {
+   "name": "YoYo Games",
+   "filename": "SVG/yoyo-games.svg",
+   "category": null,
+   "issuer": [
+    "YoYo Games"
+   ]
+  },
+  {
+   "name": "Yotta",
+   "filename": "SVG/yotta.svg",
+   "category": null,
+   "issuer": [
+    "Yotta"
+   ]
+  },
+  {
+   "name": "You Need A Budget",
+   "filename": "SVG/you-need-a-budget.svg",
+   "category": null,
+   "issuer": [
+    "You Need A Budget"
+   ]
+  },
+  {
+   "name": "Zenegy",
+   "filename": "SVG/zenegy.svg",
+   "category": null,
+   "issuer": [
+    "Zenegy"
+   ]
+  },
+  {
+   "name": "Zenkit",
+   "filename": "SVG/zenkit.svg",
+   "category": null,
+   "issuer": [
+    "Zenkit"
+   ]
+  },
+  {
+   "name": "Zipmex",
+   "filename": "SVG/zipmex.svg",
+   "category": null,
+   "issuer": [
+    "Zipmex"
+   ]
+  },
+  {
+   "name": "Zone",
+   "filename": "SVG/zone.svg",
+   "category": null,
+   "issuer": [
+    "Zone"
+   ]
+  },
+  {
+   "name": "balena",
+   "filename": "SVG/balena.svg",
+   "category": null,
+   "issuer": [
+    "balena"
+   ]
+  },
+  {
+   "name": "bitFlyer",
+   "filename": "SVG/bitflyer.svg",
+   "category": null,
+   "issuer": [
+    "bitFlyer"
+   ]
+  },
+  {
+   "name": "deSEC",
+   "filename": "SVG/desec.svg",
+   "category": null,
+   "issuer": [
+    "deSEC"
+   ]
+  },
+  {
+   "name": "dismail.de",
+   "filename": "SVG/dismail-de.svg",
+   "category": null,
+   "issuer": [
+    "dismail.de"
+   ]
+  },
+  {
+   "name": "dmarcian",
+   "filename": "SVG/dmarcian.svg",
+   "category": null,
+   "issuer": [
+    "dmarcian"
+   ]
+  },
+  {
+   "name": "e-IPO",
+   "filename": "SVG/e-ipo.svg",
+   "category": null,
+   "issuer": [
+    "e-IPO"
+   ]
+  },
+  {
+   "name": "ecobee",
+   "filename": "SVG/ecobee.svg",
+   "category": null,
+   "issuer": [
+    "ecobee"
+   ]
+  },
+  {
+   "name": "exaroton",
+   "filename": "SVG/exaroton.svg",
+   "category": null,
+   "issuer": [
+    "exaroton"
+   ]
+  },
+  {
+   "name": "fileee",
+   "filename": "SVG/fileee.svg",
+   "category": null,
+   "issuer": [
+    "fileee"
+   ]
+  },
+  {
+   "name": "hi",
+   "filename": "SVG/hi.svg",
+   "category": null,
+   "issuer": [
+    "hi"
+   ]
+  },
+  {
+   "name": "hosting.de",
+   "filename": "SVG/hosting-de.svg",
+   "category": null,
+   "issuer": [
+    "hosting.de"
+   ]
+  },
+  {
+   "name": "lexoffice",
+   "filename": "SVG/lexoffice.svg",
+   "category": null,
+   "issuer": [
+    "lexoffice"
+   ]
+  },
+  {
+   "name": "login.gov",
+   "filename": "SVG/login-gov.svg",
+   "category": null,
+   "issuer": [
+    "login.gov"
+   ]
+  },
+  {
+   "name": "mail.de",
+   "filename": "SVG/mail-de.svg",
+   "category": null,
+   "issuer": [
+    "mail.de"
+   ]
+  },
+  {
+   "name": "mailbox.org",
+   "filename": "SVG/mailbox-org.svg",
+   "category": null,
+   "issuer": [
+    "mailbox.org"
+   ]
+  },
+  {
+   "name": "minerstat",
+   "filename": "SVG/minerstat.svg",
+   "category": null,
+   "issuer": [
+    "minerstat"
+   ]
+  },
+  {
+   "name": "omg.lol",
+   "filename": "SVG/omg-lol.svg",
+   "category": null,
+   "issuer": [
+    "omg.lol"
+   ]
+  },
+  {
+   "name": "one.com",
+   "filename": "SVG/one-com.svg",
+   "category": null,
+   "issuer": [
+    "one.com"
+   ]
+  },
+  {
+   "name": "paste.gg",
+   "filename": "SVG/paste-gg.svg",
+   "category": null,
+   "issuer": [
+    "paste.gg"
+   ]
+  },
+  {
+   "name": "postale.io",
+   "filename": "SVG/postale-io.svg",
+   "category": null,
+   "issuer": [
+    "postale.io"
+   ]
+  },
+  {
+   "name": "raidboxes",
+   "filename": "SVG/raidboxes.svg",
+   "category": null,
+   "issuer": [
+    "raidboxes"
+   ]
+  },
+  {
+   "name": "redirect.pizza",
+   "filename": "SVG/redirect-pizza.svg",
+   "category": null,
+   "issuer": [
+    "redirect.pizza"
+   ]
+  },
+  {
+   "name": "sipgate",
+   "filename": "SVG/sipgate.svg",
+   "category": null,
+   "issuer": [
+    "sipgate"
+   ]
+  },
+  {
+   "name": "viagogo",
+   "filename": "SVG/viagogo.svg",
+   "category": null,
+   "issuer": [
+    "viagogo"
+   ]
+  },
+  {
+   "name": "vorsorgestiftung vsao",
+   "filename": "SVG/vorsorgestiftung-vsao.svg",
+   "category": null,
+   "issuer": [
+    "vorsorgestiftung vsao"
+   ]
+  },
+  {
+   "name": "woelkli",
+   "filename": "SVG/woelkli.svg",
+   "category": null,
+   "issuer": [
+    "woelkli"
+   ]
+  },
+  {
+   "name": "1984 Hosting bg.var",
+   "filename": "SVG/1984-hosting-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "1984 Hosting bg.var"
+   ]
+  },
+  {
+   "name": "500px bg.var",
+   "filename": "SVG/500px-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "500px bg.var"
+   ]
+  },
+  {
+   "name": "AOL bg.var",
+   "filename": "SVG/aol-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "AOL bg.var"
+   ]
+  },
+  {
+   "name": "Activision bg.var",
+   "filename": "SVG/activision-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Activision bg.var"
+   ]
+  },
+  {
+   "name": "Adafruit bg.var",
+   "filename": "SVG/adafruit-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Adafruit bg.var"
+   ]
+  },
+  {
+   "name": "Amazon Web Services bg.var",
+   "filename": "SVG/amazon-web-services-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Amazon Web Services bg.var"
+   ]
+  },
+  {
+   "name": "Auth0 bg.var",
+   "filename": "SVG/auth0-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Auth0 bg.var"
+   ]
+  },
+  {
+   "name": "Autodesk bg.var",
+   "filename": "SVG/autodesk-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Autodesk bg.var"
+   ]
+  },
+  {
+   "name": "Back4App bg.var",
+   "filename": "SVG/back4app-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Back4App bg.var"
+   ]
+  },
+  {
+   "name": "Basecamp fg.var",
+   "filename": "SVG/basecamp-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Basecamp fg.var"
+   ]
+  },
+  {
+   "name": "Betfair bg.var",
+   "filename": "SVG/betfair-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Betfair bg.var"
+   ]
+  },
+  {
+   "name": "Bethesda bg.var",
+   "filename": "SVG/bethesda-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Bethesda bg.var"
+   ]
+  },
+  {
+   "name": "Bitazza fg.var",
+   "filename": "SVG/bitazza-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Bitazza fg.var"
+   ]
+  },
+  {
+   "name": "Bitpanda bg.var",
+   "filename": "SVG/bitpanda-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Bitpanda bg.var"
+   ]
+  },
+  {
+   "name": "Bitso bg.var",
+   "filename": "SVG/bitso-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Bitso bg.var"
+   ]
+  },
+  {
+   "name": "Braze bg.var",
+   "filename": "SVG/braze-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Braze bg.var"
+   ]
+  },
+  {
+   "name": "Buffer bg.var",
+   "filename": "SVG/buffer-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Buffer bg.var"
+   ]
+  },
+  {
+   "name": "CODING bg.var",
+   "filename": "SVG/coding-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "CODING bg.var"
+   ]
+  },
+  {
+   "name": "Cal.com bg.var",
+   "filename": "SVG/cal-com-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Cal.com bg.var"
+   ]
+  },
+  {
+   "name": "Carta bg.var",
+   "filename": "SVG/carta-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Carta bg.var"
+   ]
+  },
+  {
+   "name": "ClearScore bg.var",
+   "filename": "SVG/clearscore-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "ClearScore bg.var"
+   ]
+  },
+  {
+   "name": "Crowdin bg.var",
+   "filename": "SVG/crowdin-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Crowdin bg.var"
+   ]
+  },
+  {
+   "name": "Digitec Galaxus bg.var",
+   "filename": "SVG/digitec-galaxus-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Digitec Galaxus bg.var"
+   ]
+  },
+  {
+   "name": "Discogs bg.var",
+   "filename": "SVG/discogs-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Discogs bg.var"
+   ]
+  },
+  {
+   "name": "Discogs fg.bg.var",
+   "filename": "SVG/discogs-fg-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Discogs fg.bg.var"
+   ]
+  },
+  {
+   "name": "Discourse alt bg.var",
+   "filename": "SVG/discourse-alt-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Discourse alt bg.var"
+   ]
+  },
+  {
+   "name": "Discourse alt",
+   "filename": "SVG/discourse-alt.svg",
+   "category": null,
+   "issuer": [
+    "Discourse alt"
+   ]
+  },
+  {
+   "name": "Discourse bg.var",
+   "filename": "SVG/discourse-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Discourse bg.var"
+   ]
+  },
+  {
+   "name": "DocuSign bg.var",
+   "filename": "SVG/docusign-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "DocuSign bg.var"
+   ]
+  },
+  {
+   "name": "Epic Games bg.var",
+   "filename": "SVG/epic-games-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Epic Games bg.var"
+   ]
+  },
+  {
+   "name": "Expo bg.var",
+   "filename": "SVG/expo-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Expo bg.var"
+   ]
+  },
+  {
+   "name": "Filen bg.var",
+   "filename": "SVG/filen-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Filen bg.var"
+   ]
+  },
+  {
+   "name": "Focusrite bg.var",
+   "filename": "SVG/focusrite-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Focusrite bg.var"
+   ]
+  },
+  {
+   "name": "Friendica fg.var",
+   "filename": "SVG/friendica-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Friendica fg.var"
+   ]
+  },
+  {
+   "name": "GOG.com bg.var",
+   "filename": "SVG/gog-com-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "GOG.com bg.var"
+   ]
+  },
+  {
+   "name": "Gaijin Entertainment bg.var",
+   "filename": "SVG/gaijin-entertainment-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Gaijin Entertainment bg.var"
+   ]
+  },
+  {
+   "name": "GitHub bg.var",
+   "filename": "SVG/github-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "GitHub bg.var"
+   ]
+  },
+  {
+   "name": "GoTo fg.var",
+   "filename": "SVG/goto-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "GoTo fg.var"
+   ]
+  },
+  {
+   "name": "Grey bg.var",
+   "filename": "SVG/grey-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Grey bg.var"
+   ]
+  },
+  {
+   "name": "HMBradley bg.var",
+   "filename": "SVG/hmbradley-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "HMBradley bg.var"
+   ]
+  },
+  {
+   "name": "HYGH bg.var",
+   "filename": "SVG/hygh-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "HYGH bg.var"
+   ]
+  },
+  {
+   "name": "Handshake bg.var",
+   "filename": "SVG/handshake-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Handshake bg.var"
+   ]
+  },
+  {
+   "name": "HashiCorp bg.var",
+   "filename": "SVG/hashicorp-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "HashiCorp bg.var"
+   ]
+  },
+  {
+   "name": "HelpSpot bg.var",
+   "filename": "SVG/helpspot-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "HelpSpot bg.var"
+   ]
+  },
+  {
+   "name": "Hostingpalvelu bg.var",
+   "filename": "SVG/hostingpalvelu-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Hostingpalvelu bg.var"
+   ]
+  },
+  {
+   "name": "IFTTT bg.var",
+   "filename": "SVG/ifttt-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "IFTTT bg.var"
+   ]
+  },
+  {
+   "name": "IVPN alt",
+   "filename": "SVG/ivpn-alt.svg",
+   "category": null,
+   "issuer": [
+    "IVPN alt"
+   ]
+  },
+  {
+   "name": "ImmoScout24 fg.var",
+   "filename": "SVG/immoscout24-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "ImmoScout24 fg.var"
+   ]
+  },
+  {
+   "name": "Internxt bg.var",
+   "filename": "SVG/internxt-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Internxt bg.var"
+   ]
+  },
+  {
+   "name": "Invoice Ninja bg.var",
+   "filename": "SVG/invoice-ninja-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Invoice Ninja bg.var"
+   ]
+  },
+  {
+   "name": "JetBrains bg.var",
+   "filename": "SVG/jetbrains-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "JetBrains bg.var"
+   ]
+  },
+  {
+   "name": "Keeper fg.var",
+   "filename": "SVG/keeper-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Keeper fg.var"
+   ]
+  },
+  {
+   "name": "Kwansei Gakuin University fg.var",
+   "filename": "SVG/kwansei-gakuin-university-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Kwansei Gakuin University fg.var"
+   ]
+  },
+  {
+   "name": "Lemmy bg.var",
+   "filename": "SVG/lemmy-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Lemmy bg.var"
+   ]
+  },
+  {
+   "name": "Lichess bg.var",
+   "filename": "SVG/lichess-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Lichess bg.var"
+   ]
+  },
+  {
+   "name": "Lichess fg.bg.var",
+   "filename": "SVG/lichess-fg-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Lichess fg.bg.var"
+   ]
+  },
+  {
+   "name": "Line 6 bg.var",
+   "filename": "SVG/line-6-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Line 6 bg.var"
+   ]
+  },
+  {
+   "name": "Mailchimp fg.var",
+   "filename": "SVG/mailchimp-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Mailchimp fg.var"
+   ]
+  },
+  {
+   "name": "ManyVids bg.var",
+   "filename": "SVG/manyvids-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "ManyVids bg.var"
+   ]
+  },
+  {
+   "name": "Mapbox bg.var",
+   "filename": "SVG/mapbox-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Mapbox bg.var"
+   ]
+  },
+  {
+   "name": "Mollie bg.var",
+   "filename": "SVG/mollie-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Mollie bg.var"
+   ]
+  },
+  {
+   "name": "Mozilla bg.var",
+   "filename": "SVG/mozilla-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Mozilla bg.var"
+   ]
+  },
+  {
+   "name": "NETdepot bg.var",
+   "filename": "SVG/netdepot-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "NETdepot bg.var"
+   ]
+  },
+  {
+   "name": "Neopets bg.var",
+   "filename": "SVG/neopets-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Neopets bg.var"
+   ]
+  },
+  {
+   "name": "Nitrado fg.var",
+   "filename": "SVG/nitrado-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Nitrado fg.var"
+   ]
+  },
+  {
+   "name": "Norton fg.var",
+   "filename": "SVG/norton-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Norton fg.var"
+   ]
+  },
+  {
+   "name": "NotABug.org bg.var",
+   "filename": "SVG/notabug-org-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "NotABug.org bg.var"
+   ]
+  },
+  {
+   "name": "Notion bg.var",
+   "filename": "SVG/notion-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Notion bg.var"
+   ]
+  },
+  {
+   "name": "OKX bg.var",
+   "filename": "SVG/okx-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "OKX bg.var"
+   ]
+  },
+  {
+   "name": "Obsidian Entertainment bg.var",
+   "filename": "SVG/obsidian-entertainment-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Obsidian Entertainment bg.var"
+   ]
+  },
+  {
+   "name": "Odido bg.var",
+   "filename": "SVG/odido-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Odido bg.var"
+   ]
+  },
+  {
+   "name": "Opalstack bg.var",
+   "filename": "SVG/opalstack-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Opalstack bg.var"
+   ]
+  },
+  {
+   "name": "OpenAI bg.var",
+   "filename": "SVG/openai-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "OpenAI bg.var"
+   ]
+  },
+  {
+   "name": "Paddle fg.var",
+   "filename": "SVG/paddle-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Paddle fg.var"
+   ]
+  },
+  {
+   "name": "Patreon bg.var",
+   "filename": "SVG/patreon-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Patreon bg.var"
+   ]
+  },
+  {
+   "name": "Philips alt",
+   "filename": "SVG/philips-alt.svg",
+   "category": null,
+   "issuer": [
+    "Philips alt"
+   ]
+  },
+  {
+   "name": "PlanetScale bg.var",
+   "filename": "SVG/planetscale-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "PlanetScale bg.var"
+   ]
+  },
+  {
+   "name": "Postmark fg.var",
+   "filename": "SVG/postmark-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Postmark fg.var"
+   ]
+  },
+  {
+   "name": "Privacy bg.var",
+   "filename": "SVG/privacy-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Privacy bg.var"
+   ]
+  },
+  {
+   "name": "Prusa bg.var",
+   "filename": "SVG/prusa-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Prusa bg.var"
+   ]
+  },
+  {
+   "name": "Railway bg.var",
+   "filename": "SVG/railway-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Railway bg.var"
+   ]
+  },
+  {
+   "name": "RainLoop Webmail bg.var",
+   "filename": "SVG/rainloop-webmail-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "RainLoop Webmail bg.var"
+   ]
+  },
+  {
+   "name": "Remote Utilities bg.var",
+   "filename": "SVG/remote-utilities-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Remote Utilities bg.var"
+   ]
+  },
+  {
+   "name": "Roblox bg.var",
+   "filename": "SVG/roblox-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Roblox bg.var"
+   ]
+  },
+  {
+   "name": "Skiff bg.var",
+   "filename": "SVG/skiff-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Skiff bg.var"
+   ]
+  },
+  {
+   "name": "Snapchat fg.var",
+   "filename": "SVG/snapchat-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Snapchat fg.var"
+   ]
+  },
+  {
+   "name": "Sony bg.var",
+   "filename": "SVG/sony-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Sony bg.var"
+   ]
+  },
+  {
+   "name": "Sophos alt",
+   "filename": "SVG/sophos-alt.svg",
+   "category": null,
+   "issuer": [
+    "Sophos alt"
+   ]
+  },
+  {
+   "name": "Square bg.var",
+   "filename": "SVG/square-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Square bg.var"
+   ]
+  },
+  {
+   "name": "Squarespace bg.var",
+   "filename": "SVG/squarespace-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Squarespace bg.var"
+   ]
+  },
+  {
+   "name": "Stake bg.var",
+   "filename": "SVG/stake-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Stake bg.var"
+   ]
+  },
+  {
+   "name": "Steam bg.var",
+   "filename": "SVG/steam-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Steam bg.var"
+   ]
+  },
+  {
+   "name": "Stockbit Crypto bg.var",
+   "filename": "SVG/stockbit-crypto-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Stockbit Crypto bg.var"
+   ]
+  },
+  {
+   "name": "TETR.IO bg.var",
+   "filename": "SVG/tetr-io-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "TETR.IO bg.var"
+   ]
+  },
+  {
+   "name": "The Good Cloud bg.var",
+   "filename": "SVG/the-good-cloud-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "The Good Cloud bg.var"
+   ]
+  },
+  {
+   "name": "TheHive fg.var",
+   "filename": "SVG/thehive-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "TheHive fg.var"
+   ]
+  },
+  {
+   "name": "TikTok bg.var",
+   "filename": "SVG/tiktok-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "TikTok bg.var"
+   ]
+  },
+  {
+   "name": "Tweakers fg.var",
+   "filename": "SVG/tweakers-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Tweakers fg.var"
+   ]
+  },
+  {
+   "name": "Uber bg.var",
+   "filename": "SVG/uber-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Uber bg.var"
+   ]
+  },
+  {
+   "name": "Uberspace bg.var",
+   "filename": "SVG/uberspace-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Uberspace bg.var"
+   ]
+  },
+  {
+   "name": "Ubisoft bg.var",
+   "filename": "SVG/ubisoft-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Ubisoft bg.var"
+   ]
+  },
+  {
+   "name": "Ultimaker bg.var",
+   "filename": "SVG/ultimaker-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Ultimaker bg.var"
+   ]
+  },
+  {
+   "name": "Unitrends bg.var",
+   "filename": "SVG/unitrends-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Unitrends bg.var"
+   ]
+  },
+  {
+   "name": "V2EX alt bg.var",
+   "filename": "SVG/v2ex-alt-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "V2EX alt bg.var"
+   ]
+  },
+  {
+   "name": "V2EX alt",
+   "filename": "SVG/v2ex-alt.svg",
+   "category": null,
+   "issuer": [
+    "V2EX alt"
+   ]
+  },
+  {
+   "name": "V2EX bg.var",
+   "filename": "SVG/v2ex-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "V2EX bg.var"
+   ]
+  },
+  {
+   "name": "VRChat bg.var",
+   "filename": "SVG/vrchat-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "VRChat bg.var"
+   ]
+  },
+  {
+   "name": "Vaultwarden bg.var",
+   "filename": "SVG/vaultwarden-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Vaultwarden bg.var"
+   ]
+  },
+  {
+   "name": "WEB.DE fg.var",
+   "filename": "SVG/web-de-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "WEB.DE fg.var"
+   ]
+  },
+  {
+   "name": "Wallabag bg.var",
+   "filename": "SVG/wallabag-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Wallabag bg.var"
+   ]
+  },
+  {
+   "name": "WeTransfer bg.var",
+   "filename": "SVG/wetransfer-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "WeTransfer bg.var"
+   ]
+  },
+  {
+   "name": "Windscribe bg.var",
+   "filename": "SVG/windscribe-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Windscribe bg.var"
+   ]
+  },
+  {
+   "name": "Wise fg.var",
+   "filename": "SVG/wise-fg-var.svg",
+   "category": null,
+   "issuer": [
+    "Wise fg.var"
+   ]
+  },
+  {
+   "name": "Wix bg.var",
+   "filename": "SVG/wix-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Wix bg.var"
+   ]
+  },
+  {
+   "name": "Wordpress bg.var",
+   "filename": "SVG/wordpress-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Wordpress bg.var"
+   ]
+  },
+  {
+   "name": "Wuxiaworld bg.var",
+   "filename": "SVG/wuxiaworld-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Wuxiaworld bg.var"
+   ]
+  },
+  {
+   "name": "Yandex alt",
+   "filename": "SVG/yandex-alt.svg",
+   "category": null,
+   "issuer": [
+    "Yandex alt"
+   ]
+  },
+  {
+   "name": "You Need A Budget alt",
+   "filename": "SVG/you-need-a-budget-alt.svg",
+   "category": null,
+   "issuer": [
+    "You Need A Budget alt"
+   ]
+  },
+  {
+   "name": "ZeroTier bg.var",
+   "filename": "SVG/zerotier-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "ZeroTier bg.var"
+   ]
+  },
+  {
+   "name": "Zipmex bg.var",
+   "filename": "SVG/zipmex-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "Zipmex bg.var"
+   ]
+  },
+  {
+   "name": "deSEC bg.var",
+   "filename": "SVG/desec-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "deSEC bg.var"
+   ]
+  },
+  {
+   "name": "diaspora bg.var",
+   "filename": "SVG/diaspora-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "diaspora bg.var"
+   ]
+  },
+  {
+   "name": "ente bg.var",
+   "filename": "SVG/ente-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "ente bg.var"
+   ]
+  },
+  {
+   "name": "hi bg.var",
+   "filename": "SVG/hi-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "hi bg.var"
+   ]
+  },
+  {
+   "name": "niconico bg.var",
+   "filename": "SVG/niconico-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "niconico bg.var"
+   ]
+  },
+  {
+   "name": "sipgate bg.var",
+   "filename": "SVG/sipgate-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "sipgate bg.var"
+   ]
+  },
+  {
+   "name": "sourcehut bg.var",
+   "filename": "SVG/sourcehut-bg-var.svg",
+   "category": null,
+   "issuer": [
+    "sourcehut bg.var"
+   ]
+  },
+  {
+   "name": "Books",
+   "filename": "SVG/books.svg",
+   "category": null,
+   "issuer": [
+    "Books"
+   ]
+  },
+  {
+   "name": "Chat",
+   "filename": "SVG/chat.svg",
+   "category": null,
+   "issuer": [
+    "Chat"
+   ]
+  },
+  {
+   "name": "Cloud",
+   "filename": "SVG/cloud.svg",
+   "category": null,
+   "issuer": [
+    "Cloud"
+   ]
+  },
+  {
+   "name": "Computer",
+   "filename": "SVG/computer.svg",
+   "category": null,
+   "issuer": [
+    "Computer"
+   ]
+  },
+  {
+   "name": "Dollar",
+   "filename": "SVG/dollar.svg",
+   "category": null,
+   "issuer": [
+    "Dollar"
+   ]
+  },
+  {
+   "name": "Education",
+   "filename": "SVG/education.svg",
+   "category": null,
+   "issuer": [
+    "Education"
+   ]
+  },
+  {
+   "name": "Euro",
+   "filename": "SVG/euro.svg",
+   "category": null,
+   "issuer": [
+    "Euro"
+   ]
+  },
+  {
+   "name": "Finance",
+   "filename": "SVG/finance.svg",
+   "category": null,
+   "issuer": [
+    "Finance"
+   ]
+  },
+  {
+   "name": "Gallery",
+   "filename": "SVG/gallery.svg",
+   "category": null,
+   "issuer": [
+    "Gallery"
+   ]
+  },
+  {
+   "name": "Gaming",
+   "filename": "SVG/gaming.svg",
+   "category": null,
+   "issuer": [
+    "Gaming"
+   ]
+  },
+  {
+   "name": "Health",
+   "filename": "SVG/health.svg",
+   "category": null,
+   "issuer": [
+    "Health"
+   ]
+  },
+  {
+   "name": "Key",
+   "filename": "SVG/key.svg",
+   "category": null,
+   "issuer": [
+    "Key"
+   ]
+  },
+  {
+   "name": "Mail",
+   "filename": "SVG/mail.svg",
+   "category": null,
+   "issuer": [
+    "Mail"
+   ]
+  },
+  {
+   "name": "Money",
+   "filename": "SVG/money.svg",
+   "category": null,
+   "issuer": [
+    "Money"
+   ]
+  },
+  {
+   "name": "Notes",
+   "filename": "SVG/notes.svg",
+   "category": null,
+   "issuer": [
+    "Notes"
+   ]
+  },
+  {
+   "name": "P2P",
+   "filename": "SVG/p2p.svg",
+   "category": null,
+   "issuer": [
+    "P2P"
+   ]
+  },
+  {
+   "name": "Pound",
+   "filename": "SVG/pound.svg",
+   "category": null,
+   "issuer": [
+    "Pound"
+   ]
+  },
+  {
+   "name": "Security",
+   "filename": "SVG/security.svg",
+   "category": null,
+   "issuer": [
+    "Security"
+   ]
+  },
+  {
+   "name": "Server",
+   "filename": "SVG/server.svg",
+   "category": null,
+   "issuer": [
+    "Server"
+   ]
+  },
+  {
+   "name": "Shopping",
+   "filename": "SVG/shopping.svg",
+   "category": null,
+   "issuer": [
+    "Shopping"
+   ]
+  },
+  {
+   "name": "User",
+   "filename": "SVG/user.svg",
+   "category": null,
+   "issuer": [
+    "User"
+   ]
+  },
+  {
+   "name": "Web",
+   "filename": "SVG/web.svg",
+   "category": null,
+   "issuer": [
+    "Web"
+   ]
+  }
+ ]
+}

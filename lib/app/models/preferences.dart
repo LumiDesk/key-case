@@ -12,6 +12,9 @@ enum ThemeColorMode { system, preset, custom }
 /// 验证码分组方式：自动按位数、固定 3 位/4 位、不分组。
 enum CodeGrouping { auto, three, four, none }
 
+/// 验证码换码动效：关闭（直接替换）、飘散、滚动。
+enum CodeAnimation { off, dust, roll }
+
 class AppPreferences {
   const AppPreferences({
     this.themeMode = ThemeModePreference.system,
@@ -24,6 +27,7 @@ class AppPreferences {
     this.clipboardAutoClear = true,
     this.autoLockSeconds = 0,
     this.codeGrouping = CodeGrouping.auto,
+    this.codeAnimation = CodeAnimation.dust,
     this.languageCode = '',
     this.biometricEnabled = false,
     this.autoSnapshot = false,
@@ -50,6 +54,9 @@ class AppPreferences {
   /// 进入后台后多久锁定：0 = 立即，负数 = 从不。
   final int autoLockSeconds;
   final CodeGrouping codeGrouping;
+
+  /// 换码时的数字过渡效果，见 [CodeAnimation]。
+  final CodeAnimation codeAnimation;
 
   /// 空串 = 跟随系统语言；否则是 zh / en。
   final String languageCode;
@@ -78,6 +85,7 @@ class AppPreferences {
     bool? clipboardAutoClear,
     int? autoLockSeconds,
     CodeGrouping? codeGrouping,
+    CodeAnimation? codeAnimation,
     String? languageCode,
     bool? biometricEnabled,
     bool? autoSnapshot,
@@ -96,6 +104,7 @@ class AppPreferences {
       clipboardAutoClear: clipboardAutoClear ?? this.clipboardAutoClear,
       autoLockSeconds: autoLockSeconds ?? this.autoLockSeconds,
       codeGrouping: codeGrouping ?? this.codeGrouping,
+      codeAnimation: codeAnimation ?? this.codeAnimation,
       languageCode: languageCode ?? this.languageCode,
       biometricEnabled: biometricEnabled ?? this.biometricEnabled,
       autoSnapshot: autoSnapshot ?? this.autoSnapshot,
@@ -116,6 +125,7 @@ class AppPreferences {
     'clipboardAutoClear': clipboardAutoClear,
     'autoLockSeconds': autoLockSeconds,
     'codeGrouping': codeGrouping.name,
+    'codeAnimation': codeAnimation.name,
     'languageCode': languageCode,
     'biometricEnabled': biometricEnabled,
     'autoSnapshot': autoSnapshot,
@@ -145,6 +155,10 @@ class AppPreferences {
       codeGrouping: CodeGrouping.values.firstWhere(
         (value) => value.name == json['codeGrouping'],
         orElse: () => CodeGrouping.auto,
+      ),
+      codeAnimation: CodeAnimation.values.firstWhere(
+        (value) => value.name == json['codeAnimation'],
+        orElse: () => CodeAnimation.dust,
       ),
       languageCode: json['languageCode'] as String? ?? '',
       biometricEnabled: json['biometricEnabled'] as bool? ?? false,

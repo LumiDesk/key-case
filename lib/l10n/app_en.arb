@@ -159,6 +159,11 @@
   "groupingThree": "3",
   "groupingFour": "4",
   "groupingNone": "None",
+  "settingsCodeAnimation": "Code transition",
+  "settingsCodeAnimationDesc": "Motion when the code changes",
+  "codeAnimationOff": "Off",
+  "codeAnimationDust": "Dissolve",
+  "codeAnimationRoll": "Roll",
   "settingsData": "Data",
   "settingsExport": "Export encrypted backup",
   "settingsExportDesc": "A .kcbak file encrypted with your master password",
@@ -238,6 +243,23 @@
   "iconCustom": "Use a custom image",
   "errorImagePickFailed": "Could not read the image",
   "iconRemove": "Back to automatic",
+  "iconPackSimple": "Badge",
+  "iconPackDashboard": "Full color",
+  "iconPackAegis": "Mono",
+  "settingsIcons": "Icons",
+  "settingsBrowseIcons": "Browse icons",
+  "settingsBrowseIconsDesc": "Search and preview every built-in icon",
+  "iconLibraryTitle": "Icon library",
+  "iconLibraryAll": "All",
+  "iconLibraryFilter": "Filter by pack",
+  "iconLibraryCount": "{count} icons",
+  "@iconLibraryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noticeVaultCreated": "Vault created",
   "noticeItemSaved": "Saved",
   "noticeItemDeleted": "Moved to trash",

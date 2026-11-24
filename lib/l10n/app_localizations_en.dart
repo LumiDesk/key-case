@@ -475,6 +475,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupingNone => 'None';
 
   @override
+  String get settingsCodeAnimation => 'Code transition';
+
+  @override
+  String get settingsCodeAnimationDesc => 'Motion when the code changes';
+
+  @override
+  String get codeAnimationOff => 'Off';
+
+  @override
+  String get codeAnimationDust => 'Dissolve';
+
+  @override
+  String get codeAnimationRoll => 'Roll';
+
+  @override
   String get settingsData => 'Data';
 
   @override
@@ -683,6 +698,39 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iconRemove => 'Back to automatic';
+
+  @override
+  String get iconPackSimple => 'Badge';
+
+  @override
+  String get iconPackDashboard => 'Full color';
+
+  @override
+  String get iconPackAegis => 'Mono';
+
+  @override
+  String get settingsIcons => 'Icons';
+
+  @override
+  String get settingsBrowseIcons => 'Browse icons';
+
+  @override
+  String get settingsBrowseIconsDesc =>
+      'Search and preview every built-in icon';
+
+  @override
+  String get iconLibraryTitle => 'Icon library';
+
+  @override
+  String get iconLibraryAll => 'All';
+
+  @override
+  String get iconLibraryFilter => 'Filter by pack';
+
+  @override
+  String iconLibraryCount(int count) {
+    return '$count icons';
+  }
 
   @override
   String get noticeVaultCreated => 'Vault created';

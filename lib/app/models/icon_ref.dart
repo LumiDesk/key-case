@@ -1,7 +1,8 @@
 /// 条目图标引用。
 ///
 /// 两种形态共用同一个字段：
-/// - `pack`：只存「包 + 图标名」，体积小、可随包升级；
+/// - `pack`：只存图标标识，体积小、可随包升级；标识里带包前缀
+///   （`dashboard:GitHub`），默认包直接用裸名称（`GitHub`）；
 /// - `custom`：用户选的自定义图片，PNG 以 base64 存在保险库里（只有用户明确
 ///   选图时才产生，且导入导出时随容器一起加密）。
 library;
@@ -17,7 +18,7 @@ class IconRef {
     this.data = '',
   });
 
-  /// 内置 Aegis Simple Icons 包。空字符串同样表示内置包。
+  /// [pack] 的固定取值；具体图标包由 [name] 的前缀决定，默认包用裸名称。
   static const String builtinPack = 'aegis-simple-icons-v269';
   static const String kindPack = 'pack';
   static const String kindCustom = 'custom';

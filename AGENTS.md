@@ -24,7 +24,7 @@ lib/
 │   ├── crypto/                # Argon2id、AES-GCM、Base32、随机数
 │   ├── otp/                   # TOTP/HOTP/Steam 计算与全应用唯一 ticker
 │   ├── import/                # otpauth、Aegis、Google 迁移与合并去重
-│   ├── icons/                 # Aegis 图标包解析与 SVG 渲染
+│   ├── icons/                 # 内置图标包注册表与 SVG 渲染
 │   ├── security/              # 弱口令/复用/过期审计
 │   ├── platform/              # 原生桥（Keystore、FLAG_SECURE、SAF）与生物识别
 │   ├── data/                  # 设备偏好 KV
@@ -40,7 +40,7 @@ lib/
 └── l10n/                      # 中英文 ARB 与已提交的 gen-l10n 产物
 
 android/                       # 原生桥、Manifest、签名配置
-assets/iconpacks/              # Aegis Simple Icons（SVG + pack.json）
+assets/iconpacks/              # 三套内置图标包（SVG + pack.json + LICENSE）
 test/                          # 单元与 widget 测试
 docs/                          # 当前事实：设计、架构、测试、发版
 .agents/notes/                 # 设计与决策记录（为什么这么定、否掉了什么）

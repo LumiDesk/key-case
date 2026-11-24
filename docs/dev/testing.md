@@ -8,7 +8,7 @@
 | 模型 | v2 `login`/`totp` 互斥、往返、非法组合、TOTP 值域 | `test/models_test.dart`、`test/vault_migrations_test.dart` |
 | 容器与仓库 | `KCV1` 创建/解锁/篡改、改密、备份替换、原子写、写队列、会话 epoch、锁定与删除、schemaVersion 校验 | `test/vault_container_test.dart`、`test/vault_repository_test.dart` |
 | 状态与操作 | Controller 启动、创建/解锁/锁定、自动锁定、条目增删改、回收站、HOTP、偏好、生物识别、备份、导入、并发队列、锁定竞态 | `test/controller_test.dart` |
-| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情（顶栏收藏、备注可选）、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面 | `test/*_page_test.dart`（含 `detail_page_test.dart`）、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
+| 页面与组件 | 解锁页自动指纹、恢复入口、验证码隐藏/揭开、速拨按钮、锚点菜单、搜索、详情（顶栏收藏、备注可选）、设置、编辑、系统返回确认、扫码预填、锁定后回到原页面、图标选择器与图标库（名称/风格标签/按包筛选/预览）、图标包加载与多包匹配 | `test/*_page_test.dart`（含 `detail_page_test.dart`）、`test/lock_navigation_test.dart`、`test/token_display_test.dart`、`test/menu_components_test.dart`、`test/icon_pack_test.dart`、`test/icon_picker_test.dart`、`test/icon_library_test.dart`、`test/app_shell_test.dart`、`test/app_shell_back_test.dart` |
 | 布局 | 360dp + 2x 字号无溢出（设置、首页、登录/令牌详情、编辑页长备注） | `test/layout_test.dart` |
 | 组件策略 | 禁止底部单选弹层、禁止分段单选控件、禁止 `sheets.dart` 之外的裸弹层 | `test/component_policy_test.dart` |
 
@@ -25,13 +25,15 @@ flutter test --coverage
 ## 模拟器验收
 
 相机扫码、Android Keystore、系统生物识别、SAF 文档选择器、`FLAG_SECURE` 和外部浏览器无法靠 Dart
-单元测试覆盖，必须在模拟器上逐项操作：
+单元测试覆盖，必须在模拟器上逐项操作。留存截图时用 `--dart-define=SEED_DEMO=true` 的演示构建：
+它会关闭截屏保护，否则 `screencap` 只能拿到黑屏。
 
 - 冷启动且已启用指纹：解锁页自动弹出系统指纹，正确指纹解锁；取消后停留解锁页，不循环弹。
 - 手动锁定、自动锁定回前台：解锁页重新出现并自动弹一次；主密码仍可解锁。
 - 锁定与恢复：在详情页或设置 Tab 锁定，解锁后回到原页面、原 Tab；锁定期间系统返回键不会关掉解锁页。
-- 关闭「显示验证码」：列表显示与位数一致的圆点，下一码不显示数字；点击验证码揭开并复制，点其他区域或 10 秒后恢复隐藏。
-- 令牌页加号：展开「扫码添加 / 手动添加」，主按钮变叉；再次点击、点页面空白、切换底部导航都会收起。
+- 换码动效：设置里切到「飘散」「滚动」「关闭」，等验证码跨 30 秒边界时观察列表与详情页；关闭后必须瞬间替换，飘散时下一组只淡入。系统开启「移除动画」时同样直接替换。
+- 关闭「显示验证码」：列表显示与位数一致的圆点；开启「提前显示下一组」时下一组也是圆点而不是数字。点击验证码揭开并复制，点其他区域或 10 秒后恢复隐藏。
+- 令牌页加号：展开时动作自下而上错位淡入、加号转成叉；主按钮变叉；再次点击、点页面空白、切换底部导航都会收起，收起过程中点动作不触发。
 - 扫码添加：识别 otpauth 二维码后进入「新建令牌」页且服务名、账号、密钥已预填；直接返回不写入，点保存才出现在列表。
 - 返回键：在登录、令牌、设置 Tab 按返回先回主页；在主页第一次返回显示「再次返回退出软件」底部提示，2 秒内第二次返回才退出；速拨展开时先收起速拨。
 - 数据区「导出加密备份」：选择系统「新建文档」位置后文件可写入；取消选择不报错。设置页回收站副标题显示「共 N 条」或「暂无」。

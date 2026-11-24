@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 6 244 244">
+  <title>Pulse Logo</title>
+  
+  <circle cx="128" cy="128" r="122" fill="#3b82f6"/>
+  <circle cx="128" cy="128" r="84" fill="none" stroke-width="14" opacity="0.92" animation="none" transform-box="view-box" transform-origin="center" stroke="#dbeafe"/>
+  <circle cx="128" cy="128" r="26" fill="#dbeafe"/>
+</svg>

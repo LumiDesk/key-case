@@ -159,6 +159,11 @@
   "groupingThree": "3 位",
   "groupingFour": "4 位",
   "groupingNone": "不分组",
+  "settingsCodeAnimation": "换码动画",
+  "settingsCodeAnimationDesc": "验证码切换时的数字过渡",
+  "codeAnimationOff": "关闭",
+  "codeAnimationDust": "飘散",
+  "codeAnimationRoll": "滚动",
   "settingsData": "数据",
   "settingsExport": "导出加密备份",
   "settingsExportDesc": "使用当前主密码加密的 .kcbak 文件",
@@ -238,6 +243,23 @@
   "iconCustom": "使用自定义图片",
   "errorImagePickFailed": "无法读取图片",
   "iconRemove": "恢复自动匹配",
+  "iconPackSimple": "徽章",
+  "iconPackDashboard": "全彩",
+  "iconPackAegis": "单色",
+  "settingsIcons": "图标",
+  "settingsBrowseIcons": "浏览图标",
+  "settingsBrowseIconsDesc": "查看内置的整套图标，可搜索与预览",
+  "iconLibraryTitle": "图标库",
+  "iconLibraryAll": "全部",
+  "iconLibraryFilter": "按图标包筛选",
+  "iconLibraryCount": "{count} 个图标",
+  "@iconLibraryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "noticeVaultCreated": "保险库已创建",
   "noticeItemSaved": "已保存",
   "noticeItemDeleted": "已移到回收站",

@@ -4,16 +4,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../app/app_theme.dart';
 import '../app/feedback.dart';
-import '../app/icons/aegis_icon.dart';
-import '../app/icons/aegis_icon_pack.dart';
+import '../app/icons/icon_packs.dart';
 import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
+import '../common_widgets.dart';
 import '../l10n/app_localizations.dart';
 import 'sheets.dart';
 
-/// 选择条目图标：内置 Aegis 图标（可搜索）或用户自己的图片。
+/// 选择条目图标：内置图标库（可搜索）或用户自己的图片。
 ///
 /// 自定义图片在选图时就被压到 256px，base64 存进保险库；不做后期裁剪，
 /// 避免在渲染路径里做图片处理。
@@ -43,7 +42,7 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
   @override
   void initState() {
     super.initState();
-    AegisIconPack.instance.loaded.addListener(_onPackLoaded);
+    IconPacks.instance.loaded.addListener(_onPackLoaded);
   }
 
   void _onPackLoaded() {
@@ -52,7 +51,7 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
 
   @override
   void dispose() {
-    AegisIconPack.instance.loaded.removeListener(_onPackLoaded);
+    IconPacks.instance.loaded.removeListener(_onPackLoaded);
     _query.dispose();
     super.dispose();
   }
@@ -101,12 +100,8 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final pack = AegisIconPack.instance;
-    final query = _query.text.trim().toLowerCase();
-    final names = pack.allNames.where((name) {
-      if (query.isEmpty) return true;
-      return name.toLowerCase().contains(query);
-    }).toList();
+    final pack = IconPacks.instance;
+    final icons = pack.search(_query.text);
 
     return SafeArea(
       top: false,
@@ -163,30 +158,13 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
           Flexible(
             child: !pack.loaded.value
                 ? const Center(child: CircularProgressIndicator())
-                : names.isEmpty
+                : icons.isEmpty
                 ? Center(child: Text(l10n.searchNoResults))
-                : GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                        ),
-                    itemCount: names.length,
-                    itemBuilder: (context, index) {
-                      final name = names[index];
-                      return InkWell(
-                        key: ValueKey<String>('icon_$name'),
-                        borderRadius: BorderRadius.circular(kcRadiusMd),
-                        onTap: () =>
-                            Navigator.of(context).pop(IconRef(name: name)),
-                        child: Tooltip(
-                          message: name,
-                          child: Center(child: AegisIcon(name: name, size: 36)),
-                        ),
-                      );
-                    },
+                : KcIconGrid(
+                    icons: icons,
+                    keyPrefix: 'icon',
+                    onIconTap: (icon) =>
+                        Navigator.of(context).pop(IconRef(name: icon.ref)),
                   ),
           ),
         ],
