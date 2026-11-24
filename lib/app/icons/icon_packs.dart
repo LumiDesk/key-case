@@ -107,6 +107,13 @@ class IconPacks {
 
   final List<IconPackIcon> _icons = <IconPackIcon>[];
 
+  /// 与 [_icons] 同序的预计算搜索键：名称小写与规范化名称。
+  ///
+  /// 选择器每敲一个字都要过一遍全部图标，临时分配 7000 个规范化字符串
+  /// 会让输入变卡，因此建索引时算好。
+  final List<({String lower, String key})> _searchKeys =
+      <({String lower, String key})>[];
+
   /// 存储标识 → 图标。默认包同时登记裸名称与 `simple:` 前缀两种写法。
   final Map<String, IconPackIcon> _byRef = <String, IconPackIcon>{};
 
@@ -147,8 +154,10 @@ class IconPacks {
 
   void _index(List<_RawIcon> parsed) {
     _icons.clear();
+    _searchKeys.clear();
     _byRef.clear();
     _refByIssuer.clear();
+    final entries = <({IconPackIcon icon, String lower, String key})>[];
     for (final raw in parsed) {
       final spec = specs[raw.pack];
       final icon = IconPackIcon(
@@ -156,7 +165,11 @@ class IconPacks {
         name: raw.name,
         path: '${spec.assetRoot}/${raw.filename}',
       );
-      _icons.add(icon);
+      entries.add((
+        icon: icon,
+        lower: raw.name.toLowerCase(),
+        key: normalizeIconKey(raw.name),
+      ));
       _byRef[icon.ref] = icon;
       if (spec.id == IconPackId.simple) {
         _byRef.putIfAbsent(icon.name, () => icon);
@@ -167,11 +180,15 @@ class IconPacks {
         _refByIssuer.putIfAbsent(key, () => icon.ref);
       }
     }
-    _icons.sort((a, b) {
-      final byName = a.name.toLowerCase().compareTo(b.name.toLowerCase());
+    entries.sort((a, b) {
+      final byName = a.lower.compareTo(b.lower);
       if (byName != 0) return byName;
-      return a.pack.index.compareTo(b.pack.index);
+      return a.icon.pack.index.compareTo(b.icon.pack.index);
     });
+    for (final entry in entries) {
+      _icons.add(entry.icon);
+      _searchKeys.add((lower: entry.lower, key: entry.key));
+    }
   }
 
   /// 全部图标，按展示名排序（同名时按包顺序）。
@@ -290,14 +307,20 @@ class IconPacks {
     final trimmed = query.trim().toLowerCase();
     if (trimmed.isEmpty) return allIcons;
     final key = normalizeIconKey(trimmed);
-    final hits = _icons.where((icon) {
-      if (icon.name.toLowerCase().contains(trimmed)) return true;
-      if (key.isEmpty) return false;
-      final resolved = _refByIssuer[key];
-      if (resolved == icon.ref) return true;
-      return normalizeIconKey(icon.name).contains(key);
-    });
-    return hits.toList(growable: false);
+    // 别名只查一次表：命中后直接比对图标标识，不必每个图标都算一遍规范化名。
+    final aliasRef = _refByIssuer[key];
+    final hits = <IconPackIcon>[];
+    for (var i = 0; i < _icons.length; i++) {
+      final icon = _icons[i];
+      final searchKeys = _searchKeys[i];
+      final nameHit =
+          searchKeys.lower.contains(trimmed) ||
+          (key.isNotEmpty && searchKeys.key.contains(key));
+      if (nameHit || (aliasRef != null && aliasRef == icon.ref)) {
+        hits.add(icon);
+      }
+    }
+    return hits;
   }
 }
 
