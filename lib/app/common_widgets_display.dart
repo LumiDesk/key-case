@@ -210,8 +210,13 @@ class _KcAnimatedCodeState extends State<KcAnimatedCode>
           clipBehavior: Clip.none,
           children: <Widget>[
             incoming,
+            // 旧码只是视觉残留：不让读屏软件再读一遍。
             Positioned.fill(
-              child: IgnorePointer(child: _buildOutgoing(context, previous, t)),
+              child: IgnorePointer(
+                child: ExcludeSemantics(
+                  child: _buildOutgoing(context, previous, t),
+                ),
+              ),
             ),
           ],
         );
