@@ -4,6 +4,8 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-24
+
 ### Added
 
 - The built-in icon set grows from 3,467 to 6,810 logos with two additional packs: full-color

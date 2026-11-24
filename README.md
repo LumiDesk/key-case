@@ -35,6 +35,11 @@ from **Settings → About**.
     <td align="center"><img src="docs/screenshots/editor-dark.png" width="220" alt="Editor, dark" /><br /><sub>Editor</sub></td>
     <td align="center"><img src="docs/screenshots/settings-dark.png" width="220" alt="Settings, dark" /><br /><sub>Settings</sub></td>
   </tr>
+  <tr>
+    <td align="center"><img src="docs/screenshots/icon-library.png" width="220" alt="Icon library, dark" /><br /><sub>Icon library</sub></td>
+    <td align="center"><img src="docs/screenshots/icon-picker.png" width="220" alt="Icon picker, dark" /><br /><sub>Icon picker</sub></td>
+    <td align="center"><img src="docs/screenshots/token-add-menu.png" width="220" alt="Add token menu, dark" /><br /><sub>Add token</sub></td>
+  </tr>
 </table>
 
 ## Features
@@ -178,7 +183,7 @@ a device. The full process is in
 
 ## Project status
 
-Current release: **1.1.1**.
+Current release: **1.2.0**.
 
 Only Android is supported. The vault payload is `schemaVersion 2`. The
 `android/` directory is the sole delivery target;
