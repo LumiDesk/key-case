@@ -56,25 +56,29 @@ class _IconLibraryPageState extends State<IconLibraryPage> {
         top: false,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              KcBrandIcon(ref: icon.ref, size: 72),
-              const SizedBox(height: 14),
-              Text(
-                icon.name,
-                textAlign: TextAlign.center,
-                style: Theme.of(sheetContext).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                packLabel(l10n, icon.pack),
-                style: Theme.of(sheetContext).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(sheetContext).colorScheme.onSurface
-                      .withValues(alpha: 0.58),
+          // 弹层宽度跟着内容走；不给下限会被名称撑成一条窄柱。
+          child: SizedBox(
+            width: 240,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                KcBrandIcon(ref: icon.ref, size: 72),
+                const SizedBox(height: 14),
+                Text(
+                  icon.name,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(sheetContext).textTheme.titleMedium,
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  packLabel(l10n, icon.pack),
+                  style: Theme.of(sheetContext).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(sheetContext).colorScheme.onSurface
+                        .withValues(alpha: 0.58),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
