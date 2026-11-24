@@ -61,7 +61,7 @@
 | `KcLabeledField` | 带外置标签的输入框；密码框自动关闭建议/纠错；多行备注传 `minLines` + `maxLines: null` 自动增高 |
 | `KcValueRow` | 卡片内「标签 + 当前值 + chevron」，用于需要自定义弹层的字段 |
 | `KcPasswordStrengthBar` | 主密码强度条（`lib/app/password_strength.dart`） |
-| `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组；每个动作有独立 heroTag |
+| `KcSpeedDial` / `KcSpeedDialAction` | 主 FAB + 向上展开的动作组：动作错位缩放淡入、加号旋转 45° 成叉；每个动作有独立 heroTag |
 
 `KcMenuRow<T>` 的 `keyPrefix` 用于锚点菜单项的稳定 key，页面传入
 `settings_language`、`editor_token_type` 这类前缀；不要在页面里自己拼

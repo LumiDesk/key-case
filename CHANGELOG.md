@@ -15,6 +15,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - Codes animate when they roll over. **Settings → Tokens → Code transition** offers Dissolve
   (default), Roll, or Off; the next code fades in. System "remove animations" always wins.
 
+### Changed
+
+- The token page's add button now staggers its actions into place and rotates the plus into a
+  cross instead of swapping icons.
+
 ### Fixed
 
 - With "Show next code" on and codes hidden, the upcoming code now shows as dots in the same
