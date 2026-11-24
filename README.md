@@ -158,6 +158,9 @@ For local UI checks, seed a demo vault and auto-unlock it:
 flutter run -d emulator-5554 --dart-define=SEED_DEMO=true
 ```
 
+The demo build also turns off screenshot protection, so `adb shell screencap` captures real
+frames instead of a black screen.
+
 ## Release
 
 Releases are built by GitHub Actions from a `vX.Y.Z` tag:
