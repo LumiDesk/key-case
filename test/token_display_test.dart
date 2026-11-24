@@ -27,7 +27,7 @@ String formattedAt(TotpSecret secret, {int offset = 0}) {
 }
 
 void main() {
-  testWidgets('隐藏令牌显示与原始位数一致的圆点，且不显示下一码', (tester) async {
+  testWidgets('隐藏令牌显示与原始位数一致的圆点，下一组也只显示圆点', (tester) async {
     final token = testToken();
     final test = makeController(items: <VaultItem>[token]);
     await test.controller.bootstrap();
@@ -60,7 +60,8 @@ void main() {
     final hidden = hiddenOtpCode(formatted);
 
     expect(hidden.replaceAll(' ', '').length, 6);
-    expect(find.text(hidden), findsOneWidget);
+    // 主验证码与「下一组」都隐藏，两行都是同样位数的圆点。
+    expect(find.text(hidden), findsNWidgets(2));
     expect(find.text(formatted), findsNothing);
     expect(find.text(nextFormatted), findsNothing);
     await disposeTestController(tester, test.controller);
@@ -98,7 +99,7 @@ void main() {
     final nextFormatted = formattedAt(secret, offset: 1);
     final hidden = hiddenOtpCode(formatted);
 
-    await tester.tap(find.text(hidden));
+    await tester.tap(find.text(hidden).first);
     await tester.pump();
 
     expect(find.text(formatted), findsOneWidget);
@@ -107,7 +108,7 @@ void main() {
     await tester.tap(find.text('outside'));
     await tester.pump();
 
-    expect(find.text(hidden), findsOneWidget);
+    expect(find.text(hidden), findsNWidgets(2));
     expect(find.text(formatted), findsNothing);
     expect(find.text(nextFormatted), findsNothing);
     await disposeTestController(tester, test.controller);
@@ -195,15 +196,16 @@ void main() {
 
     final formatted = formattedAt(token.totp!);
     final hidden = hiddenOtpCode(formatted);
-    expect(find.text(hidden), findsOneWidget);
+    // 主验证码与下一组各一行圆点。
+    expect(find.text(hidden), findsNWidgets(2));
 
-    await tester.tap(find.text(hidden));
+    await tester.tap(find.text(hidden).first);
     await tester.pump();
     expect(find.text(formatted), findsOneWidget);
 
     await tester.tap(find.text('GitHub').first);
     await tester.pump();
-    expect(find.text(hidden), findsOneWidget);
+    expect(find.text(hidden), findsNWidgets(2));
     await disposeTestController(tester, test.controller);
   });
 }

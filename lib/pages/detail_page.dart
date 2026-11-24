@@ -1,4 +1,4 @@
-﻿import '../app/keycase_controller.dart';
+import '../app/keycase_controller.dart';
 
 import 'dart:async';
 
@@ -412,6 +412,13 @@ class _TokenPanel extends StatelessWidget {
           steam: secret.type == OtpType.steam,
         );
         final next = secret.isCounterBased ? null : nextOtpCode(secret, time);
+        final nextFormatted = next == null
+            ? null
+            : formatOtpCode(
+                next,
+                grouping,
+                steam: secret.type == OtpType.steam,
+              );
 
         return Column(
           children: <Widget>[
@@ -448,15 +455,14 @@ class _TokenPanel extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            if (showNext && next != null && visible)
+                            if (showNext && nextFormatted != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 4),
+                                // 隐藏态保留圆点占位，和主验证码一致。
                                 child: Text(
-                                  formatOtpCode(
-                                    next,
-                                    grouping,
-                                    steam: secret.type == OtpType.steam,
-                                  ),
+                                  visible
+                                      ? nextFormatted
+                                      : hiddenOtpCode(nextFormatted),
                                   style: theme.textTheme.bodySmall?.copyWith(
                                     color: theme.colorScheme.onSurface
                                         .withValues(alpha: 0.45),

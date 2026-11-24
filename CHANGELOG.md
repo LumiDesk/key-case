@@ -13,6 +13,11 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 - Settings → Icons → Browse icons opens a read-only library of every bundled icon, with search,
   a per-pack filter, and a large preview on tap.
 
+### Fixed
+
+- With "Show next code" on and codes hidden, the upcoming code now shows as dots in the same
+  grouping instead of disappearing.
+
 ## [1.1.1] - 2026-11-05
 
 ### Added

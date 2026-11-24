@@ -142,6 +142,13 @@ class _KcTokenTileState extends State<KcTokenTile> {
             final next = secret.isCounterBased
                 ? null
                 : nextOtpCode(secret, time);
+            final nextText = next == null
+                ? null
+                : formatOtpCode(
+                    next,
+                    widget.grouping,
+                    steam: secret.type == OtpType.steam,
+                  );
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -157,15 +164,12 @@ class _KcTokenTileState extends State<KcTokenTile> {
                       hidden: !visible,
                       onTap: () => _handleCodeTap(code, visible),
                     ),
-                    if (widget.showNext && next != null && visible)
+                    if (widget.showNext && nextText != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 3),
+                        // 隐藏验证码时下一组同样只留圆点占位，不暴露位数以外的信息。
                         child: Text(
-                          formatOtpCode(
-                            next,
-                            widget.grouping,
-                            steam: secret.type == OtpType.steam,
-                          ),
+                          visible ? nextText : hiddenOtpCode(nextText),
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.onSurface
