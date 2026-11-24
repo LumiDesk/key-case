@@ -4,6 +4,12 @@ All notable user-visible changes are recorded here. Internal refactors, tests an
 
 ## [Unreleased]
 
+### Added
+
+- The built-in icon set grows from 3,467 to 6,813 logos with two additional packs: full-color
+  service logos from dashboard-icons and a monochrome 2FA set from aegis-icons. Every pack ships
+  its license and is listed under open-source licenses in Settings.
+
 ## [1.1.1] - 2026-11-05
 
 ### Added

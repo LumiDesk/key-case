@@ -88,7 +88,7 @@
 | `KcLoginTile` | `lib/pages/item_tiles.dart` | 登录项行 |
 | `KcTokenTile` | `lib/pages/item_tiles.dart` | 令牌行（验证码 + 倒计时；揭开/复制/点外部隐藏） |
 | `KcLetterHeader` | `lib/pages/item_tiles.dart` | 字母分组头 |
-| `AegisIcon` | `lib/app/icons/aegis_icon.dart` | 品牌 SVG 渲染 |
+| `KcBrandIcon` | `lib/app/icons/brand_icon.dart` | 品牌 SVG 渲染；全彩包自动垫浅色底板 |
 | `KcFeedbackHost` | `lib/app/feedback.dart` | 根级轻反馈宿主 |
 
 ## 6. 纯函数
@@ -104,5 +104,5 @@
 | `normalizeUrl` / `displayUrl` | `lib/app/util/url_tools.dart` | 网址校验 |
 | `generatePassword` | `lib/app/util/password_generator.dart` | 随机密码 |
 | `formatDateTime` / `formatDate` / `formatRelative` | `lib/app/util/date_format.dart` | 日期与相对时间格式化，全部走 l10n |
-| `normalizeIconKey` | `lib/app/icons/aegis_icon_pack.dart` | 图标匹配规范化 |
+| `normalizeIconKey` | `lib/app/icons/icon_packs.dart` | 图标匹配规范化（小写 + 去非字母数字） |
 | `compareVersions` | `lib/app/update/update_checker.dart` | 语义化版本比较 |

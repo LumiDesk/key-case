@@ -6,8 +6,8 @@ import 'package:image_picker/image_picker.dart';
 
 import '../app/app_theme.dart';
 import '../app/feedback.dart';
-import '../app/icons/aegis_icon.dart';
-import '../app/icons/aegis_icon_pack.dart';
+import '../app/icons/brand_icon.dart';
+import '../app/icons/icon_packs.dart';
 import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
 import '../l10n/app_localizations.dart';
@@ -43,7 +43,7 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
   @override
   void initState() {
     super.initState();
-    AegisIconPack.instance.loaded.addListener(_onPackLoaded);
+    IconPacks.instance.loaded.addListener(_onPackLoaded);
   }
 
   void _onPackLoaded() {
@@ -52,7 +52,7 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
 
   @override
   void dispose() {
-    AegisIconPack.instance.loaded.removeListener(_onPackLoaded);
+    IconPacks.instance.loaded.removeListener(_onPackLoaded);
     _query.dispose();
     super.dispose();
   }
@@ -101,12 +101,8 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final pack = AegisIconPack.instance;
-    final query = _query.text.trim().toLowerCase();
-    final names = pack.allNames.where((name) {
-      if (query.isEmpty) return true;
-      return name.toLowerCase().contains(query);
-    }).toList();
+    final pack = IconPacks.instance;
+    final icons = pack.search(_query.text);
 
     return SafeArea(
       top: false,
@@ -163,7 +159,7 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
           Flexible(
             child: !pack.loaded.value
                 ? const Center(child: CircularProgressIndicator())
-                : names.isEmpty
+                : icons.isEmpty
                 ? Center(child: Text(l10n.searchNoResults))
                 : GridView.builder(
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
@@ -173,23 +169,39 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
                           mainAxisSpacing: 10,
                           crossAxisSpacing: 10,
                         ),
-                    itemCount: names.length,
+                    itemCount: icons.length,
                     itemBuilder: (context, index) {
-                      final name = names[index];
-                      return InkWell(
-                        key: ValueKey<String>('icon_$name'),
-                        borderRadius: BorderRadius.circular(kcRadiusMd),
+                      final icon = icons[index];
+                      return _IconCell(
+                        icon: icon,
                         onTap: () =>
-                            Navigator.of(context).pop(IconRef(name: name)),
-                        child: Tooltip(
-                          message: name,
-                          child: Center(child: AegisIcon(name: name, size: 36)),
-                        ),
+                            Navigator.of(context).pop(IconRef(name: icon.ref)),
                       );
                     },
                   ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// 选择器里的一格：图标 + 名称 +（非默认包）风格标签。
+class _IconCell extends StatelessWidget {
+  const _IconCell({required this.icon, required this.onTap});
+
+  final IconPackIcon icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      key: ValueKey<String>('icon_${icon.ref}'),
+      borderRadius: BorderRadius.circular(kcRadiusMd),
+      onTap: onTap,
+      child: Tooltip(
+        message: icon.name,
+        child: Center(child: KcBrandIcon(ref: icon.ref, size: 36)),
       ),
     );
   }

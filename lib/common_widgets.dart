@@ -9,8 +9,8 @@ import 'package:anchored_menu/anchored_menu.dart';
 import 'package:flutter/material.dart';
 
 import 'app/app_theme.dart';
-import 'app/icons/aegis_icon.dart';
-import 'app/icons/aegis_icon_pack.dart';
+import 'app/icons/brand_icon.dart';
+import 'app/icons/icon_packs.dart';
 import 'app/models/models.dart';
 import 'app/otp/otp.dart';
 import 'l10n/app_localizations.dart';

@@ -46,7 +46,7 @@ from **Settings → About**.
 | **Logins** | Account, password, multiple URLs, notes, random password generator, copy to clipboard |
 | **Tokens** | TOTP, HOTP (with counter), Steam; add by QR scan or manually (scanned data opens in the editor for review); one shared ticker, per-row countdown ring, next-code preview; optional notes |
 | **Lists** | A–Z grouping, search across names/accounts/URLs/notes, favorites, three sort orders |
-| **Icons** | Bundled Aegis Simple Icons pack, automatic brand matching, searchable picker, custom image icons |
+| **Icons** | Three bundled SVG packs (6,800+ logos: badge, full-color, mono), automatic brand matching, searchable picker, custom image icons |
 | **Imports** | Aegis JSON exports (plain or password-encrypted), Google Authenticator migration links, KeyCase backups |
 | **Backups** | Encrypted `.kcbak` export/import; up to 10 automatic snapshots in a SAF folder you choose |
 | **Cleanup** | Trash with restore and purge, security center for weak/reused/stale passwords |
@@ -64,7 +64,7 @@ from **Settings → About**.
 | Native bridge | One `MethodChannel`: `FLAG_SECURE`, Android Keystore-wrapped vault key, SAF backup folder I/O |
 | Biometrics | `local_auth` / `BiometricPrompt` with master-password fallback |
 | QR scanning | `mobile_scanner` |
-| Icons | `flutter_svg` + bundled Aegis Simple Icons pack |
+| Icons | `flutter_svg` + three bundled SVG packs (Simple Icons, dashboard-icons, aegis-icons) |
 | Preferences | `shared_preferences` (UI topics only; never vault data) |
 | Backup I/O | `file_selector` + Storage Access Framework (`.kcbak`) |
 | CI/CD | GitHub Actions, Flutter 3.47.2, signed `arm64` release APK |
@@ -95,7 +95,7 @@ lib/
 ├── common_widgets.dart           shared widgets (parts under app/)
 └── l10n/                         Chinese/English ARB files and generated code
 android/                          Flutter host and the single native bridge
-assets/iconpacks/                 Aegis Simple Icons (SVG + pack.json)
+assets/iconpacks/                 three bundled icon packs (SVG + pack.json + LICENSE)
 docs/                             design system, components, architecture, decisions
 ```
 

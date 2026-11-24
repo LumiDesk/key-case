@@ -79,11 +79,11 @@ class KcItemIcon extends StatelessWidget {
       }
     }
     return ValueListenableBuilder<bool>(
-      valueListenable: AegisIconPack.instance.loaded,
+      valueListenable: IconPacks.instance.loaded,
       builder: (context, _, _) {
-        final name = AegisIconPack.instance.resolve(item);
-        if (name != null) {
-          return AegisIcon(name: name, size: size);
+        final ref = IconPacks.instance.resolve(item);
+        if (ref != null) {
+          return KcBrandIcon(ref: ref, size: size);
         }
         return LetterAvatar(seed: item.displayTitle, size: size);
       },
