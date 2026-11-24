@@ -1798,15 +1798,6 @@
    ]
   },
   {
-   "name": "AWS Ecs",
-   "filename": "SVG/aws-ecs.svg",
-   "category": null,
-   "issuer": [
-    "AWS Ecs",
-    "aws-ecs"
-   ]
-  },
-  {
    "name": "Awwesome",
    "filename": "SVG/awwesome.svg",
    "category": null,
@@ -21566,15 +21557,6 @@
    ]
   },
   {
-   "name": "Steam",
-   "filename": "SVG/steam.svg",
-   "category": null,
-   "issuer": [
-    "Steam",
-    "steam"
-   ]
-  },
-  {
    "name": "Step Ca",
    "filename": "SVG/step-ca.svg",
    "category": null,
@@ -23512,17 +23494,6 @@
    "issuer": [
     "Untangle",
     "untangle"
-   ]
-  },
-  {
-   "name": "UPS",
-   "filename": "SVG/ups.svg",
-   "category": null,
-   "issuer": [
-    "UPS",
-    "ups",
-    "shipping-company",
-    "package-delivery"
    ]
   },
   {

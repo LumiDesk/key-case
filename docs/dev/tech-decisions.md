@@ -50,13 +50,13 @@
   vault key 与保险库数据仍立即清空，页面里未保存的编辑草稿作为界面状态留在锁屏下方。
 - **锚点菜单用外部库 `anchored_menu`**，应用只把设计令牌桥接到 `AnchoredMenuThemeData`；
   不维护本地菜单实现。
-- **图标包随 APK 打包，三套共 6800+ 个 SVG（约 16 MB）。** 目录声明不递归，因此
+- **图标包随 APK 打包，三套共 6800 个 SVG（约 16 MB）。** 目录声明不递归，因此
   `pubspec.yaml` 要分别列出每套包的目录、`SVG/` 子目录与许可证文件。
   - `simple`：KornaVue/aegis-simple-icons v269（Simple Icons，CC0），圆形品牌色徽章，
     自动匹配只认这套与 `dashboard` 的 issuer 表。
   - `dashboard`：homarr-labs/dashboard-icons（Apache-2.0），全彩服务 logo。只收每个品牌的
     主文件（去掉 `-dark`/`-light`/`-wordmark` 等变体），跳过 >25 KB 的巨型 SVG 与
-    `<text>`/`<image>`/`<foreignObject>` 文件，并把 CSS 类规则摊平成元素属性
+    `<text>`/`<image>`/`<symbol>`/`<foreignObject>` 文件，并把 CSS 类规则摊平成元素属性
     ——`vector_graphics_compiler` 不解析样式表，不摊平会整片变黑。
   - `aegis`：aegis-icons（CC0），单色 2FA 徽章；只收与上面两套不重名的图标，
     避免选择器里出现两个同名徽章。
