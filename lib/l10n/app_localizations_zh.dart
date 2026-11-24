@@ -668,6 +668,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get iconRemove => '恢复自动匹配';
 
   @override
+  String get iconPackSimple => '徽章';
+
+  @override
+  String get iconPackDashboard => '全彩';
+
+  @override
+  String get iconPackAegis => '单色';
+
+  @override
   String get noticeVaultCreated => '保险库已创建';
 
   @override

@@ -1400,6 +1400,24 @@ abstract class AppLocalizations {
   /// **'恢复自动匹配'**
   String get iconRemove;
 
+  /// No description provided for @iconPackSimple.
+  ///
+  /// In zh, this message translates to:
+  /// **'徽章'**
+  String get iconPackSimple;
+
+  /// No description provided for @iconPackDashboard.
+  ///
+  /// In zh, this message translates to:
+  /// **'全彩'**
+  String get iconPackDashboard;
+
+  /// No description provided for @iconPackAegis.
+  ///
+  /// In zh, this message translates to:
+  /// **'单色'**
+  String get iconPackAegis;
+
   /// No description provided for @noticeVaultCreated.
   ///
   /// In zh, this message translates to:

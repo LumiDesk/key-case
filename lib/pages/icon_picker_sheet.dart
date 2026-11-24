@@ -11,6 +11,7 @@ import '../app/icons/icon_packs.dart';
 import '../app/logging/app_logger.dart';
 import '../app/models/models.dart';
 import '../l10n/app_localizations.dart';
+import 'icon_pack_labels.dart';
 import 'sheets.dart';
 
 /// 选择条目图标：内置 Aegis 图标（可搜索）或用户自己的图片。
@@ -161,23 +162,29 @@ class _IconPickerSheetState extends State<_IconPickerSheet> {
                 ? const Center(child: CircularProgressIndicator())
                 : icons.isEmpty
                 ? Center(child: Text(l10n.searchNoResults))
-                : GridView.builder(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 5,
-                          mainAxisSpacing: 10,
-                          crossAxisSpacing: 10,
-                        ),
-                    itemCount: icons.length,
-                    itemBuilder: (context, index) {
-                      final icon = icons[index];
-                      return _IconCell(
-                        icon: icon,
-                        onTap: () =>
-                            Navigator.of(context).pop(IconRef(name: icon.ref)),
-                      );
-                    },
+                : MediaQuery.withClampedTextScaling(
+                    // 2 倍字号下格子会被文字撑破；图标名称只做辅助识别，限制放大。
+                    maxScaleFactor: 1.3,
+                    child: GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 4,
+                            crossAxisSpacing: 8,
+                            childAspectRatio: 0.82,
+                          ),
+                      itemCount: icons.length,
+                      itemBuilder: (context, index) {
+                        final icon = icons[index];
+                        return _IconCell(
+                          icon: icon,
+                          onTap: () =>
+                              Navigator.of(context)
+                                  .pop(IconRef(name: icon.ref)),
+                        );
+                      },
+                    ),
                   ),
           ),
         ],
@@ -195,13 +202,40 @@ class _IconCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return InkWell(
       key: ValueKey<String>('icon_${icon.ref}'),
       borderRadius: BorderRadius.circular(kcRadiusMd),
       onTap: onTap,
       child: Tooltip(
-        message: icon.name,
-        child: Center(child: KcBrandIcon(ref: icon.ref, size: 36)),
+        message: iconTooltip(l10n, icon),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            KcBrandIcon(ref: icon.ref, size: 36),
+            const SizedBox(height: 4),
+            Text(
+              icon.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.72),
+              ),
+            ),
+            if (icon.pack != IconPackId.simple)
+              Text(
+                packLabel(l10n, icon.pack),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.42),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

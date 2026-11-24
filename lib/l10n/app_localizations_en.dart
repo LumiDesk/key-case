@@ -685,6 +685,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iconRemove => 'Back to automatic';
 
   @override
+  String get iconPackSimple => 'Badge';
+
+  @override
+  String get iconPackDashboard => 'Full color';
+
+  @override
+  String get iconPackAegis => 'Mono';
+
+  @override
   String get noticeVaultCreated => 'Vault created';
 
   @override
